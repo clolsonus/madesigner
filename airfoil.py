@@ -90,6 +90,25 @@ class Airfoil:
             print str(pt[0]) + " " + str(pt[1])
 
 
+def airfoil_blend( af1, af2, percent ):
+    result = Airfoil()
+    result.name = "blend " + af1.name + " " + af2.name
+    result.description = "blend " + str(percent) + " " + af1.description + " " + str(1.0-percent) + " " + af2.description
+
+    n = len(af1.top)
+    for i in range(0, n):
+	y1 = af1.top[i][1]
+	y2 = af2.top[i][1]
+	y = percent*y1 + (1.0-percent)*y2
+	result.top.append( (af1.top[i][0], y) )
+    n = len(af1.bottom)
+    for i in range(0, n):
+	y1 = af1.bottom[i][1]
+	y2 = af2.bottom[i][1]
+	y = percent*y1 + (1.0-percent)*y2
+	result.bottom.append( (af1.bottom[i][0], y) )
+    return result
+
 root = Airfoil("clarky");
 tip = Airfoil("arad6");
 #root.display()
@@ -97,5 +116,12 @@ tip = Airfoil("arad6");
 
 root_smooth = root.resample(1000, True)
 tip_smooth = tip.resample(1000, False)
-root_smooth.display()
-tip_smooth.display()
+#root_smooth.display()
+#tip_smooth.display()
+
+blend1 = airfoil_blend( root_smooth, tip_smooth, 1.0 )
+blend2 = airfoil_blend( root_smooth, tip_smooth, 0.5 )
+blend3 = airfoil_blend( root_smooth, tip_smooth, 0.0 )
+blend1.display()
+blend2.display()
+blend3.display()
