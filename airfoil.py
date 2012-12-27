@@ -133,6 +133,67 @@ class Airfoil:
             result.bottom.append( (newx, newy) )
         return result
 
+    # rel top/bottom, abs x,y, tangent y/n
+    def cutout_rel(self, top, xpos, xsize, ysize):
+        result = Airfoil()
+        result.name = self.name
+        result.description = self.description
+        xhalf = xsize / 2
+        xstart = xpos - xhalf
+        xend = xpos + xhalf
+        # top segment
+        if top:
+            n = len(self.top)
+            ytop = self.simple_interp(self.top, xpos)
+            i = 0
+            # nose portion
+            while self.top[i][0] < xstart and i < n:
+                result.top.append( self.top[i] )
+                i += 1
+            # cut out
+            ystart = self.simple_interp(self.top, xstart)
+            yend = self.simple_interp(self.top, xstart)
+            result.top.append( (xstart, ystart) )
+            result.top.append( (xstart, ytop - ysize) )
+            result.top.append( (xend, ytop - ysize) )
+            result.top.append( (xend, yend) )
+            # skip airfoil coutout points
+            while self.top[i][0] <= xend and i < n:
+                i += 1
+            # tail portion
+            while i < n:
+                result.top.append( self.top[i] )
+                i += 1
+        else:
+            result.top = self.top
+        # bottom segment
+        if top:
+            result.bottom = self.bottom
+        else:
+            n = len(self.bottom)
+            ybottom = self.simple_interp(self.bottom, xpos)
+            i = 0
+            # nose portion
+            while self.bottom[i][0] < xstart and i < n:
+                result.bottom.append( self.bottom[i] )
+                i += 1
+            # cut out
+            ystart = self.simple_interp(self.bottom, xstart)
+            yend = self.simple_interp(self.bottom, xstart)
+            result.bottom.append( (xstart, ystart) )
+            result.bottom.append( (xstart, ybottom + ysize) )
+            result.bottom.append( (xend, ybottom + ysize) )
+            result.bottom.append( (xend, yend) )
+            # skip airfoil coutout points
+            while self.bottom[i][0] <= xend and i < n:
+                i += 1
+            # tail portion
+            while i < n:
+                result.bottom.append( self.bottom[i] )
+                i += 1
+
+        return result
+
 def blend( af1, af2, percent ):
     result = Airfoil()
     result.name = "blend " + af1.name + " " + af2.name
