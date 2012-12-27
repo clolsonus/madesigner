@@ -7,6 +7,7 @@ __license__ = "GPL v2"
 
 
 import fileinput
+import math
 import string
 import spline
 
@@ -24,7 +25,7 @@ class Airfoil:
 
     def load(self, base):
         self.name = base
-        path = datapath + "/airfoils/" + base + ".dat";
+        path = datapath + "/airfoils/" + base + ".dat"
         top = True
         for line in fileinput.input(path):
             if fileinput.isfirstline():
@@ -39,9 +40,9 @@ class Airfoil:
                     top = not top
                 if not top:
                     self.bottom.append( (x,y) )
-                # print "x = " + str(x) + " y = " + str(y);
+                # print "x = " + str(x) + " y = " + str(y)
         self.top.reverse()
-        print self.description + " (" + self.name + ") Loaded " + str(len(self.top) + len(self.bottom)) + " points"
+        # print self.description + " (" + self.name + ") Loaded " + str(len(self.top) + len(self.bottom)) + " points"
 
     def simple_interp(self, points, v):
         index = spline.binsearch(points, v)
@@ -49,9 +50,9 @@ class Airfoil:
         if index < n:
             xrange = points[index+1][0] - points[index][0]
             yrange = points[index+1][1] - points[index][1]
-	    # print(" xrange = $xrange\n");
+	    # print(" xrange = $xrange\n")
             percent = (v - points[index][0]) / xrange
-	    # print(" percent = $percent\n");
+	    # print(" percent = $percent\n")
             return points[index][1] + percent * yrange
         else:
             return points[index][1]
@@ -89,8 +90,50 @@ class Airfoil:
         for pt in self.bottom:
             print str(pt[0]) + " " + str(pt[1])
 
+    def rotate(self, angle):
+        result = Airfoil()
+        result.name = self.name
+        result.description = self.description + " rotated by " + str(angle) + " degrees"
+        rad = math.radians(angle)
+        for pt in self.top:
+            newx = pt[0] * math.cos(rad) - pt[1] * math.sin(rad)
+            newy = pt[1] * math.cos(rad) + pt[0] * math.sin(rad)
+            result.top.append( (newx, newy) )
+        for pt in self.bottom:
+            newx = pt[0] * math.cos(rad) - pt[1] * math.sin(rad)
+            newy = pt[1] * math.cos(rad) + pt[0] * math.sin(rad)
+            result.bottom.append( (newx, newy) )
+        return result
 
-def airfoil_blend( af1, af2, percent ):
+    def scale(self, hsize, vsize):
+        result = Airfoil()
+        result.name = self.name
+        result.description = self.description + " scaled by " + str(hsize) + "," + str(vsize)
+        for pt in self.top:
+            newx = pt[0] * hsize
+            newy = pt[1] * vsize
+            result.top.append( (newx, newy) )
+        for pt in self.bottom:
+            newx = pt[0] * hsize
+            newy = pt[1] * vsize
+            result.bottom.append( (newx, newy) )
+        return result
+
+    def move(self, x, y):
+        result = Airfoil()
+        result.name = self.name
+        result.description = self.description + " moved by " + str(x) + "," + str(y)
+        for pt in self.top:
+            newx = pt[0] + x
+            newy = pt[1] + y
+            result.top.append( (newx, newy) )
+        for pt in self.bottom:
+            newx = pt[0] + x
+            newy = pt[1] + y
+            result.bottom.append( (newx, newy) )
+        return result
+
+def blend( af1, af2, percent ):
     result = Airfoil()
     result.name = "blend " + af1.name + " " + af2.name
     result.description = "blend " + str(percent) + " " + af1.description + " " + str(1.0-percent) + " " + af2.description
@@ -109,19 +152,19 @@ def airfoil_blend( af1, af2, percent ):
 	result.bottom.append( (af1.bottom[i][0], y) )
     return result
 
-root = Airfoil("clarky");
-tip = Airfoil("arad6");
+#root = Airfoil("clarky")
+#tip = Airfoil("arad6")
 #root.display()
 #tip.display()
 
-root_smooth = root.resample(1000, True)
-tip_smooth = tip.resample(1000, False)
+#root_smooth = root.resample(1000, True)
+#tip_smooth = tip.resample(1000, False)
 #root_smooth.display()
 #tip_smooth.display()
 
-blend1 = airfoil_blend( root_smooth, tip_smooth, 1.0 )
-blend2 = airfoil_blend( root_smooth, tip_smooth, 0.5 )
-blend3 = airfoil_blend( root_smooth, tip_smooth, 0.0 )
-blend1.display()
-blend2.display()
-blend3.display()
+#blend1 = blend( root_smooth, tip_smooth, 1.0 )
+#blend2 = blend( root_smooth, tip_smooth, 0.5 )
+#blend3 = blend( root_smooth, tip_smooth, 0.0 )
+#blend1.display()
+#blend2.display()
+#blend3.display()
