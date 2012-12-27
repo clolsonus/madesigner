@@ -98,8 +98,8 @@
 #
 
 def derivative1(points):
-    y2 = []
     n = len(points)-1 # index of last point
+    y2 = list(xrange(n+1))
     y2[0] = (points[1][1]-points[0][1]) / (points[1][0]-points[0][0])
     y2[n] = (points[n][1]-points[n-1][1]) / (points[n][0]-points[n-1][0])
     for i in range(1, n):
