@@ -141,11 +141,11 @@ class Airfoil:
 
     # rel top/bottom, abs x,y, tangent y/n, wrap y/n
     def cutout_stringer(self, side = "top", orientation = "tangent", xpos = 0, xsize = 0, ysize = 0):
-        xhalf = xsize / 2
 
         top = False
         if side == "top":
             top = True
+
         tangent = False
         if orientation == "tangent":
             tangent = True;
@@ -157,13 +157,13 @@ class Airfoil:
             curve = list(self.bottom)
 
         n = len(curve)
-        slopes = spline.derivative1(curve)
 
         newcurve = []
         ypos = self.simple_interp(curve, xpos)
 
         angle = 0
         if tangent:
+            slopes = spline.derivative1(curve)
             index = spline.binsearch(curve, xpos)
             slope = slopes[index]
             rad = math.atan2(slope,1)
@@ -172,6 +172,7 @@ class Airfoil:
             angle += 180
             if angle > 360:
                 angle -= 360
+        xhalf = xsize / 2
         r0 = self.rotate_point( (-xhalf, 0), angle )
         r1 = self.rotate_point( (-xhalf, -ysize), angle )
         r2 = self.rotate_point( (xhalf, -ysize), angle )
@@ -212,6 +213,80 @@ class Airfoil:
         while i < n:
             newcurve.append( curve[i] )
             i += 1
+        if top:
+            self.top = list(newcurve)
+        else:
+            self.bottom = list(newcurve)
+
+    def cutout_sweep(self, side = "top", xstart = 0, xsize = 0, ysize = 0, xstep = 1.0):
+
+        top = False
+        if side == "top":
+            top = True
+
+        curve = []
+        if top:
+            curve = list(self.top)
+        else:
+            curve = list(self.bottom)
+
+        n = len(curve)
+        newcurve = []
+
+        # nose portion
+        i = 0
+        while curve[i][0] < xstart and i < n:
+            newcurve.append( curve[i] )
+            i += 1
+
+        # anchor sweep
+        ypos = self.simple_interp(curve, xstart)
+        newcurve.append( (xstart, ypos) )
+
+        # sweep cutout
+        slopes = spline.derivative1(curve)
+        dist = 0.0
+        xpos = xstart
+        first = True
+        while dist <= xsize:
+            ypos = self.simple_interp(curve, xpos)
+            index = spline.binsearch(curve, xpos)
+            slope = slopes[index]
+            rad = math.atan2(slope,1)
+            angle = math.degrees(rad)
+            #print "xpos " + str(xpos) + " angle = " + str(angle)
+            if not top:
+                angle += 180
+                if angle > 360:
+                    angle -= 360
+            r0 = self.rotate_point( (0, -ysize), angle )
+            pt = ( r0[0] + xpos, r0[1] + ypos )
+            newcurve.append( pt )
+            if first:
+                last_pt = (xpos, ypos)
+                first = False
+            dx = last_pt[0] - xpos
+            dy = last_pt[1] - ypos
+            d = math.sqrt(dx*dx + dy*dy)
+            dist += d
+            #print "d = " + str(d) + " dist = " + str(dist)
+            last_pt = (xpos, ypos)
+            xpos += xstep
+
+        # finish sweep
+        xpos -= xstep
+        ypos = self.simple_interp(curve, xpos)
+        newcurve.append( (xpos, ypos) )
+
+        # skip airfoil coutout points
+        while curve[i][0] <= xpos and i < n:
+            i += 1
+
+        # tail portion
+        while i < n:
+            newcurve.append( curve[i] )
+            i += 1
+
         if top:
             self.top = list(newcurve)
         else:
