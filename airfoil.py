@@ -89,6 +89,55 @@ class Airfoil:
                 y = self.simple_interp(self.raw_bottom, x )
             self.bottom.append( (x, y) )
 
+    def fit(self, maxpts = 30, maxerror = 0.1):
+        self.top = list( self.curve_fit(self.top, maxpts, maxerror) )
+        self.bottom = list( self.curve_fit(self.bottom, maxpts, maxerror) )
+
+    def curve_fit(self, curve, maxpts = 30, maxerror = 0.1):
+        wip = []
+
+        # start with the end points
+        n = len(curve)
+        wip.append( curve[0] )
+        wip.append( curve[n-1] )
+
+        # iterate until termination conditions are met
+        done = False
+        while not done:
+            maxy = 0
+            maxx = 0
+            maxdiff = 0
+            maxi = -1
+            # iterate over the orginal interior points
+            for i in range(1, n-1):
+                pt = curve[i]
+                iy = self.simple_interp(wip, pt[0])
+                diff = math.fabs(pt[1] - iy)
+                if diff > maxdiff and diff > maxerror:
+                    maxdiff = diff
+                    maxi = i
+                    maxx = pt[0]
+                    maxy = pt[1]
+
+            if maxi > -1:
+                # found a match for a furthest off point
+	        #print "($#wipx) inserting -> $maxx , $maxy at pos ";
+
+                # find insertion point
+                pos = 0
+                wipn = len(wip)
+                while maxx > wip[pos][0] and pos < wipn:
+                    pos += 1
+	        #print "$pos\n";
+                wip.insert( pos, (maxx, maxy) )
+            else:
+                done = True
+
+            if len(wip) >= maxpts:
+                done = True
+
+        return wip
+
     def display(self):
         for pt in self.top:
             print str(pt[0]) + " " + str(pt[1])
@@ -139,7 +188,7 @@ class Airfoil:
         self.top = list(newtop)
         self.bottom = list(newbottom)
 
-    # rel top/bottom, abs x,y, tangent y/n, wrap y/n
+    # rel top/bottom, abs x,y, tangent y/n
     def cutout_stringer(self, side = "top", orientation = "tangent", xpos = 0, xsize = 0, ysize = 0):
 
         top = False
@@ -219,7 +268,6 @@ class Airfoil:
             self.bottom = list(newcurve)
 
     def cutout_sweep(self, side = "top", xstart = 0, xsize = 0, ysize = 0, xstep = 1.0):
-
         top = False
         if side == "top":
             top = True
