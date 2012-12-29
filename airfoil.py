@@ -18,17 +18,27 @@ class Airfoil:
     def __init__(self, name = "", samples = 0, use_spline = False):
         self.name = ""
         self.description = ""
-        self.raw_top = []
-        self.raw_bottom = []
+        # parametric representation of the airfoil dist along surface
+        # vs. x and vs. y
+        self.parax = []
+        self.paray = []
         self.top = []
         self.bottom = []
+        self.nosedist = 0.0
         if ( name != "" ):
             self.load(name, samples, use_spline)
+
+    def dist_2d(self, pt1, pt2):
+        dx = pt2[0]-pt1[0]
+        dy = pt2[1]-pt1[1]
+        return math.sqrt(dx*dx + dy*dy)
 
     def load(self, base, samples = 0, use_spline = False):
         self.name = base
         path = datapath + "/airfoils/" + base + ".dat"
         top = True
+        dist = 0.0
+        firstpt = True
         for line in fileinput.input(path):
             if fileinput.isfirstline():
                 self.description = string.join(line.split())
@@ -36,20 +46,28 @@ class Airfoil:
                 xa, ya = line.split()
                 x = float(xa)
                 y = float(ya)
+                #print str(x) + " " + str(y)
+                if firstpt:
+                    xlast = x
+                    ylast = y
+                    firstpt = False
+                dist += self.dist_2d( (xlast, ylast), (x, y) )
+                self.parax.append( (dist, x) )
+                self.paray.append( (dist, y) )
                 if top:
-                    self.raw_top.append( (x,y) )
+                    self.top.append( (x, y) )
                 if x < 0.000001:
-                    top = not top
+                    # mark the exact airfoil nose in parameterized
+                    # surface distance space
+                    self.nosedist = dist
+                    top = False
                 if not top:
-                    self.raw_bottom.append( (x,y) )
-                # print "x = " + str(x) + " y = " + str(y)
-        self.raw_top.reverse()
-        # print self.description + " (" + self.name + ") Loaded " + str(len(self.top) + len(self.bottom)) + " points"
+                    self.bottom.append( (x, y) )
+                xlast = x
+                ylast = y
+        self.top.reverse()
         if samples > 0:
             self.resample( samples, use_spline )
-        else:
-            self.top = list(self.raw_top)
-            self.bottom = list(self.raw_bottom)
 
     def simple_interp(self, points, v):
         index = spline.binsearch(points, v)
@@ -67,27 +85,42 @@ class Airfoil:
     def resample(self, xdivs, use_spline):
         self.top = []
         self.bottom = []
-        step = 1.0 / xdivs
-        top_y2 = spline.derivative2( self.raw_top )
-        bottom_y2 = spline.derivative2( self.raw_bottom )
-        for i in range(0, xdivs+1):
-            x = i * step
-            if use_spline:
-                index = spline.binsearch(self.raw_top, x)
-                y = spline.spline(self.raw_top, top_y2, index, x)
-                #print str(index) + " " + str(y)
-            else:
-                y = self.simple_interp(self.raw_top, x )
-            self.top.append( (x, y) )
+        n = len(self.parax)
+        totaldist = self.parax[n-1][0]
+        # print "total surface dist = " + str(totaldist)
 
+        # extract the top surface
+        step = self.nosedist / xdivs
+        parax_y2 = spline.derivative2( self.parax )
+        paray_y2 = spline.derivative2( self.paray )
         for i in range(0, xdivs+1):
-            x = i * step
+            d = i * step
             if use_spline:
-                index = spline.binsearch(self.raw_bottom, x)
-                y = spline.spline(self.raw_bottom, bottom_y2, index, x)
+                index = spline.binsearch(self.parax, d)
+                x = spline.spline(self.parax, parax_y2, index, d)
+                y = spline.spline(self.paray, paray_y2, index, d)
             else:
-                y = self.simple_interp(self.raw_bottom, x )
-            self.bottom.append( (x, y) )
+                x = self.simple_interp(self.parax, d )
+                y = self.simple_interp(self.paray, d )
+            if x >= 0.0:
+                #print str(x) + " " + str(y)
+                self.top.append( (x, y) )
+        self.top.reverse()
+
+        # extract the bottom surface
+        step = (totaldist - self.nosedist) / xdivs
+        for i in range(0, xdivs+1):
+            d = i * step + self.nosedist
+            if use_spline:
+                index = spline.binsearch(self.parax, d)
+                x = spline.spline(self.parax, parax_y2, index, d)
+                y = spline.spline(self.paray, paray_y2, index, d)
+            else:
+                x = self.simple_interp(self.parax, d )
+                y = self.simple_interp(self.paray, d )
+            if x >= 0.0:
+                #print str(x) + " " + str(y)
+                self.bottom.append( (x, y) )
 
     def fit(self, maxpts = 30, maxerror = 0.1):
         self.top = list( self.curve_fit(self.top, maxpts, maxerror) )
@@ -126,8 +159,10 @@ class Airfoil:
                 # find insertion point
                 pos = 0
                 wipn = len(wip)
-                while maxx > wip[pos][0] and pos < wipn:
+                #print str(pos) + " " + str(wipn)
+                while pos < wipn and maxx > wip[pos][0]:
                     pos += 1
+                    #print pos
 	        #print "$pos\n";
                 wip.insert( pos, (maxx, maxy) )
             else:
@@ -187,11 +222,6 @@ class Airfoil:
             newbottom.append( (newx, newy) )
         self.top = list(newtop)
         self.bottom = list(newbottom)
-
-    def dist_2d(self, pt1, pt2):
-        dx = pt2[0]-pt1[0]
-        dy = pt2[1]-pt1[1]
-        return math.sqrt(dx*dx + dy*dy)
 
     def walk_curve_dist(self, curve, xstart, target_dist):
         #print "walk from " + str(xstart) + " dist of " + str(target_dist)
