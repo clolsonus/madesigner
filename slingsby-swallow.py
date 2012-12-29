@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 import airfoil
-
-from svginstr import *
-import sys
+import svgwrite
 
 root = airfoil.Airfoil("naca633618-smooth", 1000, True)
 tip = airfoil.Airfoil("naca4412", 1000, True);
@@ -28,7 +26,7 @@ blend1.cutout_stringer( "bottom", "vertical", 700, 25, 25 )
 blend1.cutout_sweep( "top", -500, 100, 10, 10 )
 blend1.cutout_sweep( "top", -350, 300, 10, 10 )
 blend1.cutout_sweep( "bottom", -175, 350, 10, 10 )
-blend1.scale(0.1, 0.1)
+#blend1.scale(0.1, 0.1)
 #blend1.display()
 
 dim2 = 1010
@@ -49,22 +47,11 @@ blend3.cutout_stringer( "top", "vertical", 0, 25, 35 )
 blend3.cutout_stringer( "bottom", "vertical", 200, 20, 25 )
 #blend3.display()
 
-a = Instrument("slingsby-swallow.svg", 2000, 1000, "slingsby swallow", "cm")
-
-first = True
+print blend1.get_bounds()
+dwg = svgwrite.Drawing( 'test.svg', height = "500cm", width = "2000cm")
 reverse_top = list(blend1.top)
 reverse_top.reverse()
-p = Path().abs()
-for pt in reverse_top:
-    if first:
-        p.moveto( pt[0], pt[1] )
-        first = False
-    else:
-        p.lineto( pt[0], pt[1] )
-for pt in blend1.bottom:
-    p.lineto( pt[0], pt[1] )
-p.close()
+shape = reverse_top + blend1.bottom
+dwg.add( dwg.polygon(shape, stroke = 'red', fill = 'none') )
+dwg.save()
 
-a.begin()
-a.shape(p, stroke = "red", stroke_width = 0.1, fill = "none")
-a.end()
