@@ -188,6 +188,105 @@ class Airfoil:
         self.top = list(newtop)
         self.bottom = list(newbottom)
 
+    def dist_2d(self, pt1, pt2):
+        dx = pt2[0]-pt1[0]
+        dy = pt2[1]-pt1[1]
+        return math.sqrt(dx*dx + dy*dy)
+
+    def walk_curve_dist(self, curve, xstart, target_dist):
+        #print "walk from " + str(xstart) + " dist of " + str(target_dist)
+        n = len(curve)
+        dist = 0
+        cur = ( xstart, self.simple_interp(curve, xstart) )
+        next_index = spline.binsearch(curve, xstart) + 1
+        if next_index < n:
+            dist_to_next = self.dist_2d(cur, curve[next_index])
+        else:
+            # ran out of points
+            return cur[0]
+        #print "idx = " + str(next_index) + " dist_to_next = " + str(dist_to_next)
+        while dist + dist_to_next < target_dist:
+            dist += dist_to_next
+            cur = curve[next_index]
+            next_index += 1
+            if next_index < n:
+                dist_to_next = self.dist_2d(cur, curve[next_index])
+            else:
+                # ran out of points
+                return cur[0]
+        rem = target_dist - dist
+        pct = rem / dist_to_next
+        dx = curve[next_index][0] - cur[0]
+
+        return cur[0] + dx * pct
+
+    def cutout_leading_edge_diamond(self, size):
+        target_diag = math.sqrt(2*size*size)
+        # walk backwards equal amounts along both top and bottom curves until
+        # find the first points that are diag apart.
+        cur_diag = 0
+        step = size / 1000
+        dist = step
+        n = len(self.top)
+        xstart = self.top[0][0]
+        chord = self.top[n-1][0] - xstart
+        while cur_diag < target_diag and dist < chord:
+            xtop = self.walk_curve_dist(self.top, xstart, dist)
+            ytop = self.simple_interp(self.top, xtop)
+            xbottom = self.walk_curve_dist(self.bottom, xstart, dist)
+            ybottom = self.simple_interp(self.bottom, xbottom)
+            cur_diag = self.dist_2d( (xtop, ytop), (xbottom, ybottom) )
+            dist += step
+        if dist >= chord:
+            # unable
+            return
+        print (xtop, ytop)
+        print (xbottom, ybottom)
+        print (cur_diag, target_diag)
+        dx = xtop - xbottom
+        dy = ytop - ybottom
+        angle = math.degrees(math.atan2(dy,dx))
+        print angle
+        a45 = angle - 45
+        print a45
+        r0 = self.rotate_point( (-size, 0), a45 )
+        print r0
+        corner = ( xtop + r0[0], ytop + r0[1] )
+        print self.dist_2d( (xtop, ytop), corner )
+        print self.dist_2d( corner, (xbottom, ybottom) )
+
+        # top skin
+        newtop = []
+        n = len(self.top)
+        # skip cut out nose points
+        i = 0
+        while self.top[i][0] <= xtop and i < n:
+            i += 1
+        # 45 cutout
+        newtop.append( corner )
+        newtop.append( (xtop, ytop) )
+        # remainder
+        while i < n:
+            newtop.append( self.top[i] )
+            i += 1
+        self.top = list(newtop)
+
+        # bottom skin
+        newbottom = []
+        n = len(self.bottom)
+        # skip cut out nose points
+        i = 0
+        while self.bottom[i][0] <= xbottom and i < n:
+            i += 1
+        # 45 cutout
+        newbottom.append( corner )
+        newbottom.append( (xbottom, ybottom) )
+        # remainder
+        while i < n:
+            newbottom.append( self.bottom[i] )
+            i += 1
+        self.bottom = list(newbottom)
+
     # rel top/bottom, abs x,y, tangent y/n
     def cutout_stringer(self, side = "top", orientation = "tangent", xpos = 0, xsize = 0, ysize = 0):
 
@@ -223,8 +322,8 @@ class Airfoil:
                 angle -= 360
         xhalf = xsize / 2
         r0 = self.rotate_point( (-xhalf, 0), angle )
-        r1 = self.rotate_point( (-xhalf, -ysize), angle )
-        r2 = self.rotate_point( (xhalf, -ysize), angle )
+        r1 = self.rotate_point( (-xhalf, ysize), angle )
+        r2 = self.rotate_point( (xhalf, ysize), angle )
         r3 = self.rotate_point( (xhalf, 0), angle )
         if tangent:
             p0 = ( r0[0] + xpos, r0[1] + ypos )
@@ -307,7 +406,7 @@ class Airfoil:
                 angle += 180
                 if angle > 360:
                     angle -= 360
-            r0 = self.rotate_point( (0, -ysize), angle )
+            r0 = self.rotate_point( (0, ysize), angle )
             pt = ( r0[0] + xpos, r0[1] + ypos )
             newcurve.append( pt )
             if first:
@@ -340,10 +439,29 @@ class Airfoil:
         else:
             self.bottom = list(newcurve)
 
+    def get_bounds(self):
+        if len(self.top) < 1:
+            return ( (0,0), (0,0) )
+        pt = self.top[0]
+        minx = pt[0]
+        maxx = pt[0]
+        miny = pt[1]
+        maxy = pt[1]
+        for pt in self.top + self.bottom:
+            if pt[0] < minx:
+                minx = pt[0]
+            if pt[0] > maxx:
+                maxx = pt[0]
+            if pt[1] < miny:
+                miny = pt[1]
+            if pt[1] > maxy:
+                maxy = pt[1]
+        return ( (minx, miny), (maxx, maxy) )
+
 def blend( af1, af2, percent ):
     result = Airfoil()
     result.name = "blend " + af1.name + " " + af2.name
-    result.description = "blend " + str(percent) + " " + af1.description + " " + str(1.0-percent) + " " + af2.description
+    result.description = 'blend {:.2%}'.format(percent) + af1.description + ' + {:.2%}'.format(1.0-percent) + " " + af2.description
 
     n = len(af1.top)
     for i in range(0, n):
