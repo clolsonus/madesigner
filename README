@@ -1,0 +1,63 @@
+MADesigner v1.0
+
+The general purpose of this project is to build up a python library to enable
+writing simply python scripts that generate model airplane plans.  The 
+initial vision includes:
+
+- processing/blending/smoothing airfoils
+- cutting out spars, stringers, sheeting, lightening holes, etc. from wing ribs
+- laying out top down "plans" for the major aircraft subassemblies
+- generating cut files that could be handed to a laser cutter (or cnc machine)
+- generating surface "skins" that could be handed to a cnc machine for cutting
+  molds
+- generating 3d models for importing into flight simulators.
+
+Hopefully this next statement will become quickly out dated, but this is a
+very young project and does not have all the capabilities yet that are listed
+as goals.  I decided to "publish" the project publicly because there are a
+few things working that could be an interesting curiousity or idea generator
+for others.
+
+
+Here's a quick FAQ (although no one has yet asked me any questions, so I'm 
+just trying to anticipate what people might be thinking.)
+
+Q: Are you a moron?  Haven't you hear of profili (or "xxx" cad program)???
+
+Yes and I've probably heard of the suggested tool too. :-)
+
+
+Q: So why write python scripts to generate model aircraft designs?
+
+Scripted design is a different mind set.  Consider that if the scripts are
+setup well and I want to make a small tweak (like increase the wing chord size
+by a 1/2 inch, or try a slightly different airfoil), then in my script it is a
+small tweak, I rerun the script and out pops all the new cut files and new 
+plans.  If I wanted to make this change in a traditional cad program I might
+have to spend all evening making the same small change to a bazillion parts
+since everything is linked together and these small tweaks tend to have a large
+cascading effect.  But you do give up the ability to visually manipulate the
+design.  However, you can quickly run the script and view the output, so there
+is some visual feedback in the process.
+
+Another reason is when you run up against the limit of what a tool like
+"profili" is able to offer you through it's gui interface, then what do you
+do?  (a) do you live within the constraints of the gui? (b) use a scripting
+system that lets you steer off the roads and do your own clever/crazy things?
+
+
+Q: Still that sounds like a lot of effort for something no one else will 
+probably ever use.
+
+Yes again, but this is project is a nice mental break from my daily grind.
+I'm having fun and teaching myself python at the same time.  And besides, I
+always wanted to be an aerospace engineer when I grew up.
+
+
+Q: Can your python design scripts do "xyz"
+
+Yes it's python so you can add "xyz" feature yourself!  Ok, but more seriously
+I am building up a core collection of basic design and assembly features.  This
+is for fun so I'm not really taking requests, but if it's an easy thing to add
+or something that sounds interesting to tackle, I might be interested.
+
