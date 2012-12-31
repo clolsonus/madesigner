@@ -51,7 +51,7 @@ def draw_airfoil_svg( dwg, airfoil, xpos, ypos, lines = True, points = False ):
 
     dwg.add(g)
 
-dwg = svgwrite.Drawing( 'super-sportster-wing.svg', size = ( '{:.2f}in'.format(width_in), '{:.2f}in'.format(height_in) ) )
+dwg = svgwrite.Drawing( 'sport-flyer-wing.svg', size = ( '{:.2f}in'.format(width_in), '{:.2f}in'.format(height_in) ) )
 
 rib.fit( 500, 0.0001 )
 rib.scale( chord, chord )
