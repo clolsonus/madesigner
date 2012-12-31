@@ -11,7 +11,7 @@ import math
 import string
 import spline
 
-datapath = "./data"
+datapath = "../data"
 
 class Airfoil:
 
@@ -39,8 +39,9 @@ class Airfoil:
         top = True
         dist = 0.0
         firstpt = True
-        for line in fileinput.input(path):
-            if fileinput.isfirstline():
+        f = fileinput.input(path)
+        for line in f:
+            if f.isfirstline():
                 self.description = string.join(line.split())
             else:
                 xa, ya = line.split()
@@ -277,7 +278,7 @@ class Airfoil:
         dy = ytop - ybottom
         angle = math.degrees(math.atan2(dy,dx))
         print angle
-        a45 = angle - 45
+        a45 = angle + 45
         print a45
         r0 = self.rotate_point( (-size, 0), a45 )
         print r0
@@ -352,8 +353,8 @@ class Airfoil:
                 angle -= 360
         xhalf = xsize / 2
         r0 = self.rotate_point( (-xhalf, 0), angle )
-        r1 = self.rotate_point( (-xhalf, ysize), angle )
-        r2 = self.rotate_point( (xhalf, ysize), angle )
+        r1 = self.rotate_point( (-xhalf, -ysize), angle )
+        r2 = self.rotate_point( (xhalf, -ysize), angle )
         r3 = self.rotate_point( (xhalf, 0), angle )
         if tangent:
             p0 = ( r0[0] + xpos, r0[1] + ypos )
@@ -396,7 +397,24 @@ class Airfoil:
         else:
             self.bottom = list(newcurve)
 
-    def cutout_sweep(self, side = "top", xstart = 0, xsize = 0, ysize = 0, xstep = 1.0):
+    def project_point(self, top, slopes, index, orig, ysize):
+        slope = slopes[index]
+        rad = math.atan2(slope,1)
+        angle = math.degrees(rad)
+        #print "xpos " + str(xpos) + " angle = " + str(angle)
+        if not top:
+            angle += 180
+            if angle > 360:
+                angle -= 360
+        r0 = self.rotate_point( (0, ysize), angle )
+        pt = ( r0[0] + orig[0], r0[1] + orig[1] )
+        if top and pt[1] < 0.0:
+            pt = (pt[0], 0.0)
+        elif not top and pt[1] > 0.0:
+            pt = (pt[0], 0.0)
+        return pt
+
+    def cutout_sweep(self, side = "top", xstart = 0, xsize = 0, ysize = 0):
         top = False
         if side == "top":
             top = True
@@ -424,45 +442,39 @@ class Airfoil:
         slopes = spline.derivative1(curve)
         dist = 0.0
         xpos = xstart
+        index = spline.binsearch(curve, xpos)
         first = True
-        while dist <= xsize:
+        next_dist = 0
+        while dist + next_dist <= xsize and index < n:
+            dist += next_dist
             ypos = self.simple_interp(curve, xpos)
-            index = spline.binsearch(curve, xpos)
-            slope = slopes[index]
-            rad = math.atan2(slope,1)
-            angle = math.degrees(rad)
-            #print "xpos " + str(xpos) + " angle = " + str(angle)
-            if not top:
-                angle += 180
-                if angle > 360:
-                    angle -= 360
-            r0 = self.rotate_point( (0, ysize), angle )
-            pt = ( r0[0] + xpos, r0[1] + ypos )
+            pt = self.project_point(top, slopes, index, (xpos, ypos), -ysize)
             newcurve.append( pt )
-            if first:
-                last_pt = (xpos, ypos)
-                first = False
-            dx = last_pt[0] - xpos
-            dy = last_pt[1] - ypos
-            d = math.sqrt(dx*dx + dy*dy)
-            dist += d
-            #print "d = " + str(d) + " dist = " + str(dist)
-            last_pt = (xpos, ypos)
-            xpos += xstep
+            if index < n - 1:
+                nextpt = curve[index+1]
+                next_dist = self.dist_2d( (xpos, ypos), nextpt )
+                xpos = nextpt[0]
+            index += 1
 
-        # finish sweep
-        xpos -= xstep
-        ypos = self.simple_interp(curve, xpos)
-        newcurve.append( (xpos, ypos) )
-
-        # skip airfoil coutout points
-        while curve[i][0] <= xpos and i < n:
-            i += 1
+        if index < n - 1:
+            # finish sweep (advance x in proportion to get close to the
+            # right total sweep dist
+            rem = xsize - dist
+            print "rem = " + str(rem)
+            pct = rem / next_dist
+            print "pct of next step = " + str(pct)
+            xpos = curve[index-1][0]
+            dx = curve[index][0] - xpos
+            xpos += dx * rem
+            ypos = self.simple_interp(curve, xpos)
+            pt = self.project_point(top, slopes, index-1, (xpos, ypos), -ysize)
+            newcurve.append( pt )
+            newcurve.append( (xpos, ypos) )
 
         # tail portion
-        while i < n:
-            newcurve.append( curve[i] )
-            i += 1
+        while index < n:
+            newcurve.append( curve[index] )
+            index += 1
 
         if top:
             self.top = list(newcurve)
@@ -508,20 +520,3 @@ def blend( af1, af2, percent ):
     result.raw_top = list(result.top)
     result.raw_bottom = list(result.bottom)
     return result
-
-#root = Airfoil("clarky")
-#tip = Airfoil("arad6")
-#root.display()
-#tip.display()
-
-#root_smooth = root.resample(1000, True)
-#tip_smooth = tip.resample(1000, False)
-#root_smooth.display()
-#tip_smooth.display()
-
-#blend1 = blend( root_smooth, tip_smooth, 1.0 )
-#blend2 = blend( root_smooth, tip_smooth, 0.5 )
-#blend3 = blend( root_smooth, tip_smooth, 0.0 )
-#blend1.display()
-#blend2.display()
-#blend3.display()
