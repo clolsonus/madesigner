@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 
-import airfoil
 import svgwrite
 
-do_blending = False
-do_resampling = False
-do_cutting = True
+try:
+    import airfoil
+except ImportError:
+    # if airfoil is not 'installed' append parent dir of __file__ to sys.path
+    import sys, os
+    sys.path.insert(0, os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/../lib'))
+    import airfoil
+
+do_blending = 1
+do_resampling = 1
+do_cutting = 1
 
 root = airfoil.Airfoil("naca633618", 1000, True)
 tip = airfoil.Airfoil("naca4412", 1000, True);
@@ -62,7 +69,7 @@ if do_blending:
         blend = airfoil.blend( root, tip, percent )
         blend.fit( 500, 0.0001 )
         size = rchord * percent + tchord * (1.0 - percent)
-        blend.scale( size, -size )
+        blend.scale( size, size )
         blend.rotate( (1 - percent) * twist )
 
         bounds = blend.get_bounds()
@@ -81,54 +88,60 @@ if do_resampling:
 
     root = airfoil.Airfoil("naca633618", 0, False)
     base_desc = root.description
-    root.scale( rchord, -rchord )
+    root.scale( rchord, rchord )
+    root.description = base_desc + " Original Points"
+    root.rotate(180)
     bounds = root.get_bounds()
     dy = bounds[1][1] - bounds[0][1]
-    root.description = base_desc + " Original Points"
     draw_airfoil_svg( dwg, root, width_in*0.5, ypos, False, True )
 
     root.resample(1000, True)
-    root.scale( rchord, -rchord )
+    root.scale( rchord, rchord )
     root.fit( 200, 0.00005 )
+    root.description = base_desc + " Original Points"
+    root.rotate(180)
     bounds = root.get_bounds()
     dy = bounds[1][1] - bounds[0][1]
-    root.description = base_desc + " Original Points"
     draw_airfoil_svg( dwg, root, width_in*0.5, ypos, True, False )
     ypos += dy + 0.1
 
     root.resample(1000, True)
-    root.scale( rchord, -rchord )
+    root.scale( rchord, rchord )
     root.fit( 200, 0.00005 )
-    bounds = root.get_bounds()
-    dy = bounds[1][1] - bounds[0][1]
     root.description = base_desc + " Adaptive fit to 0.00005\" tolerance"
+    root.rotate(180)
+    bounds = root.get_bounds()
+    dy = bounds[1][1] - bounds[0][1]
     draw_airfoil_svg( dwg, root, width_in*0.5, ypos, True, True )
     ypos += dy + 0.1
 
     root.resample(1000, True)
-    root.scale( rchord, -rchord )
+    root.scale( rchord, rchord )
     root.fit( 200, 0.0005 )
-    bounds = root.get_bounds()
-    dy = bounds[1][1] - bounds[0][1]
     root.description = base_desc + " Adaptive fit to 0.0005\" tolerance"
+    root.rotate(180)
+    bounds = root.get_bounds()
+    dy = bounds[1][1] - bounds[0][1]
     draw_airfoil_svg( dwg, root, width_in*0.5, ypos, True, True )
     ypos += dy + 0.1
 
     root.resample(1000, True)
-    root.scale( rchord, -rchord )
+    root.scale( rchord, rchord )
     root.fit( 200, 0.005 )
+    root.description = base_desc + " Adaptive fit to 0.005\" tolerance"
+    root.rotate(180)
     bounds = root.get_bounds()
     dy = bounds[1][1] - bounds[0][1]
-    root.description = base_desc + " Adaptive fit to 0.005\" tolerance"
     draw_airfoil_svg( dwg, root, width_in*0.5, ypos, True, True )
     ypos += dy + 0.1
 
     root.resample(1000, True)
-    root.scale( rchord, -rchord )
+    root.scale( rchord, rchord )
     root.fit( 200, 0.05 )
+    root.description = base_desc + " Adaptive fit to 0.05\" tolerance"
+    root.rotate(180)
     bounds = root.get_bounds()
     dy = bounds[1][1] - bounds[0][1]
-    root.description = base_desc + " Adaptive fit to 0.05\" tolerance"
     draw_airfoil_svg( dwg, root, width_in*0.5, ypos, True, True )
     ypos += dy + 0.1
 
@@ -136,6 +149,8 @@ if do_resampling:
 
 if do_cutting:
     print "cutout demos"
+    root = airfoil.Airfoil("naca633618", 1000, True)
+    tip = airfoil.Airfoil("naca4412", 1000, True);
     dwg = svgwrite.Drawing( 'demo-cutouts.svg', size = ( '{:.2f}in'.format(width_in), '{:.2f}in'.format(height_in) ) )
     steps = 9
     dp = 1.0 / steps
@@ -147,7 +162,7 @@ if do_cutting:
         blend = airfoil.blend( root, tip, percent )
         blend.fit( 500, 0.0001 )
         size = rchord * percent + tchord * (1.0 - percent)
-        blend.scale( size, -size )
+        blend.scale( size, size )
         blend.move(-size / 3.0, 0)
 
         bounds = blend.get_bounds()
