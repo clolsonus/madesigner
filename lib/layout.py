@@ -47,7 +47,7 @@ class Layout:
             radius = hole[2]
             c = self.dwg.circle( center = pt, r = radius, stroke = 'red', \
                                      fill = 'none', \
-                                     stroke_width = '{:.4f}in'.format(stroke_width_in))
+                                     stroke_width = stroke_width)
             g.add(c)
 
         for label in airfoil.labels:

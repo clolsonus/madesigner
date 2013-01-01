@@ -44,7 +44,6 @@ for p in range(0, steps+1):
     bounds = blend.get_bounds()
 
     # leading edge diamond (before washout rotate)
-    print "cutout leading edge"
     blend.cutout_leading_edge_diamond( 0.200 )
 
     # leading edge sheeting (before washout rotate)
@@ -60,9 +59,9 @@ for p in range(0, steps+1):
     blend.cutout_stringer( "top", "tangent", fs, 0.125, 0.125 )
 
     # rear stringer (before washout rotate)
-    rs = bounds[1][0] - tchord*0.5
-    blend.cutout_stringer( "top", "vertical", rs, 0.125, 0.125 )
-    blend.cutout_stringer( "bottom", "vertical", rs, 0.125, 0.125 )
+    rs = bounds[1][0] - size*0.3
+    blend.cutout_stringer( "top", "tangent", rs, 0.125, 0.125 )
+    blend.cutout_stringer( "bottom", "tangent", rs, 0.125, 0.125 )
 
     #blend.rotate( (1 - percent) * twist )
 
@@ -70,9 +69,46 @@ for p in range(0, steps+1):
     blend.cutout_stringer( "top", "vertical", 0, 0.125, 0.20 )
     blend.cutout_stringer( "bottom", "vertical", 0, 0.125, 0.30 )
 
+    # lightening holes
+    hx = bounds[0][0] + size * 0.16
+    ty = blend.simple_interp(blend.top, hx)
+    by = blend.simple_interp(blend.bottom, hx)
+    vd = (ty - by)
+    hy = by + vd / 2.0
+    hr = (vd / 2.0)  * 0.5
+    blend.add_hole( hx, hy, hr)
+
+    hx = bounds[0][0] + size * 0.44
+    ty = blend.simple_interp(blend.top, hx)
+    by = blend.simple_interp(blend.bottom, hx)
+    vd = (ty - by)
+    hy = by + vd / 2.0
+    hr = (vd / 2.0)  * 0.7
+    blend.add_hole( hx, hy, hr)
+
+    hx = bounds[0][0] + size * 0.57
+    ty = blend.simple_interp(blend.top, hx)
+    by = blend.simple_interp(blend.bottom, hx)
+    vd = (ty - by)
+    hy = by + vd / 2.0
+    hr = (vd / 2.0)  * 0.6
+    blend.add_hole( hx, hy, hr)
+
+    # build alignment tabs
+    at = bounds[1][0] - size * 0.15
+    blend.add_build_tab("bottom", at, 0.4 )
+
+    # label
+    at = bounds[0][0] + size * 0.27
+    ty = blend.simple_interp(blend.top, at)
+    by = blend.simple_interp(blend.bottom, at)
+    vd = (ty - by)
+    hy = by + vd / 2.0
+    blend.add_label( at, hy, 14, 0, "W" + str(p) )
+
     bounds = blend.get_bounds()
 
-    layout.draw_airfoil_demo( blend, width_in*0.5, ypos )
+    layout.draw_airfoil_plan( blend, width_in*0.5, ypos )
 
     dy = bounds[1][1] - bounds[0][1]
     ypos += dy + 0.1
