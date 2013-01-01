@@ -48,14 +48,17 @@ def draw_airfoil_svg( dwg, airfoil, xpos, ypos, lines = True, points = False ):
                             stroke_width = '{:.4f}in'.format(stroke_width_in))
         g.add(c)
 
+    for label in airfoil.labels:
+        t = dwg.text(label[4], (label[0], label[1]), font_size = label[2], text_anchor = "middle")
+        t.rotate(label[3] + 180)
+        # text_align = center
+        g.add(t)
+
     if points:
         for pt in shape:
             c = dwg.circle( center = pt, r = 2, stroke = 'green', \
                                 fill = 'green', opacity = 0.6)
             g.add(c)
-
-    t = dwg.text(airfoil.description, (0.25*dpi, 0.0*dpi))
-    g.add(t)
 
     dwg.add(g)
 
@@ -118,11 +121,20 @@ rib.add_hole( hx, hy, hr)
 rib.cutout_stringer( "top", "vertical", 0, 0.250, 0.250 )
 rib.cutout_stringer( "bottom", "vertical", 0, 0.250, 0.250 )
 
+# label at 0 pt
+ty = rib.simple_interp(rib.top, 0.0)
+by = rib.simple_interp(rib.bottom, 0.0)
+vd = (ty - by)
+hy = by + vd / 2.0
+rib.add_label( 0.0, hy, 14, 0, "W1" )
+
+rib.rotate(-10)
+
 # build alignment tabs
 at = bounds[1][0] - chord * 0.2
-rib.add_build_tab("bottom", at, 0.5 )
+rib.add_build_tab("bottom", at, 0.5, 0.25 )
 rib.add_build_tab("bottom", fs-0.5, 0.5 )
-rib.add_build_tab("top", fs-0.5, 0.5 )
+rib.add_build_tab("top", fs-0.5, 0.3, 0.25 )
 
 draw_airfoil_svg( dwg, rib, width_in*0.5, 0, True, True )
 
