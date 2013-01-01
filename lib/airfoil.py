@@ -24,6 +24,7 @@ class Airfoil:
         self.paray = []
         self.top = []
         self.bottom = []
+        self.holes = []
         self.nosedist = 0.0
         if ( name != "" ):
             self.load(name, samples, use_spline)
@@ -199,6 +200,7 @@ class Airfoil:
     def scale(self, hsize, vsize):
         newtop = []
         newbottom = []
+        newholes = []
         for pt in self.top:
             newx = pt[0] * hsize
             newy = pt[1] * vsize
@@ -207,8 +209,17 @@ class Airfoil:
             newx = pt[0] * hsize
             newy = pt[1] * vsize
             newbottom.append( (newx, newy) )
+        for hole in self.holes:
+            newx = ( hole[0] * hsize )
+            newy = ( hole[1] * vsize )
+            if hsize <= vsize:
+                newr = ( hole[2] * hsize )
+            else:
+                newr = ( hole[2] * vsize )
+            newholes.append( (newx, newy, newr) )
         self.top = list(newtop)
         self.bottom = list(newbottom)
+        self.holes = list(newholes)
 
     def move(self, x, y):
         newtop = []
@@ -400,17 +411,20 @@ class Airfoil:
     def cutout_stringer(self, side = "top", orientation = "tangent", xpos = 0, xsize = 0, ysize = 0):
         self.cutout(side, orientation, xpos, xsize, ysize)
 
-    def add_build_tab(self, side = "top", xpos = 0, xsize = 0):
+    def add_build_tab(self, side = "top", xpos = 0, xsize = 0, yextra = 0):
         # find the y value of the attach point and compute the size of
         # the tab needed
         bounds = self.get_bounds()
         if side == "top":
             ypos = self.simple_interp(self.top, xpos)
-            ysize = bounds[1][1] - ypos
+            ysize = bounds[1][1] - ypos + yextra
         else:
             ypos = self.simple_interp(self.bottom, xpos)
-            ysize = ypos - bounds[0][1]
+            ysize = ypos - bounds[0][1] + yextra
         self.cutout(side, "vertical", xpos, xsize, -ysize)
+
+    def add_hole(self, xpos, ypos, radius):
+        self.holes.append( (xpos, ypos, radius) )        
 
     def project_point(self, top, slopes, index, orig, ysize):
         slope = slopes[index]
