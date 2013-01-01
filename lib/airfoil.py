@@ -318,8 +318,8 @@ class Airfoil:
             i += 1
         self.bottom = list(newbottom)
 
-    # rel top/bottom, abs x,y, tangent y/n
-    def cutout_stringer(self, side = "top", orientation = "tangent", xpos = 0, xsize = 0, ysize = 0):
+    # rel top/bottom, tangent/vertical, xpos, ysize
+    def cutout(self, side = "top", orientation = "tangent", xpos = 0, xsize = 0, ysize = 0):
 
         top = False
         if side == "top":
@@ -396,6 +396,21 @@ class Airfoil:
             self.top = list(newcurve)
         else:
             self.bottom = list(newcurve)
+
+    def cutout_stringer(self, side = "top", orientation = "tangent", xpos = 0, xsize = 0, ysize = 0):
+        self.cutout(side, orientation, xpos, xsize, ysize)
+
+    def add_build_tab(self, side = "top", xpos = 0, xsize = 0):
+        # find the y value of the attach point and compute the size of
+        # the tab needed
+        bounds = self.get_bounds()
+        if side == "top":
+            ypos = self.simple_interp(self.top, xpos)
+            ysize = bounds[1][1] - ypos
+        else:
+            ypos = self.simple_interp(self.bottom, xpos)
+            ysize = ypos - bounds[0][1]
+        self.cutout(side, "vertical", xpos, xsize, -ysize)
 
     def project_point(self, top, slopes, index, orig, ysize):
         slope = slopes[index]
