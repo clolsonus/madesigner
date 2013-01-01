@@ -146,18 +146,19 @@ some of the actual capabilities available right now?
   with the airfoil rotate feature and can cut the proper washout
   alignment right into the spar notch of your airfoil.
 
-- (TODO) an almost feature which will be quick to implement is adding
-  a build support tab to help align the rib correctly on your build
-  surface.  This is sort of the opposite of cutting out a spar hole
+- Add build support tabs to help align the rib correctly on your build
+  surface.  This is sort of the opposite of cutting out a spar notch
   combined with carefully selecting the height of the tab.  These tabs
   are removed once the basic wing structure is framed together.
   Again, model airplane builders will know exactly what this feature
-  is and why it's useful.  Planes fly so much better with accurately
+  is and why it's useful.  Planes fly much better with accurately
   built wings that are straight and true.
 
-- (TODO) cut lightening holes into the ribs.  Good for adding
-  lightness to your design.  Also good for wing jigs, wing joiner
-  tubes, etc.
+- Cut lightening holes into the ribs.  Good for adding lightness to
+  your design.  Also good for precutting holes for wing alignment jigs
+  or wing joiner tubes.
+
+- (TODO) better support of custom part labels (the text and the position)
 
 
 ROAD MAP
@@ -199,7 +200,7 @@ just trying to anticipate what people might be thinking.)
 
 Q: Are you a moron?  Haven't you hear of profili (or "xxx" cad program)???
 
-Yes and I've probably heard of the suggested tool too. :-)
+Yes, and I've probably heard of the suggested tool too. :-)
 
 
 Q: So why write python scripts to generate model aircraft designs?

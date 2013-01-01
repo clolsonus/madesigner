@@ -40,6 +40,14 @@ def draw_airfoil_svg( dwg, airfoil, xpos, ypos, lines = True, points = False ):
                                stroke_width = '{:.4f}in'.format(stroke_width_in))
         g.add( poly )
 
+    for hole in airfoil.holes:
+        pt = ( hole[0], hole[1] )
+        radius = hole[2]
+        c = dwg.circle( center = pt, r = radius, stroke = 'red', \
+                            fill = 'none', \
+                            stroke_width = '{:.4f}in'.format(stroke_width_in))
+        g.add(c)
+
     if points:
         for pt in shape:
             c = dwg.circle( center = pt, r = 2, stroke = 'green', \
@@ -78,12 +86,44 @@ rib.cutout_stringer( "bottom", "tangent", rs, 0.125, 0.125 )
 rib.cutout_stringer( "top", "tangent", fs, 0.125, 0.125 )
 rib.cutout_stringer( "bottom", "tangent", fs, 0.125, 0.125 )
 
+# lightening (or wing jig) holes
+hx = -chord * 0.1
+ty = rib.simple_interp(rib.top, hx)
+by = rib.simple_interp(rib.bottom, hx)
+vd = (ty - by)
+hy = by + vd / 2.0
+hr = (vd / 2.0)  * 0.7
+rib.add_hole( hx, hy, hr)
+
+hx = chord * 0.1
+ty = rib.simple_interp(rib.top, hx)
+by = rib.simple_interp(rib.bottom, hx)
+vd = (ty - by)
+hy = by + vd / 2.0
+hr = (vd / 2.0)  * 0.7
+rib.add_hole( hx, hy, hr)
+
+hx = chord * 0.3
+ty = rib.simple_interp(rib.top, hx)
+by = rib.simple_interp(rib.bottom, hx)
+vd = (ty - by)
+hy = by + vd / 2.0
+hr = (vd / 2.0)  * 0.7
+rib.add_hole( hx, hy, hr)
+
+
 #rib.rotate( (1 - percent) * twist )
 
 # main spars
 rib.cutout_stringer( "top", "vertical", 0, 0.250, 0.250 )
 rib.cutout_stringer( "bottom", "vertical", 0, 0.250, 0.250 )
-         
+
+# build alignment tabs
+at = bounds[1][0] - chord * 0.2
+rib.add_build_tab("bottom", at, 0.5 )
+rib.add_build_tab("bottom", fs-0.5, 0.5 )
+rib.add_build_tab("top", fs-0.5, 0.5 )
+
 draw_airfoil_svg( dwg, rib, width_in*0.5, 0, True, True )
 
 dwg.save()
