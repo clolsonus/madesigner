@@ -225,9 +225,9 @@ class Airfoil:
             newx = ( hole[0] * hsize )
             newy = ( hole[1] * vsize )
             if hsize <= vsize:
-                newr = ( hole[2] * hsize )
+                newr = math.fabs( hole[2] * hsize )
             else:
-                newr = ( hole[2] * vsize )
+                newr = math.fabs( hole[2] * vsize )
             newholes.append( (newx, newy, newr) )
         for label in self.labels:
             newx = ( label[0] * hsize )
@@ -311,20 +311,20 @@ class Airfoil:
         if dist >= chord:
             # unable
             return
-        print (xtop, ytop)
-        print (xbottom, ybottom)
-        print (cur_diag, target_diag)
+        #print (xtop, ytop)
+        #print (xbottom, ybottom)
+        #print (cur_diag, target_diag)
         dx = xtop - xbottom
         dy = ytop - ybottom
         angle = math.degrees(math.atan2(dy,dx))
-        print angle
+        #print angle
         a45 = angle + 45
-        print a45
+        #print a45
         r0 = self.rotate_point( (-size, 0), a45 )
-        print r0
+        #print r0
         corner = ( xtop + r0[0], ytop + r0[1] )
-        print self.dist_2d( (xtop, ytop), corner )
-        print self.dist_2d( corner, (xbottom, ybottom) )
+        #print self.dist_2d( (xtop, ytop), corner )
+        #print self.dist_2d( corner, (xbottom, ybottom) )
 
         # top skin
         newtop = []

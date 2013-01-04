@@ -108,7 +108,7 @@ for p in range(0, steps+1):
 
     bounds = blend.get_bounds()
 
-    layout.draw_airfoil_plan( blend, width_in*0.5, ypos )
+    layout.draw_airfoil_demo( blend, width_in*0.5, ypos )
 
     dy = bounds[1][1] - bounds[0][1]
     ypos += dy + 0.1

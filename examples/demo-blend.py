@@ -17,7 +17,7 @@ tip = airfoil.Airfoil("naca0015", 1000, True);
 
 rchord = 8.0
 tchord = 4.0
-twist = -10
+twist = 10
 
 width_in = 8.5
 height_in = 11
@@ -31,12 +31,13 @@ steps = 8
 dp = 1.0 / steps
 ypos = 0.1
 for p in range(0, steps+1):
+    print p
     percent = 1 - p*dp
 
     rib = airfoil.blend( root, tip, percent )
     size = rchord * percent + tchord * (1.0 - percent)
     rib.scale( size, size )
-    rib.fit( 500, 0.001 )
+    rib.fit( 500, 0.002 )
 
     tx = size/3.0
     ty = rib.simple_interp(rib.top, tx)
