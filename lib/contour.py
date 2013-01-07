@@ -31,8 +31,7 @@ class Contour:
     def simple_interp(self, points, v):
         index = spline.binsearch(points, v)
         n = len(points) - 1
-        if index < n:ls
-
+        if index < n:
             xrange = points[index+1][0] - points[index][0]
             yrange = points[index+1][1] - points[index][1]
 	    # print(" xrange = $xrange\n")
