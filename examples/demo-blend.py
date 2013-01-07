@@ -32,10 +32,10 @@ dp = 1.0 / steps
 ypos = 0.1
 for p in range(0, steps+1):
     print p
-    percent = 1 - p*dp
+    percent = p*dp
 
     rib = airfoil.blend( root, tip, percent )
-    size = rchord * percent + tchord * (1.0 - percent)
+    size = rchord * (1.0 - percent) + tchord * percent
     rib.scale( size, size )
     rib.fit( 500, 0.002 )
 
@@ -46,7 +46,7 @@ for p in range(0, steps+1):
     hy = by + vd / 2.0
     rib.add_label( tx, hy, 14, 0, "W" + str(p) )
 
-    rib.rotate( (1 - percent) * twist )
+    rib.rotate( percent * twist )
 
     bounds = rib.get_bounds()
 

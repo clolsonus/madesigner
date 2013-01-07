@@ -15,7 +15,7 @@ except ImportError:
 
 rchord = 8.0
 tchord = 5.0
-twist = -10
+twist = -5
 
 width_in = 8.5
 height_in = 11
@@ -33,11 +33,11 @@ dp = 1.0 / steps
 ypos = 0.1
 for p in range(0, steps+1):
     print p
-    percent = 1 - p*dp
+    percent = p*dp
 
     blend = airfoil.blend( root, tip, percent )
     blend.fit( 500, 0.0001 )
-    size = rchord * percent + tchord * (1.0 - percent)
+    size = rchord * (1.0 - percent) + tchord * percent
     blend.scale( size, size )
     blend.move(-size / 3.0, 0)
 
@@ -62,12 +62,6 @@ for p in range(0, steps+1):
     rs = bounds[1][0] - size*0.3
     blend.cutout_stringer( "top", "tangent", rs, 0.125, 0.125 )
     blend.cutout_stringer( "bottom", "tangent", rs, 0.125, 0.125 )
-
-    #blend.rotate( (1 - percent) * twist )
-
-    # main spars
-    blend.cutout_stringer( "top", "vertical", 0, 0.125, 0.20 )
-    blend.cutout_stringer( "bottom", "vertical", 0, 0.125, 0.30 )
 
     # lightening holes
     hx = bounds[0][0] + size * 0.16
@@ -94,8 +88,18 @@ for p in range(0, steps+1):
     hr = (vd / 2.0)  * 0.6
     blend.add_hole( hx, hy, hr)
 
+    # rotate entire part for twist/washout
+    blend.rotate( percent * twist )
+
+    # main spars
+    blend.cutout_stringer( "top", "vertical", 0, 0.125, 0.20 )
+    blend.cutout_stringer( "bottom", "vertical", 0, 0.125, 0.30 )
+
     # build alignment tabs
     at = bounds[1][0] - size * 0.15
+    blend.add_build_tab("bottom", at, 0.4 )
+
+    at = bounds[0][0] + size * 0.15
     blend.add_build_tab("bottom", at, 0.4 )
 
     # label

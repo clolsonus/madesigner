@@ -16,7 +16,7 @@ tip = airfoil.Airfoil("naca4412", 1000, True);
 #tip.display()
 
 dim1 = 1520
-blend1 = airfoil.blend( root, tip, 1.0 )
+blend1 = airfoil.blend( root, tip, 0.0 )
 blend1.fit( 500, 0.0001 )
 #blend1.display()
 print len(blend1.top)
@@ -46,7 +46,7 @@ blend2.cutout_stringer( "bottom", "vertical", 200, 20, 25 )
 #blend2.display()
 
 dim3 = 500
-blend3 = airfoil.blend( root, tip, 0.0 )
+blend3 = airfoil.blend( root, tip, 1.0 )
 blend3.scale(dim3, -dim3)
 blend3.move( -dim3 / 3.0, 0 )
 blend3.rotate( 5 )

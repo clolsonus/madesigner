@@ -200,22 +200,23 @@ class Airfoil(Contour):
             i += 1
         self.bottom = list(newbottom)
 
+# returns an airfoil that is 1.0-percent of af1 + percent of af2
 def blend( af1, af2, percent ):
     result = Airfoil()
     result.name = "blend " + af1.name + " " + af2.name
-    result.description = 'blend {:.2%}'.format(percent) + af1.description + ' + {:.2%}'.format(1.0-percent) + " " + af2.description
+    result.description = 'blend {:.2%}'.format(1.0-percent) + af1.description + ' + {:.2%}'.format(percent) + " " + af2.description
 
     n = len(af1.top)
     for i in range(0, n):
 	y1 = af1.top[i][1]
 	y2 = af2.top[i][1]
-	y = percent*y1 + (1.0-percent)*y2
+	y = (1.0-percent)*y1 + percent*y2
 	result.top.append( (af1.top[i][0], y) )
     n = len(af1.bottom)
     for i in range(0, n):
 	y1 = af1.bottom[i][1]
 	y2 = af2.bottom[i][1]
-	y = percent*y1 + (1.0-percent)*y2
+	y = (1.0-percent)*y1 + percent*y2
 	result.bottom.append( (af1.bottom[i][0], y) )
     result.raw_top = list(result.top)
     result.raw_bottom = list(result.bottom)
