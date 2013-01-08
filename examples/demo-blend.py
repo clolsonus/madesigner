@@ -29,7 +29,7 @@ layout = layout.Layout( 'demo-blend.svg', width_in, height_in, dpi )
 
 steps = 8
 dp = 1.0 / steps
-ypos = 0.1
+
 for p in range(0, steps+1):
     print p
     percent = p*dp
@@ -48,11 +48,6 @@ for p in range(0, steps+1):
 
     rib.rotate( percent * twist )
 
-    bounds = rib.get_bounds()
-
-    layout.draw_airfoil_demo( rib, width_in*0.5, ypos )
+    layout.draw_airfoil_demo( rib )
         
-    dy = bounds[1][1] - bounds[0][1]
-    ypos += dy + 0.1
-
 layout.save()

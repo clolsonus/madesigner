@@ -23,14 +23,13 @@ dpi = 90
 
 print "coutouts demo"
 layout = layout.Layout( 'demo-cutouts.svg', width_in, height_in, dpi )
-ypos = 0.1
 
 root = airfoil.Airfoil("naca633618", 1000, True)
 tip = airfoil.Airfoil("naca0015", 1000, True);
 
 steps = 8
 dp = 1.0 / steps
-ypos = 0.1
+
 for p in range(0, steps+1):
     print p
     percent = p*dp
@@ -110,11 +109,6 @@ for p in range(0, steps+1):
     hy = by + vd / 2.0
     blend.add_label( at, hy, 14, 0, "W" + str(p) )
 
-    bounds = blend.get_bounds()
-
-    layout.draw_airfoil_demo( blend, width_in*0.5, ypos )
-
-    dy = bounds[1][1] - bounds[0][1]
-    ypos += dy + 0.1
+    layout.draw_airfoil_demo( blend )
 
 layout.save()

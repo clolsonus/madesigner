@@ -26,7 +26,6 @@ dpi = 90
 
 print "resampling and adaptive fit demo"
 layout = layout.Layout( 'demo-fit.svg', width_in, height_in, dpi )
-ypos = 0.1
 
 root = airfoil.Airfoil("naca633618", 0, False)
 
@@ -38,10 +37,7 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Original Points" )
-bounds = rib.get_bounds()
-dy = bounds[1][1] - bounds[0][1]
-layout.draw_airfoil_points( rib, width_in*0.5, ypos )
-ypos += dy + 0.1
+layout.draw_airfoil_points( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
@@ -53,11 +49,7 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Spline interpolation & adaptive fit to 0.00005\" tolerance" )
-#rib.rotate(180)
-bounds = rib.get_bounds()
-dy = bounds[1][1] - bounds[0][1]
-layout.draw_airfoil_demo( rib, width_in*0.5, ypos )
-ypos += dy + 0.1
+layout.draw_airfoil_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
@@ -69,11 +61,7 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Spline interpolation & adaptive fit to 0.0005\" tolerance" )
-#rib.rotate(180)
-bounds = rib.get_bounds()
-dy = bounds[1][1] - bounds[0][1]
-layout.draw_airfoil_demo( rib, width_in*0.5, ypos )
-ypos += dy + 0.1
+layout.draw_airfoil_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
@@ -85,11 +73,7 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Spline interpolation & adaptive fit to 0.005\" tolerance" )
-#rib.rotate(180)
-bounds = rib.get_bounds()
-dy = bounds[1][1] - bounds[0][1]
-layout.draw_airfoil_demo( rib, width_in*0.5, ypos )
-ypos += dy + 0.1
+layout.draw_airfoil_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
@@ -101,11 +85,7 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Spline interpolation & adaptive fit to 0.01\" tolerance" )
-#rib.rotate(180)
-bounds = rib.get_bounds()
-dy = bounds[1][1] - bounds[0][1]
-layout.draw_airfoil_demo( rib, width_in*0.5, ypos )
-ypos += dy + 0.1
+layout.draw_airfoil_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
@@ -117,11 +97,7 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Spline interpolation & adaptive fit to 0.05\" tolerance" )
-#rib.rotate(180)
-bounds = rib.get_bounds()
-dy = bounds[1][1] - bounds[0][1]
-layout.draw_airfoil_demo( rib, width_in*0.5, ypos )
-ypos += dy + 0.1
+layout.draw_airfoil_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
@@ -133,10 +109,6 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Spline interpolation & adaptive fit to 0.1\" tolerance" )
-#rib.rotate(180)
-bounds = rib.get_bounds()
-dy = bounds[1][1] - bounds[0][1]
-layout.draw_airfoil_demo( rib, width_in*0.5, ypos )
-ypos += dy + 0.1
+layout.draw_airfoil_demo( rib )
 
 layout.save()

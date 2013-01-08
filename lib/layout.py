@@ -20,8 +20,11 @@ class Layout:
         self.width_in = width_in
         self.height_in = height_in
         self.dpi = dpi
+        self.margin = 0.1
+        self.maxy = 0.0 + self.margin
+        self.maxx = 0.0 + self.margin
 
-    def draw_airfoil(self, orig_airfoil, xpos, ypos, stroke_width, color, lines = True, points = False ):
+    def draw_airfoil(self, orig_airfoil, stroke_width, color, lines = True, points = False ):
         airfoil = copy.deepcopy(orig_airfoil)
         airfoil.scale(1,-1)
         bounds = airfoil.get_bounds()
@@ -36,7 +39,10 @@ class Layout:
         reverse_top.reverse()
         shape = reverse_top + airfoil.bottom
         g = self.dwg.g()
-        g.translate((marginx-bounds[0][0])*self.dpi,(ypos-bounds[0][1])*self.dpi)
+        g.translate((self.margin-bounds[0][0])*self.dpi, \
+                        (self.maxy-bounds[0][1])*self.dpi)
+        self.maxy += dy + self.margin
+
         if lines:
             poly = self.dwg.polygon(shape, stroke = 'red', fill = 'none', \
                                         stroke_width = stroke_width)
@@ -66,17 +72,17 @@ class Layout:
 
         self.dwg.add(g)
 
-    def draw_airfoil_cut(self, airfoil, xpos, ypos ):
-        self.draw_airfoil(airfoil, xpos, ypos, '0.001in', 'red', True, False )
+    def draw_airfoil_cut(self, airfoil ):
+        self.draw_airfoil(airfoil, '0.001in', 'red', True, False )
 
-    def draw_airfoil_plan(self, airfoil, xpos, ypos ):
-        self.draw_airfoil(airfoil, xpos, ypos, '1px', 'red', True, False )
+    def draw_airfoil_plan(self, airfoil ):
+        self.draw_airfoil(airfoil, '1px', 'red', True, False )
 
-    def draw_airfoil_demo(self, airfoil, xpos, ypos ):
-        self.draw_airfoil(airfoil, xpos, ypos, '1px', 'red', True, True )
+    def draw_airfoil_demo(self, airfoil ):
+        self.draw_airfoil(airfoil, '1px', 'red', True, True )
 
-    def draw_airfoil_points(self, airfoil, xpos, ypos ):
-        self.draw_airfoil(airfoil, xpos, ypos, '1px', 'red', False, True )
+    def draw_airfoil_points(self, airfoil ):
+        self.draw_airfoil(airfoil, '1px', 'red', False, True )
 
     def save(self):
         self.dwg.save()
