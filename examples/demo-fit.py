@@ -38,7 +38,7 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Original Points" )
-layout.draw_airfoil_vertices( rib )
+layout.draw_part_vertices( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
@@ -50,7 +50,7 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Spline interpolation & adaptive fit to 0.00005\" tolerance" )
-layout.draw_airfoil_demo( rib )
+layout.draw_part_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
@@ -62,7 +62,7 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Spline interpolation & adaptive fit to 0.0005\" tolerance" )
-layout.draw_airfoil_demo( rib )
+layout.draw_part_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
@@ -74,7 +74,7 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Spline interpolation & adaptive fit to 0.005\" tolerance" )
-layout.draw_airfoil_demo( rib )
+layout.draw_part_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
@@ -86,7 +86,7 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Spline interpolation & adaptive fit to 0.01\" tolerance" )
-layout.draw_airfoil_demo( rib )
+layout.draw_part_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
@@ -98,7 +98,7 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Spline interpolation & adaptive fit to 0.05\" tolerance" )
-layout.draw_airfoil_demo( rib )
+layout.draw_part_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
@@ -110,6 +110,6 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Spline interpolation & adaptive fit to 0.1\" tolerance" )
-layout.draw_airfoil_demo( rib )
+layout.draw_part_demo( rib )
 
-layout.save_all()
+layout.save()

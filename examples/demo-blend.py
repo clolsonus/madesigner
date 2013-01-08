@@ -49,6 +49,6 @@ for p in range(0, steps+1):
 
     rib.rotate( percent * twist )
 
-    layout.draw_airfoil_demo( rib )
+    layout.draw_part_demo( rib )
         
-layout.save_all()
+layout.save()

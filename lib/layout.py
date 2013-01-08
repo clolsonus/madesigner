@@ -25,7 +25,8 @@ class Sheet:
         self.xpos = 0.0 + self.margin
         self.biggest_x = 0.0
 
-    def draw_airfoil(self, orig_airfoil, stroke_width, color, lines = True, points = False ):
+    def draw_part_side(self, orig_airfoil, stroke_width, color, \
+                           lines = True, points = False ):
         airfoil = copy.deepcopy(orig_airfoil)
         airfoil.scale(1,-1)
         bounds = airfoil.get_bounds()
@@ -80,6 +81,39 @@ class Sheet:
 
         return True
 
+    def draw_part_top(self, orig_airfoil, x, y, stroke_width, color ):
+        airfoil = copy.deepcopy(orig_airfoil)
+        airfoil.scale(1,-1)
+        bounds = airfoil.get_bounds()
+        dx = bounds[1][0] - bounds[0][0]
+
+        airfoil.scale( self.dpi, self.dpi )
+        reverse_top = list(airfoil.top)
+        reverse_top.reverse()
+        shape = reverse_top + airfoil.bottom
+        g = self.dwg.g()
+        g.translate((self.xpos-bounds[0][0])*self.dpi, \
+                        (self.ypos-bounds[0][1])*self.dpi)
+        self.ypos += dy + self.margin
+        if dx > self.biggest_x:
+            self.biggest_x = dx
+
+        poly = self.dwg.polygon(shape, stroke = 'red', fill = 'none', \
+                                    stroke_width = stroke_width)
+        g.add( poly )
+
+        for label in airfoil.labels:
+            #print "label = " + str(label[0]) + "," + str(label[1])
+            t = self.dwg.text(label[4], (0, 0), font_size = label[2], text_anchor = "middle")
+            t.translate( (label[0], label[1]) )
+            t.rotate(-label[3])
+            # text_align = center
+            g.add(t)
+
+        self.dwg.add(g)
+
+        return True
+
     def save(self):
         self.dwg.save()
 
@@ -94,7 +128,7 @@ class Layout:
         self.dpi = dpi
         self.sheets = []
 
-    def draw_airfoil(self, af, stroke_width, color, lines = True, points = False ):
+    def draw_part(self, af, stroke_width, color, lines = True, points = False ):
         # sanity check that part will fit on a sheet
         bounds = af.get_bounds()
         dx = bounds[1][0] - bounds[0][0]
@@ -111,34 +145,35 @@ class Layout:
         i = 0
         done = False
         while i < num_sheets and not done:
-            done = self.sheets[i].draw_airfoil(af, stroke_width, color, \
-                                                   lines, points)
+            done = self.sheets[i].draw_part_side(af, stroke_width, color, \
+                                                     lines, points)
             i += 1
         if not done:
             # couldn't fit on any existing sheet so create a new one
             sheet = Sheet(self.basename + str(i), self.width_in, \
                               self.height_in, self.margin_in, self.dpi)
-            done = sheet.draw_airfoil(af, stroke_width, color, lines, points)
+            done = sheet.draw_part_side(af, stroke_width, color, lines, points)
             self.sheets.append(sheet)
         if not done:
+            print "this should never happen!"
             if len(af.labels):
                 print "Failed to fit: " + af.labels[0][4]
             else:
                 print "Failed to fit: " + af.name
         return done
 
-    def draw_airfoil_cut_line(self, airfoil ):
-        self.draw_airfoil(airfoil, '0.001in', 'red', True, False )
+    def draw_part_cut_line(self, airfoil ):
+        self.draw_part(airfoil, '0.001in', 'red', True, False )
 
-    def draw_airfoil_plan_line(self, airfoil ):
-        self.draw_airfoil(airfoil, '1px', 'red', True, False )
+    def draw_part_plan_side(self, airfoil ):
+        self.draw_part(airfoil, '1px', 'red', True, False )
 
-    def draw_airfoil_demo(self, airfoil ):
-        self.draw_airfoil(airfoil, '1px', 'red', True, True )
+    def draw_part_demo(self, airfoil ):
+        self.draw_part(airfoil, '1px', 'red', True, True )
 
-    def draw_airfoil_vertices(self, airfoil ):
-        self.draw_airfoil(airfoil, '1px', 'red', False, True )
+    def draw_part_vertices(self, airfoil ):
+        self.draw_part(airfoil, '1px', 'red', False, True )
 
-    def save_all(self):
+    def save(self):
         for sheet in self.sheets:
             sheet.save()

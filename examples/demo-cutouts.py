@@ -110,6 +110,6 @@ for p in range(0, steps+1):
     hy = by + vd / 2.0
     blend.add_label( at, hy, 14, 0, "W" + str(p) )
 
-    layout.draw_airfoil_demo( blend )
+    layout.draw_part_demo( blend )
 
-layout.save_all()
+layout.save()
