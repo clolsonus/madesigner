@@ -37,7 +37,7 @@ by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
 rib.add_label( tx, hy, 14, 0, "Original Points" )
-layout.draw_airfoil_points( rib )
+layout.draw_airfoil_vertices( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)

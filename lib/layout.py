@@ -15,7 +15,7 @@ import airfoil
 
 class Layout:
 
-    def __init__(self, name, width_in, height_in, dpi):
+    def __init__(self, name, width_in, height_in, dpi = 90):
         self.dwg = svgwrite.Drawing( name, size = ( '{:.2f}in'.format(width_in), '{:.2f}in'.format(height_in) ) )
         self.width_in = width_in
         self.height_in = height_in
@@ -72,16 +72,16 @@ class Layout:
 
         self.dwg.add(g)
 
-    def draw_airfoil_cut(self, airfoil ):
+    def draw_airfoil_cut_line(self, airfoil ):
         self.draw_airfoil(airfoil, '0.001in', 'red', True, False )
 
-    def draw_airfoil_plan(self, airfoil ):
+    def draw_airfoil_plan_line(self, airfoil ):
         self.draw_airfoil(airfoil, '1px', 'red', True, False )
 
     def draw_airfoil_demo(self, airfoil ):
         self.draw_airfoil(airfoil, '1px', 'red', True, True )
 
-    def draw_airfoil_points(self, airfoil ):
+    def draw_airfoil_vertices(self, airfoil ):
         self.draw_airfoil(airfoil, '1px', 'red', False, True )
 
     def save(self):
