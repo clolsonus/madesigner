@@ -19,10 +19,11 @@ twist = -5
 
 width_in = 8.5
 height_in = 11
+margin_in = 0.1
 dpi = 90
 
 print "coutouts demo"
-layout = layout.Layout( 'demo-cutouts.svg', width_in, height_in, dpi )
+layout = layout.Layout( 'demo-cutouts', width_in, height_in, margin_in, dpi )
 
 root = airfoil.Airfoil("naca633618", 1000, True)
 tip = airfoil.Airfoil("naca0015", 1000, True);
@@ -111,4 +112,4 @@ for p in range(0, steps+1):
 
     layout.draw_airfoil_demo( blend )
 
-layout.save()
+layout.save_all()

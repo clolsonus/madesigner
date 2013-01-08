@@ -21,11 +21,12 @@ twist = 10
 
 width_in = 8.5
 height_in = 11
+margin_in = 0.1
 dpi = 90
 
 # show blending airfoils, scaling, rotating, and positioning
 print "blending demo"
-layout = layout.Layout( 'demo-blend.svg', width_in, height_in, dpi )
+layout = layout.Layout( 'demo-blend', width_in, height_in, margin_in, dpi )
 
 steps = 8
 dp = 1.0 / steps
@@ -50,4 +51,4 @@ for p in range(0, steps+1):
 
     layout.draw_airfoil_demo( rib )
         
-layout.save()
+layout.save_all()
