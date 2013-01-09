@@ -15,7 +15,7 @@ import airfoil
 
 class Sheet:
 
-    def __init__(self, name, width_in, height_in, margin_in, dpi = 90):
+    def __init__(self, name, width_in, height_in, margin_in = 0.1, dpi = 90):
         self.dwg = svgwrite.Drawing( name + '.svg', size = ( '{:.2f}in'.format(width_in), '{:.2f}in'.format(height_in) ) )
         self.width_in = width_in
         self.height_in = height_in
@@ -81,22 +81,29 @@ class Sheet:
 
         return True
 
-    def draw_part_top(self, orig_airfoil, x, y, stroke_width, color ):
+    def draw_part_top(self, offset, orig_airfoil, pos, stroke_width, color ):
         airfoil = copy.deepcopy(orig_airfoil)
         airfoil.scale(1,-1)
         bounds = airfoil.get_bounds()
         dx = bounds[1][0] - bounds[0][0]
 
         airfoil.scale( self.dpi, self.dpi )
-        reverse_top = list(airfoil.top)
-        reverse_top.reverse()
-        shape = reverse_top + airfoil.bottom
+        shape = []
+        x1 = (pos[1] + bounds[0][0]) * self.dpi
+        x2 = (pos[1] + bounds[1][0]) * self.dpi
+        y1 = (-pos[0] - 0.0625) * self.dpi
+        y2 = (-pos[0] + 0.0625) * self.dpi
+        #print (bounds[0][0], bounds[1][0])
+        #print pos[1]
+        #print (y1, y2)
+        shape.append( (x1, y1) )
+        shape.append( (x2, y1) )
+        shape.append( (x2, y2) )
+        shape.append( (x1, y2) )
+        #print "draw_rib = " + str(shape)
         g = self.dwg.g()
-        g.translate((self.xpos-bounds[0][0])*self.dpi, \
-                        (self.ypos-bounds[0][1])*self.dpi)
-        self.ypos += dy + self.margin
-        if dx > self.biggest_x:
-            self.biggest_x = dx
+        #print " at offset = " + str(offset)
+        g.translate( offset[0]*self.dpi, offset[1]*self.dpi )
 
         poly = self.dwg.polygon(shape, stroke = 'red', fill = 'none', \
                                     stroke_width = stroke_width)

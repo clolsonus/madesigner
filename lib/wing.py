@@ -19,8 +19,8 @@ class Rib:
         self.thickness = 0.0625
         self.material = "balsa"
         self.contour = None
-        self.lat_dist = 0.0
-        self.sweep_angle = 0.0
+        self.pos = (0.0, 0.0, 0.0)
+        self.sweep = 0.0
         self.placed = False
 
 
@@ -36,7 +36,7 @@ class Wing:
         self.span = 30.0
         self.steps = 10
         self.twist = 0.0
-        self.sweep_angle = 0.0 # angle @ 25% chord line, in degrees 
+        self.sweep = 0.0 # angle @ 25% chord line, in degrees 
         self.units = "in"
         self.right_ribs = []
         self.left_ribs = []
@@ -62,10 +62,12 @@ class Wing:
         # do rotate
         result.contour.rotate(twist)
         # compute plan position
-        sweep_offset = lat_dist * math.tan(math.radians(self.sweep_angle))
+        sweep_offset = lat_dist * math.tan(math.radians(self.sweep))
+        #print self.sweep
+        #print sweep_offset
         result.contour.move(sweep_offset, 0.0)
-        result.lat_dist = lat_dist
-        result.sweep_angle = self.sweep_angle
+        result.pos = (lat_dist, sweep_offset, 0.0)
+        result.sweep = self.sweep
 
         return result
 
@@ -103,19 +105,42 @@ class Wing:
             rib = self.make_rib(af, chord, -lat_dist, twist, label)
             self.left_ribs.append(rib)
 
-    def all_parts_placed(self):
+    def layout_parts(self, basename, width_in, height_in, margin_in):
+        l = layout.Layout( basename + '-wing-parts', width_in, height_in, margin_in )
         for rib in self.right_ribs:
-            if not rib.placed:
-                return False
+            rib.placed = l.draw_part_demo(rib.contour)
         for rib in self.left_ribs:
-            if not rib.placed:
-                return False
-        return True
+            rib.placed = l.draw_part_demo(rib.contour)
+        l.save()
 
-    def layout(self, basename, width_in, height_in, margin_in):
-        l = layout.Layout( basename + '-wing', width_in, height_in, margin_in )
+    def layout_plans(self, basename, width_in, height_in):
+        sheet = layout.Sheet( basename + '-wing', width_in, height_in )
+        yoffset = (height_in - self.span) * 0.5
+        #print yoffset
+
+        # determine "x" extent of ribs
+        minx = 0
+        maxx = 0
         for rib in self.right_ribs:
-            rib.placed = l.draw_airfoil_demo(rib.contour)
+            bounds = rib.contour.get_bounds()
+            if bounds[0][0] < minx:
+                minx = bounds[0][0]
+            if bounds[1][0] > maxx:
+                maxx = bounds[1][0]
+        #print (minx, maxx)
+        dx = maxx - minx
+        xmargin = (width_in - 2*dx) / 3.0
+        #print "xmargin = " + str(xmargin)
+
+        # right wing
+        planoffset = (xmargin - minx, height_in - yoffset, -1)
+        #print planoffset
+        for rib in self.right_ribs:
+            rib.placed = sheet.draw_part_top(planoffset, rib.contour, rib.pos, "1px", "red")
+
+        # left wing
+        planoffset = ((width_in - xmargin) - dx - minx, yoffset, 1)
+        #print planoffset
         for rib in self.left_ribs:
-            rib.placed = l.draw_airfoil_demo(rib.contour)
-        l.save_all()
+            rib.placed = sheet.draw_part_top(planoffset, rib.contour, rib.pos, "1px", "red")
+        sheet.save()
