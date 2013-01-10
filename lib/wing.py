@@ -113,16 +113,16 @@ class Wing:
             rib = self.make_rib(af, chord, -lat_dist, twist, label)
             self.left_ribs.append(rib)
 
-    def layout_parts_sheets(self, basename, width_in, height_in, margin_in):
-        l = layout.Layout( basename + '-wing-sheet', width_in, height_in, margin_in )
+    def layout_parts_sheets(self, basename, width, height, margin = 0.1):
+        l = layout.Layout( basename + '-wing-sheet', width, height, margin )
         for rib in self.right_ribs:
             rib.placed = l.draw_part_cut_line(rib.contour)
         for rib in self.left_ribs:
             rib.placed = l.draw_part_cut_line(rib.contour)
         l.save()
 
-    def layout_parts_templates(self, basename, width_in, height_in, margin_in):
-        l = layout.Layout( basename + '-wing-template', width_in, height_in, margin_in )
+    def layout_parts_templates(self, basename, width, height, margin = 0.1):
+        l = layout.Layout( basename + '-wing-template', width, height, margin )
         for rib in self.right_ribs:
             contour = copy.deepcopy(rib.contour)
             contour.rotate(90)
@@ -133,9 +133,9 @@ class Wing:
             rib.placed = l.draw_part_demo(contour)
         l.save()
 
-    def layout_plans(self, basename, width_in, height_in, margin_in = 0.1, dpi = 90):
-        sheet = layout.Sheet( basename + '-wing', width_in, height_in, margin_in, dpi )
-        yoffset = (height_in - self.span) * 0.5
+    def layout_plans(self, basename, width, height, margin = 0.1, units = "in", dpi = 90):
+        sheet = layout.Sheet( basename + '-wing', width, height )
+        yoffset = (height - self.span) * 0.5
         #print yoffset
 
         # determine "x" extent of ribs
@@ -151,17 +151,17 @@ class Wing:
                 maxx = bounds[1][0] + sweep_offset
         #print (minx, maxx)
         dx = maxx - minx
-        xmargin = (width_in - 2*dx) / 3.0
+        xmargin = (width - 2*dx) / 3.0
         # print "xmargin = " + str(xmargin)
 
         # right wing
-        planoffset = (xmargin - minx, height_in - yoffset, -1)
+        planoffset = (xmargin - minx, height - yoffset, -1)
         #print planoffset
         for rib in self.right_ribs:
             rib.placed = sheet.draw_part_top(planoffset, rib.contour, rib.pos, "1px", "red")
 
         # left wing
-        planoffset = ((width_in - xmargin) - dx - minx, yoffset, 1)
+        planoffset = ((width - xmargin) - dx - minx, yoffset, 1)
         #print planoffset
         for rib in self.left_ribs:
             rib.placed = sheet.draw_part_top(planoffset, rib.contour, rib.pos, "1px", "red")

@@ -15,12 +15,13 @@ import airfoil
 
 class Sheet:
 
-    def __init__(self, name, width_in, height_in, margin_in = 0.1, dpi = 90):
-        self.dwg = svgwrite.Drawing( name + '.svg', size = ( '{:.2f}in'.format(width_in), '{:.2f}in'.format(height_in) ) )
-        self.dwg.viewbox( 0, 0, width_in*dpi, height_in*dpi )
-        self.width_in = width_in
-        self.height_in = height_in
-        self.margin = margin_in
+    def __init__(self, name, width, height, margin = 0.1, units = "in", dpi = 90):
+        self.dwg = svgwrite.Drawing( name + '.svg', size = (str(width)+units, str(height)+units) )
+        self.dwg.viewbox( 0, 0, width*dpi, height*dpi )
+        self.width = width
+        self.height = height
+        self.margin = margin
+        self.units = units
         self.dpi = dpi
         self.ypos = 0.0 + self.margin
         self.xpos = 0.0 + self.margin
@@ -38,11 +39,11 @@ class Sheet:
         reverse_top = list(airfoil.top)
         reverse_top.reverse()
         shape = reverse_top + airfoil.bottom
-        if self.ypos + dy + self.margin > self.height_in:
+        if self.ypos + dy + self.margin > self.height:
             self.xpos += self.biggest_x + self.margin
             self.ypos = self.margin
             self.biggest_x = 0.0
-        if self.xpos + dx + self.margin > self.width_in:
+        if self.xpos + dx + self.margin > self.width:
             return False
         g = self.dwg.g()
         g.translate((self.xpos-bounds[0][0])*self.dpi, \
@@ -131,11 +132,12 @@ class Sheet:
 
 class Layout:
 
-    def __init__(self, basename, width_in, height_in, margin_in = 0.1, dpi = 90):
+    def __init__(self, basename, width, height, margin = 0.1, units = "in", dpi = 90):
         self.basename = basename
-        self.width_in = width_in
-        self.height_in = height_in
-        self.margin_in = margin_in
+        self.width = width
+        self.height = height
+        self.margin = margin
+        self.units = units
         self.dpi = dpi
         self.sheets = []
 
@@ -144,8 +146,8 @@ class Layout:
         bounds = af.get_bounds()
         dx = bounds[1][0] - bounds[0][0]
         dy = bounds[1][1] - bounds[0][1]
-        if (dx > self.width_in - 2*self.margin_in) or \
-                (dy > self.height_in - 2*self.margin_in):
+        if (dx > self.width - 2*self.margin) or \
+                (dy > self.height - 2*self.margin):
             if len(af.labels):
                 print "Failed to fit: " + af.labels[0][4]
             else:
@@ -161,8 +163,8 @@ class Layout:
             i += 1
         if not done:
             # couldn't fit on any existing sheet so create a new one
-            sheet = Sheet(self.basename + str(i), self.width_in, \
-                              self.height_in, self.margin_in, self.dpi)
+            sheet = Sheet(self.basename + str(i), self.width, \
+                              self.height, self.margin, self.units, self.dpi)
             done = sheet.draw_part_side(af, stroke_width, color, lines, points)
             self.sheets.append(sheet)
         if not done:

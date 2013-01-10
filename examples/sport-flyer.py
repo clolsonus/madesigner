@@ -14,6 +14,7 @@ except ImportError:
 
 # define the wing layout
 wing = wing.Wing()
+wing.units = "in"
 wing.load_airfoils("naca0015")
 wing.root_chord = 10.0
 wing.tip_chord = 5
@@ -28,10 +29,10 @@ wing.steps = 10
 wing.build()
 
 # create the cut sheet layout
-wing.layout_parts_sheets( "sport-flyer", 24, 4, 0.1 )
+wing.layout_parts_sheets( "sport-flyer", 24, 4 )
 
 # create the cut sheet layout
-wing.layout_parts_templates( "sport-flyer", 8.5, 11, 0.1 )
+wing.layout_parts_templates( "sport-flyer", 8.5, 11 )
 
 # generate the plans
 wing.layout_plans( "sport-flyer", 24, 36 )

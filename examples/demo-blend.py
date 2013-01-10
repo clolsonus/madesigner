@@ -19,14 +19,12 @@ rchord = 8.0
 tchord = 4.0
 twist = 10
 
-width_in = 8.5
-height_in = 11
-margin_in = 0.1
-dpi = 90
+width = 8.5
+height = 11
 
 # show blending airfoils, scaling, rotating, and positioning
 print "blending demo"
-layout = layout.Layout( 'demo-blend', width_in, height_in, margin_in, dpi )
+layout = layout.Layout( 'demo-blend', width, height )
 
 steps = 8
 dp = 1.0 / steps

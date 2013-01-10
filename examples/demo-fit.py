@@ -22,11 +22,9 @@ twist = -10
 
 width_in = 8.5
 height_in = 11
-margin_in = 0.1
-dpi = 90
 
 print "resampling and adaptive fit demo"
-layout = layout.Layout( 'demo-fit', width_in, height_in, margin_in, dpi )
+layout = layout.Layout( 'demo-fit', width_in, height_in )
 
 root = airfoil.Airfoil("naca633618", 0, False)
 
