@@ -17,6 +17,7 @@ class Sheet:
 
     def __init__(self, name, width_in, height_in, margin_in = 0.1, dpi = 90):
         self.dwg = svgwrite.Drawing( name + '.svg', size = ( '{:.2f}in'.format(width_in), '{:.2f}in'.format(height_in) ) )
+        self.dwg.viewbox( 0, 0, width_in*dpi, height_in*dpi )
         self.width_in = width_in
         self.height_in = height_in
         self.margin = margin_in
@@ -89,10 +90,12 @@ class Sheet:
 
         airfoil.scale( self.dpi, self.dpi )
         shape = []
-        x1 = (pos[1] + bounds[0][0]) * self.dpi
-        x2 = (pos[1] + bounds[1][0]) * self.dpi
-        y1 = (-pos[0] - 0.0625) * self.dpi
-        y2 = (-pos[0] + 0.0625) * self.dpi
+        part_width = 0.125
+        x1 = bounds[0][0] * self.dpi
+        x2 = bounds[1][0] * self.dpi
+        y1 = -part_width*0.5 * self.dpi
+        y2 = part_width*0.5 * self.dpi
+
         #print (bounds[0][0], bounds[1][0])
         #print pos[1]
         #print (y1, y2)
@@ -103,7 +106,8 @@ class Sheet:
         #print "draw_rib = " + str(shape)
         g = self.dwg.g()
         #print " at offset = " + str(offset)
-        g.translate( offset[0]*self.dpi, offset[1]*self.dpi )
+        g.translate( (pos[1] + offset[0])*self.dpi, \
+                         (-pos[0] + offset[1])*self.dpi )
 
         poly = self.dwg.polygon(shape, stroke = 'red', fill = 'none', \
                                     stroke_width = stroke_width)
@@ -112,8 +116,8 @@ class Sheet:
         for label in airfoil.labels:
             #print "label = " + str(label[0]) + "," + str(label[1])
             t = self.dwg.text(label[4], (0, 0), font_size = label[2], text_anchor = "middle")
-            t.translate( (label[0], label[1]) )
-            t.rotate(-label[3])
+            t.translate( ((bounds[0][0] + dx*0.5)*self.dpi, \
+                              -part_width*self.dpi) )
             # text_align = center
             g.add(t)
 
