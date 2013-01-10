@@ -17,11 +17,11 @@ rchord = 8.0
 tchord = 5.0
 twist = -5
 
-width_in = 8.5
-height_in = 11
+width = 8.5
+height = 11
 
 print "coutouts demo"
-layout = layout.Layout( 'demo-cutouts', width_in, height_in )
+layout = layout.Layout( 'demo-cutouts', width, height )
 
 root = airfoil.Airfoil("naca633618", 1000, True)
 tip = airfoil.Airfoil("naca0015", 1000, True);

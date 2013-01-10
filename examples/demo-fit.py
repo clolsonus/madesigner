@@ -13,24 +13,19 @@ except ImportError:
     import airfoil
     import layout
 
-root = airfoil.Airfoil("naca633618", 1000, True)
-tip = airfoil.Airfoil("naca0015", 1000, True);
+chord = 8.0
 
-rchord = 8.0
-tchord = 4.0
-twist = -10
-
-width_in = 8.5
-height_in = 11
+width = 8.5
+height = 11
 
 print "resampling and adaptive fit demo"
-layout = layout.Layout( 'demo-fit', width_in, height_in )
+layout = layout.Layout( 'demo-fit', width, height )
 
 root = airfoil.Airfoil("naca633618", 0, False)
 
 rib = copy.deepcopy(root)
-rib.scale( rchord, rchord )
-tx = rchord/3.0
+rib.scale( chord, chord )
+tx = chord/3.0
 ty = rib.simple_interp(rib.top, tx)
 by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
@@ -40,9 +35,9 @@ layout.draw_part_vertices( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
-rib.scale( rchord, rchord )
+rib.scale( chord, chord )
 rib.fit( 200, 0.00005 )
-tx = rchord/3.0
+tx = chord/3.0
 ty = rib.simple_interp(rib.top, tx)
 by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
@@ -52,9 +47,9 @@ layout.draw_part_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
-rib.scale( rchord, rchord )
+rib.scale( chord, chord )
 rib.fit( 200, 0.0005 )
-tx = rchord/3.0
+tx = chord/3.0
 ty = rib.simple_interp(rib.top, tx)
 by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
@@ -64,9 +59,9 @@ layout.draw_part_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
-rib.scale( rchord, rchord )
+rib.scale( chord, chord )
 rib.fit( 200, 0.005 )
-tx = rchord/3.0
+tx = chord/3.0
 ty = rib.simple_interp(rib.top, tx)
 by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
@@ -76,9 +71,9 @@ layout.draw_part_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
-rib.scale( rchord, rchord )
+rib.scale( chord, chord )
 rib.fit( 200, 0.01 )
-tx = rchord/3.0
+tx = chord/3.0
 ty = rib.simple_interp(rib.top, tx)
 by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
@@ -88,9 +83,9 @@ layout.draw_part_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
-rib.scale( rchord, rchord )
+rib.scale( chord, chord )
 rib.fit( 200, 0.05 )
-tx = rchord/3.0
+tx = chord/3.0
 ty = rib.simple_interp(rib.top, tx)
 by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
@@ -100,9 +95,9 @@ layout.draw_part_demo( rib )
 
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
-rib.scale( rchord, rchord )
+rib.scale( chord, chord )
 rib.fit( 200, 0.1 )
-tx = rchord/3.0
+tx = chord/3.0
 ty = rib.simple_interp(rib.top, tx)
 by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
