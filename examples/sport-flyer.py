@@ -12,21 +12,26 @@ except ImportError:
     import wing
     import airfoil
 
-# define the wing parameters
+# define the wing layout
 wing = wing.Wing()
 wing.load_airfoils("naca0015")
-wing.root_chord = 11.0
-wing.tip_chord = 5.0
-wing.span = 31.0
+wing.root_chord = 10.0
+wing.tip_chord = 5
+wing.span = 30.0
 wing.twist = 5
 wing.sweep = 0
-wing.steps = 2
+
+# define the wing structure
+wing.steps = 10
 
 # build the wing parts
 wing.build()
 
 # create the cut sheet layout
-wing.layout_parts( "sport-flyer", 24, 4, 0.1 )
+wing.layout_parts_sheets( "sport-flyer", 24, 4, 0.1 )
+
+# create the cut sheet layout
+wing.layout_parts_templates( "sport-flyer", 8.5, 11, 0.1 )
 
 # generate the plans
 wing.layout_plans( "sport-flyer", 24, 36 )
