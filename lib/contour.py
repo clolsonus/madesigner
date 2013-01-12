@@ -11,7 +11,6 @@ import math
 import string
 import spline
 
-datapath = "../data"
 
 class Contour:
 
@@ -180,9 +179,17 @@ class Contour:
         self.holes = list(newholes)
         self.labels = list(newlabels)
 
-    # rel top/bottom, tangent/vertical, xpos, ysize
-    def cutout(self, side = "top", orientation = "tangent", xpos = 0, xsize = 0, ysize = 0):
+    # side={top,bottom} (attached to top or bottom of airfoil)
+    # orientation={tangent,vertical} (aligned vertically or flush with surface)
+    # relative={front,rear,percent_chord} (position is relative to this ref pt)
+    # xpos=value (factoring in the relative argument)
+    # ysize=value (vertical size)
 
+    # use side="bottom" + ysize=-negative_value +
+    # orientation="vertical" for build support tabs
+    def cutout(self, side = "top", orientation = "tangent", \
+                   percent=-0.1, front_rel=-0.1, rear_rel=-0.1, \
+                   xsize = 0, ysize = 0):
         top = False
         if side == "top":
             top = True
@@ -190,6 +197,17 @@ class Contour:
         tangent = False
         if orientation == "tangent":
             tangent = True;
+
+        # compute position of cutout
+        bounds = self.get_bounds()
+        chord = bounds[1][0] - bounds[0][0]
+        if percent > 0:
+            xpos = bounds[0][0] + chord * percent
+        elif front_rel > 0:
+            xpos = bounds[0][0] + front_rel
+        elif rear_rel > 0:
+            xpos = bounds[1][0] - rear_rel
+        print "xpos = " + str(xpos)
 
         curve = []
         if top:
@@ -259,20 +277,37 @@ class Contour:
         else:
             self.bottom = list(newcurve)
 
-    def cutout_stringer(self, side = "top", orientation = "tangent", xpos = 0, xsize = 0, ysize = 0):
-        self.cutout(side, orientation, xpos, xsize, ysize)
+    def cutout_stringer(self, side="top", orientation="tangent", \
+                            percent=-0.1, front_rel=-0.1, rear_rel=-0.1, \
+                            xsize = 0, ysize = 0):
+        self.cutout(side, orientation, percent, front_rel, rear_rel, \
+                        xsize, ysize)
 
-    def add_build_tab(self, side = "top", xpos = 0, xsize = 0, yextra = 0):
+    def add_build_tab(self, side = "top", relative = "front", \
+                          percent=-0.1, front_rel=-0.1, rear_rel=-0.1, \
+                          xsize = 0, yextra = 0):
+        # compute actual "x" position
+        bounds = self.get_bounds()
+        chord = bounds[1][0] - bounds[0][0]
+        if percent > 0:
+            xpos = bounds[0][0] + chord * percent
+        elif front_rel > 0:
+            xpos = bounds[0][0] + front_rel
+        elif rear_rel > 0:
+            xpos = bounds[1][0] - rear_rel
+        print "xpos = " + str(xpos)
         # find the y value of the attach point and compute the size of
         # the tab needed
-        bounds = self.get_bounds()
         if side == "top":
             ypos = self.simple_interp(self.top, xpos)
             ysize = bounds[1][1] - ypos + yextra
         else:
             ypos = self.simple_interp(self.bottom, xpos)
             ysize = ypos - bounds[0][1] + yextra
-        self.cutout(side, "vertical", xpos, xsize, -ysize)
+        # call the cutout method with negative ysize to create a tab
+        self.cutout(side, orientation="vertical", percent=percent, \
+                        front_rel=front_rel, rear_rel=rear_rel, \
+                        xsize=xsize, ysize=-ysize)
 
     def add_hole(self, xpos, ypos, radius):
         self.holes.append( (xpos, ypos, radius) )        

@@ -50,16 +50,18 @@ for p in range(0, steps+1):
     #blend.cutout_sweep( "top", le, d, 0.0625, 0.05 )
     #blend.cutout_sweep( "bottom", le, d, 0.0625, 0.05 )
 
-    # front stringers (before washout rotate)
-    fs = bounds[0][0] + size*0.1
-    blend.cutout_stringer( "top", "tangent", fs, 0.125, 0.125 )
-    fs = bounds[0][0] + size*0.2
-    blend.cutout_stringer( "top", "tangent", fs, 0.125, 0.125 )
+    # stringer position tapers with wing (if there is a taper)
+    blend.cutout_stringer( side="top", orientation="tangent", percent=0.15, \
+                               xsize=0.125, ysize=0.125 )
+    # stringer position fixed relative to nose of rib
+    blend.cutout_stringer( side="top", orientation="tangent", front_rel=0.25, \
+                               xsize=0.125, ysize=0.125 )
 
     # rear stringer (before washout rotate)
-    rs = bounds[1][0] - size*0.3
-    blend.cutout_stringer( "top", "tangent", rs, 0.125, 0.125 )
-    blend.cutout_stringer( "bottom", "tangent", rs, 0.125, 0.125 )
+    blend.cutout_stringer( side="top", orientation="tangent", percent=0.7, \
+                               xsize=0.125, ysize=0.125 )
+    blend.cutout_stringer( side="bottom", orientation="vertical", \
+                               rear_rel=1.5, xsize=0.125, ysize=0.125 )
 
     # lightening holes
     hx = bounds[0][0] + size * 0.16
@@ -90,15 +92,14 @@ for p in range(0, steps+1):
     blend.rotate( percent * twist )
 
     # main spars
-    blend.cutout_stringer( "top", "vertical", 0, 0.125, 0.20 )
-    blend.cutout_stringer( "bottom", "vertical", 0, 0.125, 0.30 )
+    blend.cutout_stringer( side="top", orientation="vertical", \
+                               percent=0.33, xsize=0.125, ysize=0.20 )
+    blend.cutout_stringer( side="bottom", orientation="vertical", \
+                               percent=0.33, xsize=0.125, ysize=0.30 )
 
     # build alignment tabs
-    at = bounds[1][0] - size * 0.15
-    blend.add_build_tab("bottom", at, 0.4 )
-
-    at = bounds[0][0] + size * 0.15
-    blend.add_build_tab("bottom", at, 0.4 )
+    blend.add_build_tab(side="bottom", percent=0.15, xsize=0.4 )
+    blend.add_build_tab(side="bottom", percent=0.85, xsize=0.4 )
 
     # label
     at = bounds[0][0] + size * 0.27

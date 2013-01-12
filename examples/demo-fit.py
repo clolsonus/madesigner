@@ -96,13 +96,13 @@ layout.draw_part_demo( rib )
 rib = copy.deepcopy(root)
 rib.resample(1000, True)
 rib.scale( chord, chord )
-rib.fit( 200, 0.1 )
+rib.fit( 200, 0.15 )
 tx = chord/3.0
 ty = rib.simple_interp(rib.top, tx)
 by = rib.simple_interp(rib.bottom, tx)
 vd = (ty - by)
 hy = by + vd / 2.0
-rib.add_label( tx, hy, 14, 0, "Spline interpolation & adaptive fit to 0.1\" tolerance" )
+rib.add_label( tx, hy, 14, 0, "Spline interpolation & adaptive fit to 0.15\" tolerance" )
 layout.draw_part_demo( rib )
 
 layout.save()
