@@ -77,6 +77,11 @@ class Wing:
         result.pos = (lat_dist, sweep_offset, 0.0)
         result.sweep = self.sweep
 
+        # leading edge cutout
+        diamond = self.leading_edge_diamond
+        if diamond > 0.01:
+            result.contour.cutout_leading_edge_diamond(diamond)
+
         return result
 
     def build(self):
@@ -106,12 +111,12 @@ class Wing:
 
             # make the ribs
             label = 'WR' + str(p+1) 
-            rib = self.make_rib(af, chord, lat_dist, twist, label)
-            self.right_ribs.append(rib)
+            right_rib = self.make_rib(af, chord, lat_dist, twist, label)
+            self.right_ribs.append(right_rib)
 
             label = 'WL' + str(p+1)
-            rib = self.make_rib(af, chord, -lat_dist, twist, label)
-            self.left_ribs.append(rib)
+            left_rib = self.make_rib(af, chord, -lat_dist, twist, label)
+            self.left_ribs.append(left_rib)
 
     def layout_parts_sheets(self, basename, width, height, margin = 0.1):
         l = layout.Layout( basename + '-wing-sheet', width, height, margin )

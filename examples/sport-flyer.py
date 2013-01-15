@@ -24,6 +24,7 @@ wing.sweep = 0
 
 # define the wing structure
 wing.steps = 10
+wing.leading_edge_diamond = 0.2
 
 # build the wing parts
 wing.build()
