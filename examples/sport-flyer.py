@@ -25,6 +25,18 @@ wing.sweep = 0
 # define the wing structure
 wing.steps = 10
 wing.leading_edge_diamond = 0.2
+wing.add_stringer( side="top", orientation="tangent", percent=0.10, \
+                       xsize=0.125, ysize=0.125 )
+wing.add_stringer( side="bottom", orientation="tangent", percent=0.10, \
+                       xsize=0.125, ysize=0.125 )
+wing.add_stringer( side="top", orientation="tangent", percent=0.75, \
+                       xsize=0.125, ysize=0.125 )
+wing.add_stringer( side="bottom", orientation="tangent", percent=0.75, \
+                       xsize=0.125, ysize=0.125 )
+wing.add_spar( side="top", orientation="vertical", percent=0.30, \
+                       xsize=0.125, ysize=0.250 )
+wing.add_spar( side="bottom", orientation="vertical", percent=0.30, \
+                       xsize=0.125, ysize=0.250 )
 
 # build the wing parts
 wing.build()

@@ -43,6 +43,8 @@ class Wing:
         # structural components
         self.steps = 10
         self.leading_edge_diamond = 0.0
+        self.stringers = []
+        self.spars = []
 
         # generated parts
         self.right_ribs = []
@@ -53,21 +55,56 @@ class Wing:
         if tip:
             self.tip = airfoil.Airfoil(tip, 1000, True)
 
+    def add_stringer(self, side="top", orientation="tangent", \
+                         percent=-0.1, front_rel=-0.1, rear_rel=-0.1, \
+                         xsize = 0, ysize = 0):
+        self.stringers.append( (side, orientation, percent, front_rel, \
+                                    rear_rel, xsize, ysize) )
+
+    def add_spar(self, side="top", orientation="vertical", \
+                     percent=-0.1, front_rel=-0.1, rear_rel=-0.1, \
+                     xsize = 0, ysize = 0):
+        self.spars.append( (side, orientation, percent, front_rel, \
+                                    rear_rel, xsize, ysize) )
+
     def make_rib(self, airfoil, chord, lat_dist, twist, label ):
         result = Rib()
         result.contour = copy.deepcopy(airfoil)
+
         # scale and position
         result.contour.scale(chord, chord)
         result.contour.fit(500, 0.002)
         result.contour.move(-0.25*chord, 0.0)
+        result.contour.save_bounds()
+
         # add label (before rotate)
         posx = 0.0
         ty = result.contour.simple_interp(result.contour.top, posx)
         by = result.contour.simple_interp(result.contour.bottom, posx)
         posy = by + (ty - by) / 2.0
         result.contour.add_label( posx, posy, 14, 0, label )
+
+        # leading edge cutout
+        diamond = self.leading_edge_diamond
+        if diamond > 0.01:
+            result.contour.cutout_leading_edge_diamond(diamond)
+
+        # cutout stringers (before twist)
+        for stringer in self.stringers:
+            result.contour.cutout_stringer( stringer[0], stringer[1], \
+                                                stringer[2], stringer[3], \
+                                                stringer[4], stringer[5], \
+                                                stringer[6] )
+
         # do rotate
         result.contour.rotate(twist)
+
+        # cutout spars (stringer cut after twist)
+        for spar in self.spars:
+            result.contour.cutout_stringer( spar[0], spar[1], spar[2], \
+                                                spar[3], spar[4], spar[5], \
+                                                spar[6] )
+
         # compute plan position
         sweep_offset = math.fabs(lat_dist) * math.tan(math.radians(self.sweep))
         #print self.sweep
@@ -76,11 +113,6 @@ class Wing:
         #print result.contour.get_bounds()
         result.pos = (lat_dist, sweep_offset, 0.0)
         result.sweep = self.sweep
-
-        # leading edge cutout
-        diamond = self.leading_edge_diamond
-        if diamond > 0.01:
-            result.contour.cutout_leading_edge_diamond(diamond)
 
         return result
 
@@ -99,7 +131,7 @@ class Wing:
             else:
                 af = airfoil.blend(self.root, self.tip, percent)
 
-            # compute rib chord
+            # compute chord
             if self.tip_chord < 0.01:
                 chord = self.root_chord
             else:

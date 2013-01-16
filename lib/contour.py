@@ -21,6 +21,7 @@ class Contour:
         self.bottom = []
         self.holes = []
         self.labels = []
+        self.saved_bounds = []        # see self.save_bounds() for details
 
     def dist_2d(self, pt1, pt2):
         dx = pt2[0]-pt1[0]
@@ -179,6 +180,30 @@ class Contour:
         self.holes = list(newholes)
         self.labels = list(newlabels)
 
+    # the saved "bounds" are used cooperatively to mark the size of
+    # the part before any leading/trailing edge cutouts so that these
+    # cuts don't cause us to lose the original size of the part and
+    # our cut positions can remain constant through out the build
+    # process.
+    def save_bounds(self):
+        self.saved_bounds = self.get_bounds()
+
+    # given one of the possible ways to specify position, return the
+    # actual position
+    def get_xpos(self, percent=-0.1, front_rel=-0.1, rear_rel=-0.1 ):
+        if len(self.saved_bounds) == 0:
+            print "need to call contour.save_bounds() after last size/move,"
+            print "but before any cutouts are made"
+            self.save_bounds()
+        chord = self.saved_bounds[1][0] - self.saved_bounds[0][0]
+        if percent > 0:
+            xpos = self.saved_bounds[0][0] + chord * percent
+        elif front_rel > 0:
+            xpos = self.saved_bounds[0][0] + front_rel
+        elif rear_rel > 0:
+            xpos = self.saved_bounds[1][0] - rear_rel
+        return xpos
+
     # side={top,bottom} (attached to top or bottom of airfoil)
     # orientation={tangent,vertical} (aligned vertically or flush with surface)
     # relative={front,rear,percent_chord} (position is relative to this ref pt)
@@ -199,15 +224,7 @@ class Contour:
             tangent = True;
 
         # compute position of cutout
-        bounds = self.get_bounds()
-        chord = bounds[1][0] - bounds[0][0]
-        if percent > 0:
-            xpos = bounds[0][0] + chord * percent
-        elif front_rel > 0:
-            xpos = bounds[0][0] + front_rel
-        elif rear_rel > 0:
-            xpos = bounds[1][0] - rear_rel
-        print "xpos = " + str(xpos)
+        xpos = self.get_xpos( percent, front_rel, rear_rel )
 
         curve = []
         if top:
@@ -287,23 +304,17 @@ class Contour:
                           percent=-0.1, front_rel=-0.1, rear_rel=-0.1, \
                           xsize = 0, yextra = 0):
         # compute actual "x" position
-        bounds = self.get_bounds()
-        chord = bounds[1][0] - bounds[0][0]
-        if percent > 0:
-            xpos = bounds[0][0] + chord * percent
-        elif front_rel > 0:
-            xpos = bounds[0][0] + front_rel
-        elif rear_rel > 0:
-            xpos = bounds[1][0] - rear_rel
-        print "xpos = " + str(xpos)
-        # find the y value of the attach point and compute the size of
-        # the tab needed
+        xpos = self.get_xpos( percent, front_rel, rear_rel )
+
+        # find the y value of the attach point and compute the
+        # vertical size of the tab needed
         if side == "top":
             ypos = self.simple_interp(self.top, xpos)
-            ysize = bounds[1][1] - ypos + yextra
+            ysize = self.saved_bounds[1][1] - ypos + yextra
         else:
             ypos = self.simple_interp(self.bottom, xpos)
-            ysize = ypos - bounds[0][1] + yextra
+            ysize = ypos - self.saved_bounds[0][1] + yextra
+
         # call the cutout method with negative ysize to create a tab
         self.cutout(side, orientation="vertical", percent=percent, \
                         front_rel=front_rel, rear_rel=rear_rel, \
