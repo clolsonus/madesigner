@@ -170,6 +170,51 @@ class Wing:
             rib.placed = l.draw_part_demo(contour)
         l.save()
 
+    # make portion from half tip of cutout forward to ideal airfoil
+    # nose
+    def make_leading_edge1(self, ribs):
+        side1 = []
+        side2 = []
+        for rib in ribs:
+            idealfront = rib.contour.saved_bounds[0][0]
+            cutbounds = rib.contour.get_bounds()
+            cutfront = cutbounds[0][0]
+            side1.append( (idealfront, -rib.pos[0]) )
+            side2.append( (cutfront, -rib.pos[0]) )
+        side2.reverse()
+        shape = side1 + side2
+        return shape
+
+    # make portion from tip of rib cutout to rear of diamond
+    def make_leading_edge2(self, ribs):
+        side1 = []
+        side2 = []
+        le = self.leading_edge_diamond
+        w = math.sqrt(le*le + le*le)
+        halfwidth = w * 0.5
+        for rib in ribs:
+            cutbounds = rib.contour.get_bounds()
+            cutfront = cutbounds[0][0]
+            side1.append( (cutfront, -rib.pos[0]) )
+            side2.append( (cutfront+halfwidth, -rib.pos[0]) )
+        side2.reverse()
+        shape = side1 + side2
+        return shape
+
+    def make_stringer(self, stringer, ribs):
+        side1 = []
+        side2 = []
+        halfwidth = stringer[5] * 0.5
+        for rib in ribs:
+            #print "%=" + str(stringer[2]) + " rf=" + str(stringer[3]) + \
+            #    " rr=" + str(stringer[4])
+            xpos = rib.contour.get_xpos(stringer[2], stringer[3], stringer[4])
+            side1.append( (xpos-halfwidth, -rib.pos[0]) )
+            side2.append( (xpos+halfwidth, -rib.pos[0]) )
+        side2.reverse()
+        shape = side1 + side2
+        return shape
+
     def layout_plans(self, basename, width, height, margin = 0.1, units = "in", dpi = 90):
         sheet = layout.Sheet( basename + '-wing', width, height )
         yoffset = (height - self.span) * 0.5
@@ -181,7 +226,7 @@ class Wing:
         for rib in self.right_ribs:
             sweep_offset = rib.pos[1]
             # print "sweep offset = " + str(sweep_offset)
-            bounds = rib.contour.get_bounds()
+            bounds = rib.contour.saved_bounds
             if bounds[0][0] + sweep_offset < minx:
                 minx = bounds[0][0] + sweep_offset
             if bounds[1][0] + sweep_offset > maxx:
@@ -193,13 +238,32 @@ class Wing:
 
         # right wing
         planoffset = (xmargin - minx, height - yoffset, -1)
-        #print planoffset
         for rib in self.right_ribs:
             rib.placed = sheet.draw_part_top(planoffset, rib.contour, rib.pos, "1px", "red")
+        shape = self.make_leading_edge1(self.right_ribs)
+        sheet.draw_shape(planoffset, shape, "1px", "red")
+        shape = self.make_leading_edge2(self.right_ribs)
+        sheet.draw_shape(planoffset, shape, "1px", "red")
+        for stringer in self.stringers:
+            shape = self.make_stringer(stringer, self.right_ribs)
+            sheet.draw_shape(planoffset, shape, "1px", "red")
+        for spar in self.spars:
+            shape = self.make_stringer(spar, self.right_ribs)
+            sheet.draw_shape(planoffset, shape, "1px", "red")
 
         # left wing
         planoffset = ((width - xmargin) - dx - minx, yoffset, 1)
-        #print planoffset
         for rib in self.left_ribs:
             rib.placed = sheet.draw_part_top(planoffset, rib.contour, rib.pos, "1px", "red")
+        shape = self.make_leading_edge1(self.left_ribs)
+        sheet.draw_shape(planoffset, shape, "1px", "red")
+        shape = self.make_leading_edge2(self.left_ribs)
+        sheet.draw_shape(planoffset, shape, "1px", "red")
+        for stringer in self.stringers:
+            shape = self.make_stringer(stringer, self.left_ribs)
+            sheet.draw_shape(planoffset, shape, "1px", "red")
+        for spar in self.spars:
+            shape = self.make_stringer(spar, self.left_ribs)
+            sheet.draw_shape(planoffset, shape, "1px", "red")
+
         sheet.save()
