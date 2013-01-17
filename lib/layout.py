@@ -126,6 +126,23 @@ class Sheet:
 
         return True
 
+    def draw_shape(self, offset, shape, stroke_width, color ):
+        g = self.dwg.g()
+        #print " at offset = " + str(offset)
+        g.translate( offset[0]*self.dpi, offset[1]*self.dpi )
+
+        scaled = []
+        for pt in shape:
+            scaled.append( (pt[0]*self.dpi, pt[1]*self.dpi) )
+
+        poly = self.dwg.polygon(scaled, stroke = 'red', fill = 'none', \
+                                    stroke_width = stroke_width)
+        g.add( poly )
+
+        self.dwg.add(g)
+
+        return True
+
     def save(self):
         self.dwg.save()
 
