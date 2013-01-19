@@ -306,14 +306,17 @@ class Contour:
         # compute actual "x" position
         xpos = self.get_xpos( percent, front_rel, rear_rel )
 
+        # get current bounds
+        bounds = self.get_bounds()
+
         # find the y value of the attach point and compute the
         # vertical size of the tab needed
         if side == "top":
             ypos = self.simple_interp(self.top, xpos)
-            ysize = self.saved_bounds[1][1] - ypos + yextra
+            ysize = bounds[1][1] - ypos + yextra
         else:
             ypos = self.simple_interp(self.bottom, xpos)
-            ysize = ypos - self.saved_bounds[0][1] + yextra
+            ysize = ypos - bounds[0][1] + yextra
 
         # call the cutout method with negative ysize to create a tab
         self.cutout(side, orientation="vertical", percent=percent, \
