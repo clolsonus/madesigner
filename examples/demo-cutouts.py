@@ -44,6 +44,8 @@ for p in range(0, steps+1):
     # leading edge diamond (before washout rotate)
     blend.cutout_leading_edge_diamond( 0.200 )
 
+    blend.cutout_trailing_edge( 1.0, 0.25, "symmetrical" )
+
     # leading edge sheeting (before washout rotate)
     le = bounds[0][0] + 0.125
     d = size * 0.2
