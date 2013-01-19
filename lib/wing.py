@@ -11,7 +11,9 @@ import math
 import svgwrite
 
 import airfoil
+import contour
 import layout
+import spline
 
 
 class Rib:
@@ -20,7 +22,6 @@ class Rib:
         self.material = "balsa"
         self.contour = None
         self.pos = (0.0, 0.0, 0.0)
-        self.sweep = 0.0
         self.placed = False
 
 
@@ -32,17 +33,20 @@ class Wing:
         # wing layout
         self.root = None
         self.tip = None
-        self.root_chord = 10.0
+        self.root_chord = 0.0
         self.tip_chord = 0.0
         self.root_yscale = 1.0
         self.tip_yscale = 1.0
-        self.span = 30.0
+        self.span = 0.0
         self.twist = 0.0
-        self.sweep = 0.0 # angle @ 25% chord line, in degrees 
+        self.sweep = []
 
         # structural components
         self.steps = 10
         self.leading_edge_diamond = 0.0
+        self.trailing_edge_w = 0.0
+        self.trailing_edge_h = 0.0
+        self.trailing_edge_shape = "flat"
         self.stringers = []
         self.spars = []
 
@@ -54,6 +58,27 @@ class Wing:
         self.root = airfoil.Airfoil(root, 1000, True)
         if tip:
             self.tip = airfoil.Airfoil(tip, 1000, True)
+
+    # define a fixed (straight) sweep angle
+    def sweep_angle(self, angle):
+        if self.span < 0.01:
+            print "Must set wing.span value before sweep angle"
+            return
+        tip_offset = self.span * math.tan(math.radians(angle))
+        self.sweep = contour.Contour()
+        self.sweep.top.append( (0,0) )
+        self.sweep.top.append( (self.span, tip_offset) )
+
+    # define a sweep reference contour (plotted along 25% chord).  It is
+    # up to the calling function to make sure the first and last
+    # coordinates match up with the root and tip measurements of the wing
+    # curve is a list of point pair ( (x1, y1), (x2, y2) .... )
+    def sweep_curve(self, curve):
+        if self.span < 0.01:
+            print "Must set wing.span value before sweep curve"
+            return
+        self.sweep = contour.Contour()
+        self.sweep.top = curve
 
     def add_stringer(self, side="top", orientation="tangent", \
                          percent=-0.1, front_rel=-0.1, rear_rel=-0.1, \
@@ -67,14 +92,14 @@ class Wing:
         self.spars.append( (side, orientation, percent, front_rel, \
                                     rear_rel, xsize, ysize) )
 
-    def make_rib(self, airfoil, chord, lat_dist, twist, label ):
+    def make_rib(self, airfoil, chord, lat_dist, sweep_dist, twist, label ):
         result = Rib()
         result.contour = copy.deepcopy(airfoil)
 
         # scale and position
         result.contour.scale(chord, chord)
         result.contour.fit(500, 0.002)
-        result.contour.move(-0.25*chord, 0.0)
+        result.contour.move(-0.30*chord, 0.0)
         result.contour.save_bounds()
 
         # add label (before rotate)
@@ -96,6 +121,12 @@ class Wing:
                                                 stringer[4], stringer[5], \
                                                 stringer[6] )
 
+        # trailing edge cutout
+        if self.trailing_edge_w > 0.01 and self.trailing_edge_h > 0.01:
+            result.contour.cutout_trailing_edge( self.trailing_edge_w, \
+                                                     self.trailing_edge_h, \
+                                                     self.trailing_edge_shape )
+
         # do rotate
         result.contour.rotate(twist)
 
@@ -105,20 +136,19 @@ class Wing:
                                                 spar[3], spar[4], spar[5], \
                                                 spar[6] )
 
-        # compute plan position
-        sweep_offset = math.fabs(lat_dist) * math.tan(math.radians(self.sweep))
-        #print self.sweep
-        #print sweep_offset
-        #result.contour.move(sweep_offset, 0.0)
-        #print result.contour.get_bounds()
-        result.pos = (lat_dist, sweep_offset, 0.0)
-        result.sweep = self.sweep
+        # set plan position
+        result.pos = (lat_dist, sweep_dist, 0.0)
 
         return result
 
     def build(self):
         if self.steps <= 0:
             return
+
+        print self.sweep.top
+        sweep_y2 = spline.derivative2( self.sweep.top )
+        print sweep_y2
+
         dp = 1.0 / self.steps
         for p in range(0, self.steps+1):
             print p
@@ -141,13 +171,22 @@ class Wing:
             lat_dist = self.span * percent
             twist = self.twist * percent
 
+            # compute sweep offset pos if a sweep function provided
+            if self.sweep:
+                index = spline.binsearch(self.sweep.top, lat_dist)
+                sweep_dist = spline.spline(self.sweep.top, sweep_y2, index, lat_dist)
+                #sweep_dist = self.sweep.simple_interp(self.sweep.top, lat_dist)
+            else:
+                sweep_dist = 0.0
+            print "sweep_dist = " + str(sweep_dist)
+
             # make the ribs
             label = 'WR' + str(p+1) 
-            right_rib = self.make_rib(af, chord, lat_dist, twist, label)
+            right_rib = self.make_rib(af, chord, lat_dist, sweep_dist, twist, label)
             self.right_ribs.append(right_rib)
 
             label = 'WL' + str(p+1)
-            left_rib = self.make_rib(af, chord, -lat_dist, twist, label)
+            left_rib = self.make_rib(af, chord, -lat_dist, sweep_dist, twist, label)
             self.left_ribs.append(left_rib)
 
     def layout_parts_sheets(self, basename, width, height, margin = 0.1):
@@ -179,8 +218,8 @@ class Wing:
             idealfront = rib.contour.saved_bounds[0][0]
             cutbounds = rib.contour.get_bounds()
             cutfront = cutbounds[0][0]
-            side1.append( (idealfront, -rib.pos[0]) )
-            side2.append( (cutfront, -rib.pos[0]) )
+            side1.append( (idealfront+rib.pos[1], -rib.pos[0]) )
+            side2.append( (cutfront+rib.pos[1], -rib.pos[0]) )
         side2.reverse()
         shape = side1 + side2
         return shape
@@ -195,8 +234,21 @@ class Wing:
         for rib in ribs:
             cutbounds = rib.contour.get_bounds()
             cutfront = cutbounds[0][0]
-            side1.append( (cutfront, -rib.pos[0]) )
-            side2.append( (cutfront+halfwidth, -rib.pos[0]) )
+            side1.append( (cutfront+rib.pos[1], -rib.pos[0]) )
+            side2.append( (cutfront+halfwidth+rib.pos[1], -rib.pos[0]) )
+        side2.reverse()
+        shape = side1 + side2
+        return shape
+
+    def make_trailing_edge(self, ribs):
+        side1 = []
+        side2 = []
+        for rib in ribs:
+            idealtip = rib.contour.saved_bounds[1][0]
+            cutbounds = rib.contour.get_bounds()
+            cuttip = cutbounds[1][0]
+            side1.append( (cuttip+rib.pos[1], -rib.pos[0]) )
+            side2.append( (idealtip+rib.pos[1], -rib.pos[0]) )
         side2.reverse()
         shape = side1 + side2
         return shape
@@ -209,8 +261,8 @@ class Wing:
             #print "%=" + str(stringer[2]) + " rf=" + str(stringer[3]) + \
             #    " rr=" + str(stringer[4])
             xpos = rib.contour.get_xpos(stringer[2], stringer[3], stringer[4])
-            side1.append( (xpos-halfwidth, -rib.pos[0]) )
-            side2.append( (xpos+halfwidth, -rib.pos[0]) )
+            side1.append( (xpos-halfwidth+rib.pos[1], -rib.pos[0]) )
+            side2.append( (xpos+halfwidth+rib.pos[1], -rib.pos[0]) )
         side2.reverse()
         shape = side1 + side2
         return shape
@@ -238,11 +290,21 @@ class Wing:
 
         # right wing
         planoffset = (xmargin - minx, height - yoffset, -1)
-        for rib in self.right_ribs:
-            rib.placed = sheet.draw_part_top(planoffset, rib.contour, rib.pos, "1px", "red")
+        for index, rib in enumerate(self.right_ribs):
+            if index == 0:
+                nudge = -rib.thickness * 0.5
+            elif index == len(self.right_ribs) - 1:
+                nudge = rib.thickness * 0.5
+            else:
+                nudge = 0.0
+            rib.placed = sheet.draw_part_top(planoffset, rib.contour, \
+                                                 rib.pos, rib.thickness, \
+                                                 nudge, "1px", "red")
         shape = self.make_leading_edge1(self.right_ribs)
         sheet.draw_shape(planoffset, shape, "1px", "red")
         shape = self.make_leading_edge2(self.right_ribs)
+        sheet.draw_shape(planoffset, shape, "1px", "red")
+        shape = self.make_trailing_edge(self.right_ribs)
         sheet.draw_shape(planoffset, shape, "1px", "red")
         for stringer in self.stringers:
             shape = self.make_stringer(stringer, self.right_ribs)
@@ -253,11 +315,21 @@ class Wing:
 
         # left wing
         planoffset = ((width - xmargin) - dx - minx, yoffset, 1)
-        for rib in self.left_ribs:
-            rib.placed = sheet.draw_part_top(planoffset, rib.contour, rib.pos, "1px", "red")
+        for index, rib in enumerate(self.left_ribs):
+            if index == 0:
+                nudge = rib.thickness * 0.5
+            elif index == len(self.left_ribs) - 1:
+                nudge = -rib.thickness * 0.5
+            else:
+                nudge = 0.0
+            rib.placed = sheet.draw_part_top(planoffset, rib.contour, \
+                                                 rib.pos, rib.thickness, \
+                                                 nudge, "1px", "red")
         shape = self.make_leading_edge1(self.left_ribs)
         sheet.draw_shape(planoffset, shape, "1px", "red")
         shape = self.make_leading_edge2(self.left_ribs)
+        sheet.draw_shape(planoffset, shape, "1px", "red")
+        shape = self.make_trailing_edge(self.left_ribs)
         sheet.draw_shape(planoffset, shape, "1px", "red")
         for stringer in self.stringers:
             shape = self.make_stringer(stringer, self.left_ribs)
