@@ -106,7 +106,7 @@ class Airfoil(Contour):
                 #print str(x) + " " + str(y)
                 self.bottom.append( (x, y) )
 
-    def walk_curve_dist(self, curve, xstart, target_dist):
+    def walk_curve_from_front(self, curve, xstart, target_dist):
         #print "walk from " + str(xstart) + " dist of " + str(target_dist)
         n = len(curve)
         dist = 0
@@ -133,6 +133,35 @@ class Airfoil(Contour):
 
         return cur[0] + dx * pct
 
+    def walk_curve_from_back(self, curve, xend, target_dist):
+        print "walk from " + str(xend) + " dist of " + str(target_dist)
+        n = len(curve)
+        print "curve is " + str(n) + " points"
+        dist = 0
+        cur = ( xend, self.simple_interp(curve, xend) )
+        prior_index = spline.binsearch(curve, xend)
+        print "prior_index = " + str(prior_index)
+        if prior_index >= 0:
+            dist_to_prior = self.dist_2d(cur, curve[prior_index])
+        else:
+            # ran out of points
+            return cur[0]
+        print "idx = " + str(prior_index) + " dist_to_prior = " + str(dist_to_prior)
+        while dist + dist_to_prior < target_dist:
+            dist += dist_to_prior
+            cur = curve[prior_index]
+            prior_index -= 1
+            if prior_index >= 0:
+                dist_to_prior = self.dist_2d(cur, curve[prior_index])
+            else:
+                # ran out of points
+                return cur[0]
+        rem = target_dist - dist
+        pct = rem / dist_to_prior
+        dx = cur[0] - curve[prior_index][0]
+
+        return cur[0] - dx * pct
+
     def cutout_leading_edge_diamond(self, size):
         target_diag = math.sqrt(2*size*size)
         # walk backwards equal amounts along both top and bottom curves until
@@ -144,9 +173,9 @@ class Airfoil(Contour):
         xstart = self.top[0][0]
         chord = self.top[n-1][0] - xstart
         while cur_diag < target_diag and dist < chord:
-            xtop = self.walk_curve_dist(self.top, xstart, dist)
+            xtop = self.walk_curve_from_front(self.top, xstart, dist)
             ytop = self.simple_interp(self.top, xtop)
-            xbottom = self.walk_curve_dist(self.bottom, xstart, dist)
+            xbottom = self.walk_curve_from_front(self.bottom, xstart, dist)
             ybottom = self.simple_interp(self.bottom, xbottom)
             cur_diag = self.dist_2d( (xtop, ytop), (xbottom, ybottom) )
             dist += step
@@ -198,6 +227,79 @@ class Airfoil(Contour):
         while i < n:
             newbottom.append( self.bottom[i] )
             i += 1
+        self.bottom = list(newbottom)
+
+    def cutout_trailing_edge(self, width=0.0, height=0.0, shape="flat"):
+        if shape == "flat":
+            bottom_dist = width
+            top_dist = math.sqrt(width*width + height+height)
+        elif shape == "symmetrical":
+            h2 = height*0.5
+            bottom_dist = math.sqrt(width*width + h2*h2)
+            top_dist = bottom_dist
+        else:
+            print "Unknown trailing edge shape. Must be 'flat' or 'symmetrical'"
+            return
+
+        n = len(self.top)
+        xstart = self.top[0][0]
+        xend = self.top[n-1][0]
+        chord = xend - xstart
+        if top_dist > chord or bottom_dist > chord:
+            # unable
+            return
+
+        # walk forward specified distances along top and bottom curves
+        xtop = self.walk_curve_from_back(self.top, xend, top_dist)
+        ytop = self.simple_interp(self.top, xtop)
+        xbottom = self.walk_curve_from_back(self.bottom, xend, bottom_dist)
+        ybottom = self.simple_interp(self.bottom, xbottom)
+        dy = ytop - ybottom
+        print "Trailing edge: stock height = " + str(height) + " rib height = " + str(dy)
+
+        #print (xtop, ytop)
+        #print (xbottom, ybottom)
+        dx = xtop - xbottom
+        dy = ytop - ybottom
+        #print (dx, dy)
+        if math.fabs(dx) > 0.00001:
+            slope = dy/dx
+            #print "slope = " + str(slope)
+            if math.fabs(slope) > 0.00001:
+                b = ytop - slope*xtop
+                #print "b = " + str(b)
+                xint = -b / slope
+                corner = ( xint, 0 )
+            else:
+                corner = ( (xtop+xbottom)*0.5, 0.0 )
+        else:
+            corner = ( xtop, 0.0 )
+        #print "corner = " + str(corner)
+
+        # top skin
+        newtop = []
+        n = len(self.top)
+        # add lead points
+        i = 0
+        while self.top[i][0] < xtop and i < n:
+            newtop.append( self.top[i] )
+            i += 1
+        # finish off the cut
+        newtop.append( (xtop, ytop) )
+        newtop.append( corner )
+        self.top = list(newtop)
+
+        # bottom skin
+        newbottom = []
+        n = len(self.bottom)
+        # add lead points
+        i = 0
+        while self.bottom[i][0] < xbottom and i < n:
+            newbottom.append( self.bottom[i] )
+            i += 1
+        # finish off the cut
+        newbottom.append( (xbottom, ybottom) )
+        newbottom.append( corner )
         self.bottom = list(newbottom)
 
 # returns an airfoil that is 1.0-percent of af1 + percent of af2
