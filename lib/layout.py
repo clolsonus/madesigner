@@ -83,7 +83,8 @@ class Sheet:
 
         return True
 
-    def draw_part_top(self, offset, orig_airfoil, pos, stroke_width, color ):
+    def draw_part_top(self, offset, orig_airfoil, pos, part_width, nudge, \
+                          stroke_width, color ):
         airfoil = copy.deepcopy(orig_airfoil)
         airfoil.scale(1,-1)
         bounds = airfoil.get_bounds()
@@ -91,7 +92,6 @@ class Sheet:
 
         airfoil.scale( self.dpi, self.dpi )
         shape = []
-        part_width = 0.125
         x1 = bounds[0][0] * self.dpi
         x2 = bounds[1][0] * self.dpi
         y1 = -part_width*0.5 * self.dpi
@@ -108,7 +108,7 @@ class Sheet:
         g = self.dwg.g()
         #print " at offset = " + str(offset)
         g.translate( (pos[1] + offset[0])*self.dpi, \
-                         (-pos[0] + offset[1])*self.dpi )
+                         (-pos[0] + offset[1] + nudge)*self.dpi )
 
         poly = self.dwg.polygon(shape, stroke = 'red', fill = 'none', \
                                     stroke_width = stroke_width)
