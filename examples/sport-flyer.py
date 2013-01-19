@@ -23,7 +23,8 @@ wing.set_sweep_angle(0)
 wing.set_taper_curve( ((0.0, 9.0), (5.0, 11.0), (30.0, 6.0)) )
 
 # define the wing structure
-wing.steps = 20
+#wing.set_num_stations(20)
+wing.set_stations( (0.0, 0.5, 2.0, 4.0, 7.0, 10.0, 13.0, 15.0, 17.0, 20.0, 23.0, 26.0, 28.0, 29.5, 30.0) )
 wing.leading_edge_diamond = 0.2
 wing.trailing_edge_w = 1.0
 wing.trailing_edge_h = 0.25

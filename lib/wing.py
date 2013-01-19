@@ -31,14 +31,15 @@ class Wing:
         self.units = "in"
 
         # wing layout
-        self.root = None
-        self.tip = None
+        self.root = None        # Airfoil()
+        self.tip = None         # Airfoil()
         self.root_yscale = 1.0
         self.tip_yscale = 1.0
         self.span = 0.0
         self.twist = 0.0
-        self.sweep = None
-        self.taper = None
+        self.stations = []      # 1D array of rib positions
+        self.sweep = None       # Contour()
+        self.taper = None       # Contour()
 
         # structural components
         self.steps = 10
@@ -58,7 +59,29 @@ class Wing:
         if tip:
             self.tip = airfoil.Airfoil(tip, 1000, True)
 
-    # define a fixed (straight) sweep angle
+    # define the rib 'stations' as evenly spaced
+    def set_num_stations(self, count):
+        if count <= 0:
+            print "Must specify a number of stations > 0"
+            return
+        if self.span < 0.01:
+            print "Must set wing.span value before computing stations"
+            return
+        dp = 1.0 / count
+        for p in range(0, count+1):
+            print p
+            percent = p * dp
+            lat_dist = self.span * percent
+            self.stations.append( lat_dist )
+
+    # define the rib 'stations' as evenly spaced
+    def set_stations(self, stations):
+        if len(stations) < 2:
+            print "Must specify a list of at least 2 station positions"
+            return
+        self.stations = stations
+
+    # accept an array of station positions
     def set_sweep_angle(self, angle):
         if self.span < 0.01:
             print "Must set wing.span value before sweep angle"
@@ -161,17 +184,15 @@ class Wing:
         return result
 
     def build(self):
-        if self.steps <= 0:
+        if len(self.stations) < 2:
+            print "Must define at least 2 stations to build a wing"
             return
 
         sweep_y2 = spline.derivative2( self.sweep.top )
         taper_y2 = spline.derivative2( self.taper.top )
 
-        dp = 1.0 / self.steps
-        for p in range(0, self.steps+1):
-            print p
-
-            percent = p * dp
+        for index, station in enumerate(self.stations):
+            percent = station / self.span
 
             # generate airfoil
             if not self.tip:
@@ -180,7 +201,7 @@ class Wing:
                 af = airfoil.blend(self.root, self.tip, percent)
 
             # compute placement parameters
-            lat_dist = self.span * percent
+            lat_dist = station
             twist = self.twist * percent
 
             # compute chord
@@ -188,7 +209,7 @@ class Wing:
                 index = spline.binsearch(self.taper.top, lat_dist)
                 chord = spline.spline(self.taper.top, taper_y2, index, lat_dist)
             else:
-                print "Cannot build a wing with no chord dimension defined!"
+                print "Cannot build a wing with no chord defined!"
                 return
 
             # compute sweep offset pos if a sweep function provided
@@ -198,14 +219,13 @@ class Wing:
                                                lat_dist)
             else:
                 sweep_dist = 0.0
-            print "sweep_dist = " + str(sweep_dist)
 
             # make the ribs
-            label = 'WR' + str(p+1) 
+            label = 'WR' + str(index+1) 
             right_rib = self.make_rib(af, chord, lat_dist, sweep_dist, twist, label)
             self.right_ribs.append(right_rib)
 
-            label = 'WL' + str(p+1)
+            label = 'WL' + str(index+1)
             left_rib = self.make_rib(af, chord, -lat_dist, sweep_dist, twist, label)
             self.left_ribs.append(left_rib)
 
