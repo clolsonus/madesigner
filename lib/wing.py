@@ -74,14 +74,14 @@ class Wing:
             lat_dist = self.span * percent
             self.stations.append( lat_dist )
 
-    # define the rib 'stations' as evenly spaced
+    # define the rib 'stations' explicitely as an array of locations
     def set_stations(self, stations):
         if len(stations) < 2:
             print "Must specify a list of at least 2 station positions"
             return
         self.stations = stations
 
-    # accept an array of station positions
+    # define a fixed sweep angle
     def set_sweep_angle(self, angle):
         if self.span < 0.01:
             print "Must set wing.span value before sweep angle"
@@ -92,17 +92,14 @@ class Wing:
         self.sweep.top.append( (self.span, tip_offset) )
 
     # define a sweep reference contour (plotted along 25% chord).  It is
-    # up to the calling function to make sure the first and last
+    # up to the calling function to make sure the first and last "x"
     # coordinates match up with the root and tip measurements of the wing
     # curve is a list of point pair ( (x1, y1), (x2, y2) .... )
     def set_sweep_curve(self, curve):
-        if self.span < 0.01:
-            print "Must set wing.span value before sweep curve"
-            return
         self.sweep = contour.Contour()
         self.sweep.top = curve
 
-    # define the wing chord (or optionally a separate tip chord for
+    # define the wing chord (and optionally a separate tip chord for
     # linear taper)
     def set_chord(self, root_chord, tip_chord = 0.0):
         if self.span < 0.01:
@@ -116,9 +113,6 @@ class Wing:
             self.taper.top.append( (self.span ,tip_chord) )
 
     def set_taper_curve(self, curve):
-        if self.span < 0.01:
-            print "Must set wing.span value before taper curve"
-            return
         self.taper = contour.Contour()
         self.taper.top = curve
 
