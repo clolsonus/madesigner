@@ -33,13 +33,12 @@ class Wing:
         # wing layout
         self.root = None
         self.tip = None
-        self.root_chord = 0.0
-        self.tip_chord = 0.0
         self.root_yscale = 1.0
         self.tip_yscale = 1.0
         self.span = 0.0
         self.twist = 0.0
-        self.sweep = []
+        self.sweep = None
+        self.taper = None
 
         # structural components
         self.steps = 10
@@ -60,25 +59,45 @@ class Wing:
             self.tip = airfoil.Airfoil(tip, 1000, True)
 
     # define a fixed (straight) sweep angle
-    def sweep_angle(self, angle):
+    def set_sweep_angle(self, angle):
         if self.span < 0.01:
             print "Must set wing.span value before sweep angle"
             return
         tip_offset = self.span * math.tan(math.radians(angle))
         self.sweep = contour.Contour()
-        self.sweep.top.append( (0,0) )
+        self.sweep.top.append( (0.0, 0.0) )
         self.sweep.top.append( (self.span, tip_offset) )
 
     # define a sweep reference contour (plotted along 25% chord).  It is
     # up to the calling function to make sure the first and last
     # coordinates match up with the root and tip measurements of the wing
     # curve is a list of point pair ( (x1, y1), (x2, y2) .... )
-    def sweep_curve(self, curve):
+    def set_sweep_curve(self, curve):
         if self.span < 0.01:
             print "Must set wing.span value before sweep curve"
             return
         self.sweep = contour.Contour()
         self.sweep.top = curve
+
+    # define the wing chord (or optionally a separate tip chord for
+    # linear taper)
+    def set_chord(self, root_chord, tip_chord = 0.0):
+        if self.span < 0.01:
+            print "Must set wing.span value before chord"
+            return
+        self.taper = contour.Contour()
+        self.taper.top.append( (0.0, root_chord) )
+        if tip_chord < 0.1:
+            self.taper.top.append( (self.span ,root_chord) )
+        else:
+            self.taper.top.append( (self.span ,tip_chord) )
+
+    def set_taper_curve(self, curve):
+        if self.span < 0.01:
+            print "Must set wing.span value before taper curve"
+            return
+        self.taper = contour.Contour()
+        self.taper.top = curve
 
     def add_stringer(self, side="top", orientation="tangent", \
                          percent=-0.1, front_rel=-0.1, rear_rel=-0.1, \
@@ -145,9 +164,8 @@ class Wing:
         if self.steps <= 0:
             return
 
-        print self.sweep.top
         sweep_y2 = spline.derivative2( self.sweep.top )
-        print sweep_y2
+        taper_y2 = spline.derivative2( self.taper.top )
 
         dp = 1.0 / self.steps
         for p in range(0, self.steps+1):
@@ -161,21 +179,23 @@ class Wing:
             else:
                 af = airfoil.blend(self.root, self.tip, percent)
 
-            # compute chord
-            if self.tip_chord < 0.01:
-                chord = self.root_chord
-            else:
-                chord = self.root_chord*(1.0-percent) + self.tip_chord*percent
-
             # compute placement parameters
             lat_dist = self.span * percent
             twist = self.twist * percent
 
+            # compute chord
+            if self.taper:
+                index = spline.binsearch(self.taper.top, lat_dist)
+                chord = spline.spline(self.taper.top, taper_y2, index, lat_dist)
+            else:
+                print "Cannot build a wing with no chord dimension defined!"
+                return
+
             # compute sweep offset pos if a sweep function provided
             if self.sweep:
                 index = spline.binsearch(self.sweep.top, lat_dist)
-                sweep_dist = spline.spline(self.sweep.top, sweep_y2, index, lat_dist)
-                #sweep_dist = self.sweep.simple_interp(self.sweep.top, lat_dist)
+                sweep_dist = spline.spline(self.sweep.top, sweep_y2, index, \
+                                               lat_dist)
             else:
                 sweep_dist = 0.0
             print "sweep_dist = " + str(sweep_dist)

@@ -15,12 +15,12 @@ wing = wing.Wing()
 # define the wing layout
 wing.units = "in"
 wing.load_airfoils("naca0015")
-wing.root_chord = 10.0
-wing.tip_chord = 6
 wing.span = 30.0
 wing.twist = 3
-#wing.sweep_angle(10)
-wing.sweep_curve( ((0.0,0.0), (15.0, 2.0), (30.0, 6.0)) )
+wing.set_sweep_angle(0)
+#wing.set_sweep_curve( ((0.0,0.0), (15.0, -1.0), (30.0, 0.0)) )
+#wing.set_chord( 10.0, 6.0 )
+wing.set_taper_curve( ((0.0, 9.0), (5.0, 11.0), (30.0, 6.0)) )
 
 # define the wing structure
 wing.steps = 20
