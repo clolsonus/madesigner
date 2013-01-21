@@ -19,12 +19,15 @@ wing.span = 30.0
 wing.twist = 3
 wing.set_sweep_angle(0)
 #wing.set_sweep_curve( ((0.0,0.0), (15.0, -1.0), (30.0, 0.0)) )
-#wing.set_chord( 10.0, 6.0 )
-wing.set_taper_curve( ((0.0, 9.0), (5.0, 11.0), (30.0, 6.0)) )
+root_chord = 9.0
+tip_chord = 6.0
+#wing.set_chord( root_chord, tip_chord )
+wing.set_taper_curve( ((0.0, root_chord), (5.0, root_chord*1.2), (30.0, tip_chord)) )
 
 # define the wing structure
 #wing.set_num_stations(20)
-wing.set_stations( (0.0, 0.5, 2.0, 4.0, 7.0, 10.0, 13.0, 15.0, 17.0, 20.0, 23.0, 26.0, 28.0, 29.5, 30.0) )
+wing.set_stations( (0.0, 0.5, 2.0, 4.0, 7.0, 10.0, 13.0, 15.0, 17.0, \
+                        20.0, 23.0, 26.0, 28.0, 29.5, 30.0) )
 wing.leading_edge_diamond = 0.2
 wing.trailing_edge_w = 1.0
 wing.trailing_edge_h = 0.25
@@ -38,16 +41,22 @@ wing.add_stringer( side="top", orientation="tangent", percent=0.75, \
                        xsize=0.125, ysize=0.125 )
 wing.add_stringer( side="bottom", orientation="tangent", percent=0.75, \
                        xsize=0.125, ysize=0.125 )
-wing.add_spar( side="top", orientation="vertical", percent=0.30, \
+wing.add_stringer( side="top", orientation="tangent", percent=0.50, \
+                       xsize=0.125, ysize=0.125, \
+                       start_station=15.0, end_station=28.0 )
+wing.add_spar( side="top", orientation="vertical", percent=0.25, \
                        xsize=0.125, ysize=0.250 )
-wing.add_spar( side="bottom", orientation="vertical", percent=0.30, \
+wing.add_spar( side="bottom", orientation="vertical", percent=0.25, \
                        xsize=0.125, ysize=0.250 )
+
+# define the control surfaces
+#wing.add_flap( station1=8, station2=14, chord1=2.0, chord2=2.0, type="builtup")
 
 # build the wing parts
 wing.build()
 
 # create lasercut sheets
-wing.layout_parts_sheets( "sport-flyer", 24, 4 )
+wing.layout_parts_sheets( "sport-flyer", 24, 8 )
 
 # create paper templates
 wing.layout_parts_templates( "sport-flyer", 8.5, 11 )

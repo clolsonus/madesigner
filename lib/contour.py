@@ -12,6 +12,20 @@ import string
 import spline
 
 
+class Cutout:
+    def __init__(self, side="top", orientation="tangent", percent=None, \
+                     front=None, rear=None, center=None, xsize=0.0, ysize=0.0):
+        # note: specify a value for only one of percent, front, rear, or center
+        self.side = side                   # {top, bottom}
+        self.orientation = orientation     # {tangent, vertical}
+        self.percent = percent             # placed at % point in chord
+        self.front = front                 # dist from front of chord
+        self.rear = rear                   # dist from rear of chord
+        self.center = center               # dist from 25% chord
+        self.xsize = xsize                 # horizontal size
+        self.ysize = ysize                 # vertical size
+
+
 class Contour:
 
     def __init__(self):
@@ -190,21 +204,21 @@ class Contour:
 
     # given one of the possible ways to specify position, return the
     # actual position
-    def get_xpos(self, percent=None, front=None, rear=None, center=None):
+    def get_xpos(self, cutout):
         if len(self.saved_bounds) == 0:
             print "need to call contour.save_bounds() after last size/move,"
             print "but before any cutouts are made"
             self.save_bounds()
         chord = self.saved_bounds[1][0] - self.saved_bounds[0][0]
-        if percent != None:
-            xpos = self.saved_bounds[0][0] + chord * percent
-        elif front != None:
-            xpos = self.saved_bounds[0][0] + front
-        elif rear != None:
-            xpos = self.saved_bounds[1][0] - rear
-        elif center != None:
+        if cutout.percent != None:
+            xpos = self.saved_bounds[0][0] + chord * cutout.percent
+        elif cutout.front != None:
+            xpos = self.saved_bounds[0][0] + cutout.front
+        elif cutout.rear != None:
+            xpos = self.saved_bounds[1][0] - cutout.rear
+        elif cutout.center != None:
             ctrpt = self.saved_bounds[0][0] + chord * 0.25
-            xpos = ctrpt + center
+            xpos = ctrpt + cutout.center
         return xpos
 
     # side={top,bottom} (attached to top or bottom of airfoil)
@@ -217,19 +231,17 @@ class Contour:
 
     # use side="bottom" + ysize=-negative_value +
     # orientation="vertical" for build support tabs
-    def cutout(self, side = "top", orientation = "tangent", \
-                   percent=None, front=None, rear=None, center=None, \
-                   xsize = 0, ysize = 0):
+    def cutout(self, cutout):
         top = False
-        if side == "top":
+        if cutout.side == "top":
             top = True
 
         tangent = False
-        if orientation == "tangent":
+        if cutout.orientation == "tangent":
             tangent = True;
 
         # compute position of cutout
-        xpos = self.get_xpos( percent, front, rear, center )
+        xpos = self.get_xpos(cutout)
 
         curve = []
         if top:
@@ -253,10 +265,10 @@ class Contour:
             angle += 180
             if angle > 360:
                 angle -= 360
-        xhalf = xsize / 2
+        xhalf = cutout.xsize / 2
         r0 = self.rotate_point( (-xhalf, 0), angle )
-        r1 = self.rotate_point( (-xhalf, -ysize), angle )
-        r2 = self.rotate_point( (xhalf, -ysize), angle )
+        r1 = self.rotate_point( (-xhalf, -cutout.ysize), angle )
+        r2 = self.rotate_point( (xhalf, -cutout.ysize), angle )
         r3 = self.rotate_point( (xhalf, 0), angle )
         if tangent:
             p0 = ( r0[0] + xpos, r0[1] + ypos )
@@ -299,17 +311,14 @@ class Contour:
         else:
             self.bottom = list(newcurve)
 
-    def cutout_stringer(self, side="top", orientation="tangent", \
-                            percent=None, front=None, rear=None, center=None, \
-                            xsize = 0, ysize = 0):
-        self.cutout(side, orientation, percent, front, rear, center, \
-                        xsize, ysize)
+    def cutout_stringer(self, stringer):
+        self.cutout( stringer )
 
     def add_build_tab(self, side = "top", percent=None, front=None, \
                           rear=None, center=None, \
                           xsize = 0, yextra = 0):
         # compute actual "x" position
-        xpos = self.get_xpos( percent, front, rear, center )
+        xpos = self.get_xpos(cutout)
 
         # get current bounds
         bounds = self.get_bounds()

@@ -25,6 +25,13 @@ class Rib:
         self.placed = False
 
 
+class Stringer:
+    def __init__(self, cutout=None, start_station=None, end_station=None):
+        self.cutout = cutout
+        self.start_station = start_station
+        self.end_station = end_station
+
+
 class Wing:
 
     def __init__(self):
@@ -118,16 +125,36 @@ class Wing:
 
     def add_stringer(self, side="top", orientation="tangent", \
                          percent=None, front=None, rear=None, center=None, \
-                         xsize = 0, ysize = 0):
-        self.stringers.append( (side, orientation, percent, front, \
-                                    rear, center, xsize, ysize) )
+                         xsize=0.0, ysize=0.0, \
+                         start_station=None, end_station=None):
+        cutout = contour.Cutout( side, orientation, percent, front, \
+                                     rear, center, xsize, ysize )
+        stringer = Stringer( cutout, start_station, end_station )
+        self.stringers.append( stringer )
 
     def add_spar(self, side="top", orientation="vertical", \
                      percent=None, front=None, rear=None, center=None, \
-                     xsize = 0, ysize = 0):
-        self.spars.append( (side, orientation, percent, front, \
-                                    rear, center, xsize, ysize) )
+                     xsize=0.0, ysize=0.0, \
+                     start_station=None, end_station=None):
+        cutout = contour.Cutout( side, orientation, percent, front, \
+                                     rear, center, xsize, ysize )
+        spar = Stringer( cutout, start_station, end_station )
+        self.spars.append( spar )
 
+    # return true of lat_dist is between station1 and station2, inclusive.
+    # properly handle cases where station1 or station2 is not defined (meaning
+    # all the way to the end.
+    def match_station(self, stringer, lat_dist):
+        result = True
+        abs_lat = math.fabs(lat_dist)
+        if stringer.start_station != None:
+            if stringer.start_station - abs_lat > 0.01:
+                result = False
+        if stringer.end_station != None:
+            if abs_lat - stringer.end_station > 0.01:
+                result = False
+        return result
+            
     def make_rib(self, airfoil, chord, lat_dist, sweep_dist, twist, label ):
         result = Rib()
         result.contour = copy.deepcopy(airfoil)
@@ -152,10 +179,8 @@ class Wing:
 
         # cutout stringers (before twist)
         for stringer in self.stringers:
-            result.contour.cutout_stringer( stringer[0], stringer[1], \
-                                                stringer[2], stringer[3], \
-                                                stringer[4], stringer[5], \
-                                                stringer[6], stringer[7] )
+            if self.match_station(stringer, lat_dist):
+                result.contour.cutout_stringer( stringer.cutout )
 
         # trailing edge cutout
         if self.trailing_edge_w > 0.01 and self.trailing_edge_h > 0.01:
@@ -168,9 +193,8 @@ class Wing:
 
         # cutout spars (stringer cut after twist)
         for spar in self.spars:
-            result.contour.cutout_stringer( spar[0], spar[1], spar[2], \
-                                                spar[3], spar[4], spar[5], \
-                                                spar[6], spar[7] )
+            if self.match_station(spar, lat_dist):
+                result.contour.cutout_stringer( spar.cutout )
 
         # set plan position
         result.pos = (lat_dist, sweep_dist, 0.0)
@@ -200,16 +224,16 @@ class Wing:
 
             # compute chord
             if self.taper:
-                index = spline.binsearch(self.taper.top, lat_dist)
-                chord = spline.spline(self.taper.top, taper_y2, index, lat_dist)
+                sp_index = spline.binsearch(self.taper.top, lat_dist)
+                chord = spline.spline(self.taper.top, taper_y2, sp_index, lat_dist)
             else:
                 print "Cannot build a wing with no chord defined!"
                 return
 
             # compute sweep offset pos if a sweep function provided
             if self.sweep:
-                index = spline.binsearch(self.sweep.top, lat_dist)
-                sweep_dist = spline.spline(self.sweep.top, sweep_y2, index, \
+                sw_index = spline.binsearch(self.sweep.top, lat_dist)
+                sweep_dist = spline.spline(self.sweep.top, sweep_y2, sw_index, \
                                                lat_dist)
             else:
                 sweep_dist = 0.0
@@ -290,13 +314,12 @@ class Wing:
     def make_stringer(self, stringer, ribs):
         side1 = []
         side2 = []
-        halfwidth = stringer[6] * 0.5
+        halfwidth = stringer.cutout.xsize * 0.5
         for rib in ribs:
-            #print "%=" + str(stringer[2]) + " rf=" + str(stringer[3]) + \
-            #    " rr=" + str(stringer[4])
-            xpos = rib.contour.get_xpos(stringer[2], stringer[3], stringer[4], stringer[5])
-            side1.append( (xpos-halfwidth+rib.pos[1], -rib.pos[0]) )
-            side2.append( (xpos+halfwidth+rib.pos[1], -rib.pos[0]) )
+            if self.match_station(stringer, rib.pos[0]):
+                xpos = rib.contour.get_xpos(stringer.cutout)
+                side1.append( (xpos-halfwidth+rib.pos[1], -rib.pos[0]) )
+                side2.append( (xpos+halfwidth+rib.pos[1], -rib.pos[0]) )
         side2.reverse()
         shape = side1 + side2
         return shape
