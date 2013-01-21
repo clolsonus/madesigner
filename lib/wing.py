@@ -127,8 +127,8 @@ class Wing:
                          percent=None, front=None, rear=None, center=None, \
                          xsize=0.0, ysize=0.0, \
                          start_station=None, end_station=None):
-        cutout = contour.Cutout( side, orientation, percent, front, \
-                                     rear, center, xsize, ysize )
+        cutpos = contour.Cutpos( percent, front, rear, center )
+        cutout = contour.Cutout( side, orientation, cutpos, xsize, ysize )
         stringer = Stringer( cutout, start_station, end_station )
         self.stringers.append( stringer )
 
@@ -136,8 +136,8 @@ class Wing:
                      percent=None, front=None, rear=None, center=None, \
                      xsize=0.0, ysize=0.0, \
                      start_station=None, end_station=None):
-        cutout = contour.Cutout( side, orientation, percent, front, \
-                                     rear, center, xsize, ysize )
+        cutpos = contour.Cutpos( percent, front, rear, center )
+        cutout = contour.Cutout( side, orientation, cutpos, xsize, ysize )
         spar = Stringer( cutout, start_station, end_station )
         self.spars.append( spar )
 
@@ -317,7 +317,7 @@ class Wing:
         halfwidth = stringer.cutout.xsize * 0.5
         for rib in ribs:
             if self.match_station(stringer, rib.pos[0]):
-                xpos = rib.contour.get_xpos(stringer.cutout)
+                xpos = rib.contour.get_xpos(stringer.cutout.cutpos)
                 side1.append( (xpos-halfwidth+rib.pos[1], -rib.pos[0]) )
                 side2.append( (xpos+halfwidth+rib.pos[1], -rib.pos[0]) )
         side2.reverse()

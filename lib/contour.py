@@ -12,16 +12,20 @@ import string
 import spline
 
 
-class Cutout:
-    def __init__(self, side="top", orientation="tangent", percent=None, \
-                     front=None, rear=None, center=None, xsize=0.0, ysize=0.0):
-        # note: specify a value for only one of percent, front, rear, or center
-        self.side = side                   # {top, bottom}
-        self.orientation = orientation     # {tangent, vertical}
+class Cutpos:
+    def __init__(self, percent=None, front=None, rear=None, center=None):
         self.percent = percent             # placed at % point in chord
         self.front = front                 # dist from front of chord
         self.rear = rear                   # dist from rear of chord
         self.center = center               # dist from 25% chord
+
+class Cutout:
+    def __init__(self, side="top", orientation="tangent", cutpos=None, \
+                     xsize=0.0, ysize=0.0):
+        # note: specify a value for only one of percent, front, rear, or center
+        self.side = side                   # {top, bottom}
+        self.orientation = orientation     # {tangent, vertical}
+        self.cutpos = cutpos               # Cutpos()
         self.xsize = xsize                 # horizontal size
         self.ysize = ysize                 # vertical size
 
@@ -204,21 +208,21 @@ class Contour:
 
     # given one of the possible ways to specify position, return the
     # actual position
-    def get_xpos(self, cutout):
+    def get_xpos(self, cutpos):
         if len(self.saved_bounds) == 0:
             print "need to call contour.save_bounds() after last size/move,"
             print "but before any cutouts are made"
             self.save_bounds()
         chord = self.saved_bounds[1][0] - self.saved_bounds[0][0]
-        if cutout.percent != None:
-            xpos = self.saved_bounds[0][0] + chord * cutout.percent
-        elif cutout.front != None:
-            xpos = self.saved_bounds[0][0] + cutout.front
-        elif cutout.rear != None:
-            xpos = self.saved_bounds[1][0] - cutout.rear
-        elif cutout.center != None:
+        if cutpos.percent != None:
+            xpos = self.saved_bounds[0][0] + chord * cutpos.percent
+        elif cutpos.front != None:
+            xpos = self.saved_bounds[0][0] + cutpos.front
+        elif cutpos.rear != None:
+            xpos = self.saved_bounds[1][0] - cutpos.rear
+        elif cutpos.center != None:
             ctrpt = self.saved_bounds[0][0] + chord * 0.25
-            xpos = ctrpt + cutout.center
+            xpos = ctrpt + cutpos.center
         return xpos
 
     # side={top,bottom} (attached to top or bottom of airfoil)
@@ -241,7 +245,7 @@ class Contour:
             tangent = True;
 
         # compute position of cutout
-        xpos = self.get_xpos(cutout)
+        xpos = self.get_xpos(cutout.cutpos)
 
         curve = []
         if top:
@@ -318,7 +322,7 @@ class Contour:
                           rear=None, center=None, \
                           xsize = 0, yextra = 0):
         # compute actual "x" position
-        xpos = self.get_xpos(cutout)
+        xpos = self.get_xpos(cutout.cutpos)
 
         # get current bounds
         bounds = self.get_bounds()
