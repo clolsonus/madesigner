@@ -190,30 +190,35 @@ class Contour:
 
     # given one of the possible ways to specify position, return the
     # actual position
-    def get_xpos(self, percent=-0.1, front_rel=-0.1, rear_rel=-0.1 ):
+    def get_xpos(self, percent=None, front=None, rear=None, center=None):
         if len(self.saved_bounds) == 0:
             print "need to call contour.save_bounds() after last size/move,"
             print "but before any cutouts are made"
             self.save_bounds()
         chord = self.saved_bounds[1][0] - self.saved_bounds[0][0]
-        if percent > 0:
+        if percent != None:
             xpos = self.saved_bounds[0][0] + chord * percent
-        elif front_rel > 0:
-            xpos = self.saved_bounds[0][0] + front_rel
-        elif rear_rel > 0:
-            xpos = self.saved_bounds[1][0] - rear_rel
+        elif front != None:
+            xpos = self.saved_bounds[0][0] + front
+        elif rear != None:
+            xpos = self.saved_bounds[1][0] - rear
+        elif center != None:
+            ctrpt = self.saved_bounds[0][0] + chord * 0.25
+            xpos = ctrpt + center
         return xpos
 
     # side={top,bottom} (attached to top or bottom of airfoil)
     # orientation={tangent,vertical} (aligned vertically or flush with surface)
-    # relative={front,rear,percent_chord} (position is relative to this ref pt)
-    # xpos=value (factoring in the relative argument)
+    # xpos={percent,front,rear,zero} (position is relative to percent of chord,
+    #      distance from front, distance from rear, or distance from center 
+    #      (25% chord point)
+    # xsize=value (horizontal size of cutout)
     # ysize=value (vertical size)
 
     # use side="bottom" + ysize=-negative_value +
     # orientation="vertical" for build support tabs
     def cutout(self, side = "top", orientation = "tangent", \
-                   percent=-0.1, front_rel=-0.1, rear_rel=-0.1, \
+                   percent=None, front=None, rear=None, center=None, \
                    xsize = 0, ysize = 0):
         top = False
         if side == "top":
@@ -224,7 +229,7 @@ class Contour:
             tangent = True;
 
         # compute position of cutout
-        xpos = self.get_xpos( percent, front_rel, rear_rel )
+        xpos = self.get_xpos( percent, front, rear, center )
 
         curve = []
         if top:
@@ -295,16 +300,16 @@ class Contour:
             self.bottom = list(newcurve)
 
     def cutout_stringer(self, side="top", orientation="tangent", \
-                            percent=-0.1, front_rel=-0.1, rear_rel=-0.1, \
+                            percent=None, front=None, rear=None, center=None, \
                             xsize = 0, ysize = 0):
-        self.cutout(side, orientation, percent, front_rel, rear_rel, \
+        self.cutout(side, orientation, percent, front, rear, center, \
                         xsize, ysize)
 
-    def add_build_tab(self, side = "top", relative = "front", \
-                          percent=-0.1, front_rel=-0.1, rear_rel=-0.1, \
+    def add_build_tab(self, side = "top", percent=None, front=None, \
+                          rear=None, center=None, \
                           xsize = 0, yextra = 0):
         # compute actual "x" position
-        xpos = self.get_xpos( percent, front_rel, rear_rel )
+        xpos = self.get_xpos( percent, front, rear, center )
 
         # get current bounds
         bounds = self.get_bounds()
@@ -320,7 +325,7 @@ class Contour:
 
         # call the cutout method with negative ysize to create a tab
         self.cutout(side, orientation="vertical", percent=percent, \
-                        front_rel=front_rel, rear_rel=rear_rel, \
+                        front=front, rear=rear, center=center, \
                         xsize=xsize, ysize=-ysize)
 
     def add_hole(self, xpos, ypos, radius):

@@ -117,16 +117,16 @@ class Wing:
         self.taper.top = curve
 
     def add_stringer(self, side="top", orientation="tangent", \
-                         percent=-0.1, front_rel=-0.1, rear_rel=-0.1, \
+                         percent=None, front=None, rear=None, center=None, \
                          xsize = 0, ysize = 0):
-        self.stringers.append( (side, orientation, percent, front_rel, \
-                                    rear_rel, xsize, ysize) )
+        self.stringers.append( (side, orientation, percent, front, \
+                                    rear, center, xsize, ysize) )
 
     def add_spar(self, side="top", orientation="vertical", \
-                     percent=-0.1, front_rel=-0.1, rear_rel=-0.1, \
+                     percent=None, front=None, rear=None, center=None, \
                      xsize = 0, ysize = 0):
-        self.spars.append( (side, orientation, percent, front_rel, \
-                                    rear_rel, xsize, ysize) )
+        self.spars.append( (side, orientation, percent, front, \
+                                    rear, center, xsize, ysize) )
 
     def make_rib(self, airfoil, chord, lat_dist, sweep_dist, twist, label ):
         result = Rib()
@@ -135,7 +135,7 @@ class Wing:
         # scale and position
         result.contour.scale(chord, chord)
         result.contour.fit(500, 0.002)
-        result.contour.move(-0.30*chord, 0.0)
+        result.contour.move(-0.25*chord, 0.0)
         result.contour.save_bounds()
 
         # add label (before rotate)
@@ -155,7 +155,7 @@ class Wing:
             result.contour.cutout_stringer( stringer[0], stringer[1], \
                                                 stringer[2], stringer[3], \
                                                 stringer[4], stringer[5], \
-                                                stringer[6] )
+                                                stringer[6], stringer[7] )
 
         # trailing edge cutout
         if self.trailing_edge_w > 0.01 and self.trailing_edge_h > 0.01:
@@ -170,7 +170,7 @@ class Wing:
         for spar in self.spars:
             result.contour.cutout_stringer( spar[0], spar[1], spar[2], \
                                                 spar[3], spar[4], spar[5], \
-                                                spar[6] )
+                                                spar[6], spar[7] )
 
         # set plan position
         result.pos = (lat_dist, sweep_dist, 0.0)
@@ -290,11 +290,11 @@ class Wing:
     def make_stringer(self, stringer, ribs):
         side1 = []
         side2 = []
-        halfwidth = stringer[5] * 0.5
+        halfwidth = stringer[6] * 0.5
         for rib in ribs:
             #print "%=" + str(stringer[2]) + " rf=" + str(stringer[3]) + \
             #    " rr=" + str(stringer[4])
-            xpos = rib.contour.get_xpos(stringer[2], stringer[3], stringer[4])
+            xpos = rib.contour.get_xpos(stringer[2], stringer[3], stringer[4], stringer[5])
             side1.append( (xpos-halfwidth+rib.pos[1], -rib.pos[0]) )
             side2.append( (xpos+halfwidth+rib.pos[1], -rib.pos[0]) )
         side2.reverse()
