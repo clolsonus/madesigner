@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 
 import copy
-import svgwrite
+
+try:
+    import svgwrite
+except ImportError:
+    import sys, os
+    sys.path.insert(0, os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/..'))
+    import svgwrite
 
 try:
     import airfoil

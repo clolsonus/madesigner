@@ -7,9 +7,7 @@ __license__ = "GPL v2"
 
 
 import copy
-
 import svgwrite
-
 import airfoil
 
 

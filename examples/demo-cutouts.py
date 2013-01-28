@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 
 import copy
-import svgwrite
+
+try:
+    import svgwrite
+except ImportError:
+    import sys, os
+    sys.path.insert(0, os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/..'))
+    import svgwrite
 
 try:
     import airfoil
@@ -56,14 +62,14 @@ for p in range(0, steps+1):
     blend.cutout_stringer( side="top", orientation="tangent", percent=0.15, \
                                xsize=0.125, ysize=0.125 )
     # stringer position fixed relative to nose of rib
-    blend.cutout_stringer( side="top", orientation="tangent", front_rel=0.25, \
+    blend.cutout_stringer( side="top", orientation="tangent", front=0.25, \
                                xsize=0.125, ysize=0.125 )
 
     # rear stringer (before washout rotate)
     blend.cutout_stringer( side="top", orientation="tangent", percent=0.7, \
                                xsize=0.125, ysize=0.125 )
     blend.cutout_stringer( side="bottom", orientation="vertical", \
-                               rear_rel=1.5, xsize=0.125, ysize=0.125 )
+                               rear=1.5, xsize=0.125, ysize=0.125 )
 
     # lightening holes
     hx = bounds[0][0] + size * 0.16

@@ -8,7 +8,13 @@ __license__ = "GPL v2"
 
 import copy
 import math
-import svgwrite
+
+try:
+    import svgwrite
+except ImportError:
+    import sys, os
+    sys.path.insert(0, os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/..'))
+    import svgwrite
 
 import airfoil
 import contour
@@ -22,6 +28,7 @@ class Rib:
         self.material = "balsa"
         self.contour = None
         self.pos = (0.0, 0.0, 0.0)
+        self.twist = 0.0
         self.placed = False
 
 
@@ -30,6 +37,24 @@ class Stringer:
         self.cutout = cutout
         self.start_station = start_station
         self.end_station = end_station
+
+
+class TrailingEdge:
+    def __init__(self, width=0.0, height=0.0, shape="", \
+                     start_station=None, end_station=None):
+        self.width = width
+        self.height = height
+        self.shape = shape
+        self.start_station = start_station
+        self.end_station = end_station
+
+
+class Flap:
+    def __init__(self, start_station=None, end_station=None, \
+                     pos=None):
+        self.start_station = start_station
+        self.end_station = end_station
+        self.pos = pos
 
 
 class Wing:
@@ -51,11 +76,10 @@ class Wing:
         # structural components
         self.steps = 10
         self.leading_edge_diamond = 0.0
-        self.trailing_edge_w = 0.0
-        self.trailing_edge_h = 0.0
-        self.trailing_edge_shape = "flat"
+        self.trailing_edges = []
         self.stringers = []
         self.spars = []
+        self.flaps = []
 
         # generated parts
         self.right_ribs = []
@@ -123,6 +147,11 @@ class Wing:
         self.taper = contour.Contour()
         self.taper.top = curve
 
+    def add_trailing_edge(self, width=0.0, height=0.0, shape="", \
+                         start_station=None, end_station=None):
+        te = TrailingEdge( width, height, shape, start_station, end_station )
+        self.trailing_edges.append( te )
+
     def add_stringer(self, side="top", orientation="tangent", \
                          percent=None, front=None, rear=None, center=None, \
                          xsize=0.0, ysize=0.0, \
@@ -141,21 +170,53 @@ class Wing:
         spar = Stringer( cutout, start_station, end_station )
         self.spars.append( spar )
 
+    def add_flap(self, start_station=None, end_station=None, \
+                     pos=None, type="builtup", edge_stringer_size=None):
+        flap = Flap( start_station, end_station, pos )
+        self.flaps.append( flap )
+        if edge_stringer_size != None:
+            double_width = edge_stringer_size[0] * 2.0
+            #front_pos = copy.deepcopy(pos)
+            #front_pos.move(-half_offset)
+            topcutout = contour.Cutout( side="top", orientation="tangent", \
+                                            cutpos=pos, \
+                                            xsize=double_width, \
+                                            ysize=edge_stringer_size[1] )
+            stringer = Stringer( topcutout, start_station, end_station )
+            self.stringers.append( stringer )
+
+            botcutout = contour.Cutout( side="bottom", orientation="tangent", \
+                                            cutpos=pos, \
+                                            xsize=double_width, \
+                                            ysize=edge_stringer_size[1] )
+            stringer = Stringer( botcutout, start_station, end_station )
+            self.stringers.append( stringer )
+
+            #half_offset = edge_stringer_size[0] * 0.5
+            #rear_pos = copy.deepcopy(pos)
+            #rear_pos.move(half_offset)
+            #topcutout = contour.Cutout( side="top", orientation="tangent", \
+            #                                cutpos=rear_pos, \
+            #                                xsize=edge_stringer_size[0], \
+            #                                ysize=edge_stringer_size[1] )
+            #stringer = Stringer( topcutout, start_station, end_station )
+            #self.stringers.append( stringer )
+
     # return true of lat_dist is between station1 and station2, inclusive.
     # properly handle cases where station1 or station2 is not defined (meaning
     # all the way to the end.
-    def match_station(self, stringer, lat_dist):
+    def match_station(self, start_dist, end_dist, lat_dist):
         result = True
         abs_lat = math.fabs(lat_dist)
-        if stringer.start_station != None:
-            if stringer.start_station - abs_lat > 0.01:
+        if start_dist != None:
+            if start_dist - abs_lat > 0.01:
                 result = False
-        if stringer.end_station != None:
-            if abs_lat - stringer.end_station > 0.01:
+        if end_dist != None:
+            if abs_lat - end_dist > 0.01:
                 result = False
         return result
             
-    def make_rib(self, airfoil, chord, lat_dist, sweep_dist, twist, label ):
+    def make_raw_rib(self, airfoil, chord, lat_dist, sweep_dist, twist, label ):
         result = Rib()
         result.contour = copy.deepcopy(airfoil)
 
@@ -172,34 +233,39 @@ class Wing:
         posy = by + (ty - by) / 2.0
         result.contour.add_label( posx, posy, 14, 0, label )
 
+        # set plan position & twist
+        result.pos = (lat_dist, sweep_dist, 0.0)
+        result.twist = twist
+
+        return result
+
+    def make_rib_cuts(self, rib ):
+        lat_dist = rib.pos[0]
+        chord = rib.contour.saved_bounds[1][0] - rib.contour.saved_bounds[0][0]
+
         # leading edge cutout
         diamond = self.leading_edge_diamond
         if diamond > 0.01:
-            result.contour.cutout_leading_edge_diamond(diamond)
+            rib.contour.cutout_leading_edge_diamond(diamond)
 
         # cutout stringers (before twist)
         for stringer in self.stringers:
-            if self.match_station(stringer, lat_dist):
-                result.contour.cutout_stringer( stringer.cutout )
+            if self.match_station(stringer.start_station, stringer.end_station, lat_dist):
+                rib.contour.cutout_stringer( stringer.cutout )
 
         # trailing edge cutout
-        if self.trailing_edge_w > 0.01 and self.trailing_edge_h > 0.01:
-            result.contour.cutout_trailing_edge( self.trailing_edge_w, \
-                                                     self.trailing_edge_h, \
-                                                     self.trailing_edge_shape )
+        for te in self.trailing_edges:
+            if self.match_station(te.start_station, te.end_station, lat_dist):
+                rib.contour.cutout_trailing_edge( te.width, te.height, \
+                                                         te.shape )
 
         # do rotate
-        result.contour.rotate(twist)
+        rib.contour.rotate(rib.twist)
 
         # cutout spars (stringer cut after twist)
         for spar in self.spars:
-            if self.match_station(spar, lat_dist):
-                result.contour.cutout_stringer( spar.cutout )
-
-        # set plan position
-        result.pos = (lat_dist, sweep_dist, 0.0)
-
-        return result
+            if self.match_station(spar.start_station, spar.end_station, lat_dist):
+                rib.contour.cutout_stringer( spar.cutout )
 
     def build(self):
         if len(self.stations) < 2:
@@ -238,14 +304,44 @@ class Wing:
             else:
                 sweep_dist = 0.0
 
-            # make the ribs
+            # make the basic ribs
             label = 'WR' + str(index+1) 
-            right_rib = self.make_rib(af, chord, lat_dist, sweep_dist, twist, label)
+            right_rib = self.make_raw_rib(af, chord, lat_dist, sweep_dist, \
+                                              twist, label)
             self.right_ribs.append(right_rib)
 
             label = 'WL' + str(index+1)
-            left_rib = self.make_rib(af, chord, -lat_dist, sweep_dist, twist, label)
+            left_rib = self.make_raw_rib(af, chord, -lat_dist, sweep_dist, \
+                                             twist, label)
             self.left_ribs.append(left_rib)
+
+        for rib in self.right_ribs:
+            self.make_rib_cuts(rib)
+        for rib in self.left_ribs:
+            self.make_rib_cuts(rib)
+
+        # lets try cutting out control surfaces here
+        for rib in self.right_ribs:
+            for flap in self.flaps:
+                if self.match_station(flap.start_station, flap.start_station, rib.pos[0]):
+                    print "start station = " + str(rib.pos[0])
+                elif self.match_station(flap.end_station, flap.end_station, rib.pos[0]):
+                    print "end station = " + str(rib.pos[0])
+                elif self.match_station(flap.start_station, flap.end_station, rib.pos[0]):
+                    print "match flap at mid station " + str(rib.pos[0])
+                    rib.contour.trim(side="top", discard="rear", cutpos=flap.pos)
+                    rib.contour.trim(side="bottom", discard="rear", cutpos=flap.pos)
+        for rib in self.left_ribs:
+            for flap in self.flaps:
+                if self.match_station(flap.start_station, flap.start_station, rib.pos[0]):
+                    print "start station = " + str(rib.pos[0])
+                elif self.match_station(flap.end_station, flap.end_station, rib.pos[0]):
+                    print "end station = " + str(rib.pos[0])
+                elif self.match_station(flap.start_station, flap.end_station, rib.pos[0]):
+                    print "left match flap at station " + str(rib.pos[0])
+                    rib.contour.trim(side="top", discard="rear", cutpos=flap.pos)
+                    rib.contour.trim(side="bottom", discard="rear", cutpos=flap.pos)
+            
 
     def layout_parts_sheets(self, basename, width, height, margin = 0.1):
         l = layout.Layout( basename + '-wing-sheet', width, height, margin )
@@ -298,15 +394,16 @@ class Wing:
         shape = side1 + side2
         return shape
 
-    def make_trailing_edge(self, ribs):
+    def make_trailing_edge(self, te, ribs):
         side1 = []
         side2 = []
         for rib in ribs:
-            idealtip = rib.contour.saved_bounds[1][0]
-            cutbounds = rib.contour.get_bounds()
-            cuttip = cutbounds[1][0]
-            side1.append( (cuttip+rib.pos[1], -rib.pos[0]) )
-            side2.append( (idealtip+rib.pos[1], -rib.pos[0]) )
+            if self.match_station(te.start_station, te.end_station, rib.pos[0]):
+                idealtip = rib.contour.saved_bounds[1][0]
+                cutbounds = rib.contour.get_bounds()
+                cuttip = cutbounds[1][0]
+                side1.append( (cuttip+rib.pos[1], -rib.pos[0]) )
+                side2.append( (idealtip+rib.pos[1], -rib.pos[0]) )
         side2.reverse()
         shape = side1 + side2
         return shape
@@ -316,7 +413,7 @@ class Wing:
         side2 = []
         halfwidth = stringer.cutout.xsize * 0.5
         for rib in ribs:
-            if self.match_station(stringer, rib.pos[0]):
+            if self.match_station(stringer.start_station, stringer.end_station, rib.pos[0]):
                 xpos = rib.contour.get_xpos(stringer.cutout.cutpos)
                 side1.append( (xpos-halfwidth+rib.pos[1], -rib.pos[0]) )
                 side2.append( (xpos+halfwidth+rib.pos[1], -rib.pos[0]) )
@@ -361,8 +458,9 @@ class Wing:
         sheet.draw_shape(planoffset, shape, "1px", "red")
         shape = self.make_leading_edge2(self.right_ribs)
         sheet.draw_shape(planoffset, shape, "1px", "red")
-        shape = self.make_trailing_edge(self.right_ribs)
-        sheet.draw_shape(planoffset, shape, "1px", "red")
+        for te in self.trailing_edges:
+            shape = self.make_trailing_edge(te, self.right_ribs)
+            sheet.draw_shape(planoffset, shape, "1px", "red")
         for stringer in self.stringers:
             shape = self.make_stringer(stringer, self.right_ribs)
             sheet.draw_shape(planoffset, shape, "1px", "red")
@@ -386,8 +484,9 @@ class Wing:
         sheet.draw_shape(planoffset, shape, "1px", "red")
         shape = self.make_leading_edge2(self.left_ribs)
         sheet.draw_shape(planoffset, shape, "1px", "red")
-        shape = self.make_trailing_edge(self.left_ribs)
-        sheet.draw_shape(planoffset, shape, "1px", "red")
+        for te in self.trailing_edges:
+            shape = self.make_trailing_edge(te, self.left_ribs)
+            sheet.draw_shape(planoffset, shape, "1px", "red")
         for stringer in self.stringers:
             shape = self.make_stringer(stringer, self.left_ribs)
             sheet.draw_shape(planoffset, shape, "1px", "red")

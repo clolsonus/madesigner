@@ -19,15 +19,27 @@ class Cutpos:
         self.rear = rear                   # dist from rear of chord
         self.center = center               # dist from 25% chord
 
+    # move the cutpos by dist amount
+    def move(self, xdist=0.0):
+        if self.percent != None:
+            self.percent += xdist
+        elif self.front != None:
+            self.front += xdist
+        elif self.rear != None:
+            self.rear += xdist
+        elif self.center != None:
+            self.center += xdist
+
+
 class Cutout:
     def __init__(self, side="top", orientation="tangent", cutpos=None, \
                      xsize=0.0, ysize=0.0):
         # note: specify a value for only one of percent, front, rear, or center
         self.side = side                   # {top, bottom}
         self.orientation = orientation     # {tangent, vertical}
-        self.cutpos = cutpos               # Cutpos()
         self.xsize = xsize                 # horizontal size
         self.ysize = ysize                 # vertical size
+        self.cutpos = cutpos               # Cutpos()
 
 
 class Contour:
@@ -225,6 +237,38 @@ class Contour:
             xpos = ctrpt + cutpos.center
         return xpos
 
+    # trim everything front or rear of a given position
+    def trim(self, side="top", discard="rear", cutpos=None):
+        if side == "top":
+            curve = list(self.top)
+        else:
+            curve = list(self.bottom)
+        newcurve = []
+        xpos = self.get_xpos(cutpos)
+        ypos = self.simple_interp(curve, xpos)
+        n = len(curve)
+        i = 0
+        if discard == "rear":
+            # copy up to the cut point
+            while curve[i][0] < xpos and i < n:
+                newcurve.append( curve[i] )
+                i += 1
+            newcurve.append( (xpos, ypos) )
+            newcurve.append( (xpos, 0) )
+        else:
+            # skip to the next point after the cut
+            while curve[i][0] <= xpos and i < n:
+                i += 1
+            newcurve.append( (xpos, 0) )
+            newcurve.append( (xpos, ypos) )
+            while i < n:
+                newcurve.append( curve[i] )
+                i += 1
+        if side == "top":
+            self.top = list(newcurve)
+        else:
+            self.bottom = list(newcurve)
+ 
     # side={top,bottom} (attached to top or bottom of airfoil)
     # orientation={tangent,vertical} (aligned vertically or flush with surface)
     # xpos={percent,front,rear,zero} (position is relative to percent of chord,
@@ -364,7 +408,7 @@ class Contour:
             pt = (pt[0], 0.0)
         return pt
 
-    def cutout_sweep(self, side = "top", xstart = 0, xsize = 0, ysize = 0):
+    def cutout_sweep(self, side="top", xstart=0, xsize=0, ysize=0):
         top = False
         if side == "top":
             top = True

@@ -1,15 +1,22 @@
 #!/usr/bin/env python
 
-import svgwrite
+try:
+    import svgwrite
+except ImportError:
+    import sys, os
+    sys.path.insert(0, os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/..'))
+    import svgwrite
 
 try:
     import airfoil
+    import contour
     import layout
 except ImportError:
     # if airfoil is not 'installed' append parent dir of __file__ to sys.path
     import sys, os
     sys.path.insert(0, os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/../lib'))
     import airfoil
+    import contour
     import layout
 
 root = airfoil.Airfoil("naca633618", 1000, True)
@@ -44,6 +51,9 @@ for p in range(0, steps+1):
     vd = (ty - by)
     hy = by + vd / 2.0
     rib.add_label( tx, hy, 14, 0, "W" + str(p) )
+
+    pos = contour.Cutpos(percent=0.6)
+    rib.trim( side="top", discard="rear", cutpos=pos)
 
     rib.rotate( percent * twist )
 

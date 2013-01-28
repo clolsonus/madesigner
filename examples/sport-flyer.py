@@ -1,14 +1,21 @@
 #!/usr/bin/env python
 
-import svgwrite
 
 try:
+    import contour
     import wing
 except ImportError:
     # if airfoil is not 'installed' append parent dir of __file__ to sys.path
     import sys, os
     sys.path.insert(0, os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/../lib'))
+    import contour
     import wing
+
+try:
+    import svgwrite
+except ImportError:
+    sys.path.insert(0, os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/..'))
+    import svgwrite
 
 wing = wing.Wing()
 
@@ -26,31 +33,43 @@ wing.set_taper_curve( ((0.0, root_chord), (5.0, root_chord*1.2), (30.0, tip_chor
 
 # define the wing structure
 #wing.set_num_stations(20)
-wing.set_stations( (0.0, 0.5, 2.0, 4.0, 7.0, 10.0, 13.0, 15.0, 17.0, \
-                        20.0, 23.0, 26.0, 28.0, 29.5, 30.0) )
+wing.set_stations( (0.0, 1.0, 2.0, 4.0, 7.0, 10.0, 13.0, 15.0, 17.0, \
+                        20.0, 23.0, 26.0, 28.0, 29.0, 30.0) )
 wing.leading_edge_diamond = 0.2
-wing.trailing_edge_w = 1.0
-wing.trailing_edge_h = 0.25
-wing.trailing_edge_shape = "symmetrical"
+
+wing.add_trailing_edge( width=1.0, height=0.25, shape="symmetrical", \
+                            start_station=0.0, end_station=20.0 )
+wing.add_trailing_edge( width=1.0, height=0.25, shape="symmetrical", \
+                            start_station=29.0, end_station=30.0 )
+
+wing.add_spar( side="top", orientation="vertical", center=0.0, \
+                       xsize=0.125, ysize=0.250 )
+wing.add_spar( side="bottom", orientation="vertical", center=0.0, \
+                       xsize=0.125, ysize=0.250 )
 
 wing.add_stringer( side="top", orientation="tangent", percent=0.10, \
                        xsize=0.125, ysize=0.125 )
 wing.add_stringer( side="bottom", orientation="tangent", percent=0.10, \
                        xsize=0.125, ysize=0.125 )
-wing.add_stringer( side="top", orientation="tangent", percent=0.75, \
-                       xsize=0.125, ysize=0.125 )
-wing.add_stringer( side="bottom", orientation="tangent", percent=0.75, \
-                       xsize=0.125, ysize=0.125 )
-wing.add_stringer( side="top", orientation="tangent", percent=0.50, \
+wing.add_stringer( side="top", orientation="tangent", percent=0.70, \
                        xsize=0.125, ysize=0.125, \
-                       start_station=15.0, end_station=28.0 )
-wing.add_spar( side="top", orientation="vertical", percent=0.25, \
-                       xsize=0.125, ysize=0.250 )
-wing.add_spar( side="bottom", orientation="vertical", percent=0.25, \
-                       xsize=0.125, ysize=0.250 )
+                       start_station=0.0, end_station=20.0 )
+wing.add_stringer( side="bottom", orientation="tangent", percent=0.70, \
+                       xsize=0.125, ysize=0.125, \
+                       start_station=0.0, end_station=20.0 )
+#wing.add_stringer( side="top", orientation="tangent", percent=0.50, \
+#                       xsize=0.125, ysize=0.125, \
+#                       start_station=15.0, end_station=28.0 )
+#wing.add_stringer( side="top", orientation="tangent", center=3.0, \
+#                   xsize=0.125, ysize=0.125 )
+#wing.add_stringer( side="bottom", orientation="tangent", center=3.0, \
+#                   xsize=0.125, ysize=0.125 )
 
 # define the control surfaces
-#wing.add_flap( station1=8, station2=14, chord1=2.0, chord2=2.0, type="builtup")
+pos = contour.Cutpos(center=3.0)
+edge_stringer_size = ( 0.25, 0.125 ) # width x height
+wing.add_flap( start_station=20.0, end_station=29.0, \
+                   pos=pos, type="builtup", edge_stringer_size=edge_stringer_size )
 
 # build the wing parts
 wing.build()
