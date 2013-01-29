@@ -8,6 +8,7 @@ __license__ = "GPL v2"
 
 import copy
 import math
+import re
 
 try:
     import svgwrite
@@ -33,6 +34,31 @@ class Rib:
         self.part = "wing"      # wing or flap
         self.has_le = True      # has leading edge
         self.has_te = True      # has trailing edge
+
+    def trim_rear(self, cutpos):
+        self.contour.trim(side="top", discard="rear", cutpos=cutpos)
+        self.contour.trim(side="bottom", discard="rear", cutpos=cutpos)
+
+    def trim_front(self, cutpos):
+        self.contour.trim(side="top", discard="front", cutpos=cutpos)
+        self.contour.trim(side="bottom", discard="front", cutpos=cutpos)
+
+    def get_label(self):
+        if len(self.contour.labels):
+            return self.contour.labels[0][4]
+        return "unlabeled"
+
+    def relabel_flap(self):
+        bounds = self.contour.get_bounds()
+        xcenter = (bounds[0][0] + bounds[1][0]) * 0.5
+        ycenter = (bounds[0][1] + bounds[1][1]) * 0.5
+        if len(self.contour.labels):
+            label = self.contour.labels[0][4]
+            label = re.sub('W', 'F', label)
+        else:
+            label = "unlabeled"
+        self.contour.labels = []
+        self.contour.add_label( xcenter, ycenter, 14, 0, label )
 
 
 class Stringer:
@@ -273,14 +299,6 @@ class Wing:
             if self.match_station(spar.start_station, spar.end_station, lat_dist):
                 rib.contour.cutout_stringer( spar.cutout )
 
-    def trim_rear(self, rib, cutpos):
-        rib.contour.trim(side="top", discard="rear", cutpos=cutpos)
-        rib.contour.trim(side="bottom", discard="rear", cutpos=cutpos)
-
-    def trim_front(self, rib, cutpos):
-        rib.contour.trim(side="top", discard="front", cutpos=cutpos)
-        rib.contour.trim(side="bottom", discard="front", cutpos=cutpos)
-
     def build(self):
         if len(self.stations) < 2:
             print "Must define at least 2 stations to build a wing"
@@ -356,7 +374,7 @@ class Wing:
                     newrib = copy.deepcopy(rib)
                     rib.nudge = rib.thickness * 0.5
                     newrib.nudge = -rib.thickness * 1.0
-                    self.trim_front(newrib, flap.pos)
+                    newrib.trim_front(flap.pos)
                     newrib.part = "flap"
                     newrib.has_le = False
                     new_ribs.append(newrib)
@@ -365,18 +383,18 @@ class Wing:
                     newrib = copy.deepcopy(rib)
                     rib.nudge = -rib.thickness * 0.5
                     newrib.nudge = rib.thickness * 1.0
-                    self.trim_front(newrib, flap.pos)
+                    newrib.trim_front(flap.pos)
                     newrib.part = "flap"
                     newrib.has_le = False
                     new_ribs.append(newrib)
                 elif self.match_station(flap.start_station, flap.end_station, rib.pos[0]):
                     print "match flap at mid station " + str(rib.pos[0])
                     newrib = copy.deepcopy(rib)
-                    self.trim_front(newrib, flap.pos)
+                    newrib.trim_front(flap.pos)
                     newrib.part = "flap"
                     newrib.has_le = False
                     new_ribs.append(newrib)
-                    self.trim_rear(rib, flap.pos)
+                    rib.trim_rear(flap.pos)
                     rib.has_te = False
 
         for rib in new_ribs:
@@ -390,7 +408,7 @@ class Wing:
                     newrib = copy.deepcopy(rib)
                     rib.nudge = -rib.thickness * 0.5
                     newrib.nudge = rib.thickness * 1.0
-                    self.trim_front(newrib, flap.pos)
+                    newrib.trim_front(flap.pos)
                     newrib.part = "flap"
                     newrib.has_le = False
                     new_ribs.append(newrib)
@@ -399,18 +417,18 @@ class Wing:
                     newrib = copy.deepcopy(rib)
                     rib.nudge = rib.thickness * 0.5
                     newrib.nudge = -rib.thickness * 1.0
-                    self.trim_front(newrib, flap.pos)
+                    newrib.trim_front(flap.pos)
                     newrib.part = "flap"
                     newrib.has_le = False
                     new_ribs.append(newrib)
                 elif self.match_station(flap.start_station, flap.end_station, rib.pos[0]):
                     print "left match flap at station " + str(rib.pos[0])
                     newrib = copy.deepcopy(rib)
-                    self.trim_front(newrib, flap.pos)
+                    newrib.trim_front(flap.pos)
                     newrib.part = "flap"
                     newrib.has_le = False
                     new_ribs.append(newrib)
-                    self.trim_rear(rib, flap.pos)
+                    rib.trim_rear(flap.pos)
                     rib.has_te = False
                     #rib.contour.trim(side="top", discard="rear", cutpos=flap.pos)
                     #rib.contour.trim(side="bottom", discard="rear", cutpos=flap.pos)
@@ -424,6 +442,16 @@ class Wing:
             self.make_rib_cuts(rib)
         for rib in self.left_ribs:
             self.make_rib_cuts(rib)            
+
+        # a quick pass to update labels on "flap" parts after the
+        # cutouts so there is half a chance the label ends up on the
+        # part itself
+        for rib in self.right_ribs:
+            if rib.part == "flap":
+                rib.relabel_flap()
+        for rib in self.left_ribs:
+            if rib.part == "flap":
+                rib.relabel_flap()
 
     def layout_parts_sheets(self, basename, width, height, margin = 0.1):
         l = layout.Layout( basename + '-wing-sheet', width, height, margin )
