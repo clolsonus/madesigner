@@ -202,7 +202,7 @@ class Airfoil(Contour):
         n = len(self.top)
         # skip cut out nose points
         i = 0
-        while self.top[i][0] <= xtop and i < n:
+        while i < n and self.top[i][0] <= xtop:
             i += 1
         # 45 cutout
         newtop.append( corner )
@@ -218,7 +218,7 @@ class Airfoil(Contour):
         n = len(self.bottom)
         # skip cut out nose points
         i = 0
-        while self.bottom[i][0] <= xbottom and i < n:
+        while i < n and self.bottom[i][0] <= xbottom:
             i += 1
         # 45 cutout
         newbottom.append( corner )
@@ -281,7 +281,7 @@ class Airfoil(Contour):
         n = len(self.top)
         # add lead points
         i = 0
-        while self.top[i][0] < xtop and i < n:
+        while i < n and self.top[i][0] < xtop:
             newtop.append( self.top[i] )
             i += 1
         # finish off the cut
@@ -294,7 +294,7 @@ class Airfoil(Contour):
         n = len(self.bottom)
         # add lead points
         i = 0
-        while self.bottom[i][0] < xbottom and i < n:
+        while i < n and self.bottom[i][0] < xbottom:
             newbottom.append( self.bottom[i] )
             i += 1
         # finish off the cut

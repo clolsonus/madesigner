@@ -13,11 +13,20 @@ import spline
 
 
 class Cutpos:
-    def __init__(self, percent=None, front=None, rear=None, center=None):
+    def __init__(self, percent=None, front=None, rear=None, center=None, \
+                     xpos=None):
         self.percent = percent             # placed at % point in chord
         self.front = front                 # dist from front of chord
         self.rear = rear                   # dist from rear of chord
-        self.center = center               # dist from 25% chord
+        self.center = center               # dist from 25% chord if a
+        self.xpos = xpos                   # not relative, just the actual pos
+
+        # ypos + slope are defined, then the cut position will be at
+        # the point the contour intesects the line that passes through
+        # the xpos, ypos with the specified slope.  This is primarily
+        # used to cut control surface clearance wedges.
+        self.ypos = 0.0
+        self.slope = 0.0
 
     # move the cutpos by dist amount
     def move(self, xdist=0.0):
@@ -29,6 +38,8 @@ class Cutpos:
             self.rear += xdist
         elif self.center != None:
             self.center += xdist
+        elif self.xpos != None:
+            self.xpos += xdist
 
 
 class Cutout:
@@ -222,10 +233,10 @@ class Contour:
         self.saved_bounds = self.get_bounds()
 
     # given one of the possible ways to specify position, return the
-    # actual position
+    # actual position (relative to the original pre-cut part dimensions)
     def get_xpos(self, cutpos):
         if len(self.saved_bounds) == 0:
-            print "need to call contour.save_bounds() after last size/move,"
+            print "need to call contour.save_bounds() after part created,"
             print "but before any cutouts are made"
             self.save_bounds()
         chord = self.saved_bounds[1][0] - self.saved_bounds[0][0]
@@ -238,6 +249,8 @@ class Contour:
         elif cutpos.center != None:
             ctrpt = self.saved_bounds[0][0] + chord * 0.25
             xpos = ctrpt + cutpos.center
+        elif cutpos.xpos != None:
+            xpos = cutpos.xpos
         return xpos
 
     # trim everything front or rear of a given position
@@ -253,17 +266,22 @@ class Contour:
         i = 0
         if discard == "rear":
             # copy up to the cut point
-            while curve[i][0] < xpos and i < n:
+            while i < n and curve[i][0] <= xpos:
                 newcurve.append( curve[i] )
                 i += 1
-            newcurve.append( (xpos, ypos) )
+            if i < n:
+                newcurve.append( (xpos, ypos) )
         else:
             # skip to the next point after the cut
-            while curve[i][0] <= xpos and i < n:
+            while i < n and curve[i][0] < xpos:
+                #print "i=" + str(i) + " n=" + str(n) + " curve[i][0]=" + str(curve[i][0]) + " xpos=" + str(xpos)
                 i += 1
-            newcurve.append( (xpos, ypos) )
+            if i > 0:
+                newcurve.append( (xpos, ypos) )
+                #print "add=" + str( (xpos, ypos) )
             while i < n:
                 newcurve.append( curve[i] )
+                #print "add=" + str(curve[i])
                 i += 1
         if side == "top":
             self.top = list(newcurve)
@@ -281,6 +299,10 @@ class Contour:
     # use side="bottom" + ysize=-negative_value +
     # orientation="vertical" for build support tabs
     def cutout(self, cutout):
+        if len(self.saved_bounds) == 0:
+            print "need to call contour.save_bounds() after part created,"
+            print "but before any cutouts are made"
+            self.save_bounds()
         top = False
         if cutout.side == "top":
             top = True
@@ -342,7 +364,7 @@ class Contour:
 
         i = 0
         # nose portion
-        while (curve[i][0] < p0[0] and curve[i][0] < p3[0]) and i < n:
+        while i < n and (curve[i][0] < p0[0] and curve[i][0] < p3[0]):
             newcurve.append( curve[i] )
             i += 1
         # cut out
@@ -367,6 +389,13 @@ class Contour:
             self.top = list(newcurve)
         else:
             self.bottom = list(newcurve)
+        # finally trim to the original part size
+        front = Cutpos(xpos=self.saved_bounds[0][0])
+        rear = Cutpos(xpos=self.saved_bounds[1][0])
+        self.trim(side="top", discard="front", cutpos=front)
+        self.trim(side="bottom", discard="front", cutpos=front)
+        self.trim(side="top", discard="rear", cutpos=rear)
+        self.trim(side="bottom", discard="rear", cutpos=rear)
 
     def cutout_stringer(self, stringer):
         self.cutout( stringer )
@@ -433,7 +462,7 @@ class Contour:
 
         # nose portion
         i = 0
-        while curve[i][0] < xstart and i < n:
+        while i < n and curve[i][0] < xstart:
             newcurve.append( curve[i] )
             i += 1
 
@@ -448,7 +477,7 @@ class Contour:
         index = spline.binsearch(curve, xpos)
         first = True
         next_dist = 0
-        while dist + next_dist <= xsize and index < n:
+        while index < n and dist + next_dist <= xsize:
             dist += next_dist
             ypos = self.simple_interp(curve, xpos)
             pt = self.project_point(top, slopes, index, (xpos, ypos), -ysize)
@@ -463,9 +492,9 @@ class Contour:
             # finish sweep (advance x in proportion to get close to the
             # right total sweep dist
             rem = xsize - dist
-            print "rem = " + str(rem)
+            #print "rem = " + str(rem)
             pct = rem / next_dist
-            print "pct of next step = " + str(pct)
+            #print "pct of next step = " + str(pct)
             xpos = curve[index-1][0]
             dx = curve[index][0] - xpos
             xpos += dx * rem

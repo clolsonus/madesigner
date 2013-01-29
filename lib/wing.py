@@ -62,10 +62,12 @@ class Rib:
 
 
 class Stringer:
-    def __init__(self, cutout=None, start_station=None, end_station=None):
+    def __init__(self, cutout=None, start_station=None, end_station=None, \
+                     part=""):
         self.cutout = cutout
         self.start_station = start_station
         self.end_station = end_station
+        self.part = part        # wing or flap
 
 
 class TrailingEdge:
@@ -186,19 +188,19 @@ class Wing:
     def add_stringer(self, side="top", orientation="tangent", \
                          percent=None, front=None, rear=None, center=None, \
                          xsize=0.0, ysize=0.0, \
-                         start_station=None, end_station=None):
+                         start_station=None, end_station=None, part=""):
         cutpos = contour.Cutpos( percent, front, rear, center )
         cutout = contour.Cutout( side, orientation, cutpos, xsize, ysize )
-        stringer = Stringer( cutout, start_station, end_station )
+        stringer = Stringer( cutout, start_station, end_station, part )
         self.stringers.append( stringer )
 
     def add_spar(self, side="top", orientation="vertical", \
                      percent=None, front=None, rear=None, center=None, \
                      xsize=0.0, ysize=0.0, \
-                     start_station=None, end_station=None):
+                     start_station=None, end_station=None, part=""):
         cutpos = contour.Cutpos( percent, front, rear, center )
         cutout = contour.Cutout( side, orientation, cutpos, xsize, ysize )
-        spar = Stringer( cutout, start_station, end_station )
+        spar = Stringer( cutout, start_station, end_station, part )
         self.spars.append( spar )
 
     def add_flap(self, start_station=None, end_station=None, \
@@ -206,32 +208,32 @@ class Wing:
         flap = Flap( start_station, end_station, pos )
         self.flaps.append( flap )
         if edge_stringer_size != None:
-            double_width = edge_stringer_size[0] * 2.0
-            #front_pos = copy.deepcopy(pos)
-            #front_pos.move(-half_offset)
+            #double_width = edge_stringer_size[0] * 2.0
+            half_offset = edge_stringer_size[0] * 0.5
+            front_pos = copy.deepcopy(pos)
+            front_pos.move(-half_offset)
             topcutout = contour.Cutout( side="top", orientation="tangent", \
-                                            cutpos=pos, \
-                                            xsize=double_width, \
+                                            cutpos=front_pos, \
+                                            xsize=edge_stringer_size[0], \
                                             ysize=edge_stringer_size[1] )
-            stringer = Stringer( topcutout, start_station, end_station )
+            stringer = Stringer( topcutout, start_station, end_station, "wing" )
             self.stringers.append( stringer )
 
             botcutout = contour.Cutout( side="bottom", orientation="tangent", \
-                                            cutpos=pos, \
-                                            xsize=double_width, \
+                                            cutpos=front_pos, \
+                                            xsize=edge_stringer_size[0], \
                                             ysize=edge_stringer_size[1] )
-            stringer = Stringer( botcutout, start_station, end_station )
+            stringer = Stringer( botcutout, start_station, end_station, "wing" )
             self.stringers.append( stringer )
 
-            #half_offset = edge_stringer_size[0] * 0.5
-            #rear_pos = copy.deepcopy(pos)
-            #rear_pos.move(half_offset)
-            #topcutout = contour.Cutout( side="top", orientation="tangent", \
-            #                                cutpos=rear_pos, \
-            #                                xsize=edge_stringer_size[0], \
-            #                                ysize=edge_stringer_size[1] )
-            #stringer = Stringer( topcutout, start_station, end_station )
-            #self.stringers.append( stringer )
+            rear_pos = copy.deepcopy(pos)
+            rear_pos.move(half_offset)
+            topcutout = contour.Cutout( side="top", orientation="tangent", \
+                                            cutpos=rear_pos, \
+                                            xsize=edge_stringer_size[0], \
+                                            ysize=edge_stringer_size[1] )
+            stringer = Stringer( topcutout, start_station, end_station, "flap" )
+            self.stringers.append( stringer )
 
     # return true of lat_dist is between station1 and station2, inclusive.
     # properly handle cases where station1 or station2 is not defined (meaning
@@ -282,7 +284,8 @@ class Wing:
         # cutout stringers (before twist)
         for stringer in self.stringers:
             if self.match_station(stringer.start_station, stringer.end_station, lat_dist):
-                rib.contour.cutout_stringer( stringer.cutout )
+                if rib.part == stringer.part:
+                    rib.contour.cutout_stringer( stringer.cutout )
 
         # trailing edge cutout
         for te in self.trailing_edges:
@@ -370,7 +373,7 @@ class Wing:
         for rib in self.right_ribs:
             for flap in self.flaps:
                 if self.match_station(flap.start_station, flap.start_station, rib.pos[0]):
-                    print "start station = " + str(rib.pos[0])
+                    #print "start station = " + str(rib.pos[0])
                     newrib = copy.deepcopy(rib)
                     rib.nudge = rib.thickness * 0.5
                     newrib.nudge = -rib.thickness * 1.0
@@ -379,7 +382,7 @@ class Wing:
                     newrib.has_le = False
                     new_ribs.append(newrib)
                 elif self.match_station(flap.end_station, flap.end_station, rib.pos[0]):
-                    print "end station = " + str(rib.pos[0])
+                    #print "end station = " + str(rib.pos[0])
                     newrib = copy.deepcopy(rib)
                     rib.nudge = -rib.thickness * 0.5
                     newrib.nudge = rib.thickness * 1.0
@@ -388,7 +391,7 @@ class Wing:
                     newrib.has_le = False
                     new_ribs.append(newrib)
                 elif self.match_station(flap.start_station, flap.end_station, rib.pos[0]):
-                    print "match flap at mid station " + str(rib.pos[0])
+                    #print "match flap at mid station " + str(rib.pos[0])
                     newrib = copy.deepcopy(rib)
                     newrib.trim_front(flap.pos)
                     newrib.part = "flap"
@@ -404,7 +407,7 @@ class Wing:
         for rib in self.left_ribs:
             for flap in self.flaps:
                 if self.match_station(flap.start_station, flap.start_station, rib.pos[0]):
-                    print "start station = " + str(rib.pos[0])
+                    #print "start station = " + str(rib.pos[0])
                     newrib = copy.deepcopy(rib)
                     rib.nudge = -rib.thickness * 0.5
                     newrib.nudge = rib.thickness * 1.0
@@ -413,7 +416,7 @@ class Wing:
                     newrib.has_le = False
                     new_ribs.append(newrib)
                 elif self.match_station(flap.end_station, flap.end_station, rib.pos[0]):
-                    print "end station = " + str(rib.pos[0])
+                    #print "end station = " + str(rib.pos[0])
                     newrib = copy.deepcopy(rib)
                     rib.nudge = rib.thickness * 0.5
                     newrib.nudge = -rib.thickness * 1.0
@@ -422,7 +425,7 @@ class Wing:
                     newrib.has_le = False
                     new_ribs.append(newrib)
                 elif self.match_station(flap.start_station, flap.end_station, rib.pos[0]):
-                    print "left match flap at station " + str(rib.pos[0])
+                    #print "left match flap at station " + str(rib.pos[0])
                     newrib = copy.deepcopy(rib)
                     newrib.trim_front(flap.pos)
                     newrib.part = "flap"
@@ -520,7 +523,6 @@ class Wing:
                         side2.append( (idealtip+rib.pos[1], -rib.pos[0]) )
         side2.reverse()
         shape = side1 + side2
-        #print "shape = " + str(shape)
         return shape
 
     def make_stringer(self, stringer, ribs):
@@ -529,9 +531,10 @@ class Wing:
         halfwidth = stringer.cutout.xsize * 0.5
         for rib in ribs:
             if self.match_station(stringer.start_station, stringer.end_station, rib.pos[0]):
-                xpos = rib.contour.get_xpos(stringer.cutout.cutpos)
-                side1.append( (xpos-halfwidth+rib.pos[1], -rib.pos[0]) )
-                side2.append( (xpos+halfwidth+rib.pos[1], -rib.pos[0]) )
+                if rib.part == stringer.part:
+                    xpos = rib.contour.get_xpos(stringer.cutout.cutpos)
+                    side1.append( (xpos-halfwidth+rib.pos[1], -rib.pos[0]+rib.nudge) )
+                    side2.append( (xpos+halfwidth+rib.pos[1], -rib.pos[0]+rib.nudge) )
         side2.reverse()
         shape = side1 + side2
         return shape
