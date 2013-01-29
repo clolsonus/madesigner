@@ -65,9 +65,12 @@ class Contour:
             xrange = points[index+1][0] - points[index][0]
             yrange = points[index+1][1] - points[index][1]
 	    # print(" xrange = $xrange\n")
-            percent = (v - points[index][0]) / xrange
-	    # print(" percent = $percent\n")
-            return points[index][1] + percent * yrange
+            if xrange > 0.0001:
+                percent = (v - points[index][0]) / xrange
+                # print(" percent = $percent\n")
+                return points[index][1] + percent * yrange
+            else:
+                return points[index][1]
         else:
             return points[index][1]
 
@@ -254,12 +257,10 @@ class Contour:
                 newcurve.append( curve[i] )
                 i += 1
             newcurve.append( (xpos, ypos) )
-            newcurve.append( (xpos, 0) )
         else:
             # skip to the next point after the cut
             while curve[i][0] <= xpos and i < n:
                 i += 1
-            newcurve.append( (xpos, 0) )
             newcurve.append( (xpos, ypos) )
             while i < n:
                 newcurve.append( curve[i] )
@@ -290,6 +291,14 @@ class Contour:
 
         # compute position of cutout
         xpos = self.get_xpos(cutout.cutpos)
+
+        # sanity check
+        bounds = self.get_bounds()
+        if xpos < bounds[0][0] or xpos > bounds[1][0]:
+            print "cutout is outside of part"
+            return
+        else:
+            print "bounds = " + str(bounds) + " xpos = " + str(xpos)
 
         curve = []
         if top:
@@ -348,7 +357,7 @@ class Contour:
             newcurve.append( p1 )
             newcurve.append( p0 )
         # skip airfoil coutout points
-        while (curve[i][0] <= p0[0] or curve[i][0] <= p3[0]) and i < n:
+        while i < n and (curve[i][0] <= p0[0] or curve[i][0] <= p3[0]):
             i += 1
         # tail portion
         while i < n:

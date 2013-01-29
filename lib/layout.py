@@ -113,10 +113,13 @@ class Sheet:
         g.add( poly )
 
         for label in airfoil.labels:
+            yoffset = -part_width
+            if nudge > 0.001:
+                yoffset = 2.5*part_width + nudge
             #print "label = " + str(label[0]) + "," + str(label[1])
             t = self.dwg.text(label[4], (0, 0), font_size = label[2], text_anchor = "middle")
             t.translate( ((bounds[0][0] + dx*0.5)*self.dpi, \
-                              -part_width*self.dpi) )
+                              yoffset*self.dpi) )
             # text_align = center
             g.add(t)
 

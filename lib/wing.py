@@ -27,9 +27,12 @@ class Rib:
         self.thickness = 0.0625
         self.material = "balsa"
         self.contour = None
-        self.pos = (0.0, 0.0, 0.0)
+        self.pos = [0.0, 0.0, 0.0]
+        self.nudge = 0.0        # left right nudge for drawing top down plans
         self.twist = 0.0
-        self.placed = False
+        self.part = "wing"      # wing or flap
+        self.has_le = True      # has leading edge
+        self.has_te = True      # has trailing edge
 
 
 class Stringer:
@@ -41,12 +44,13 @@ class Stringer:
 
 class TrailingEdge:
     def __init__(self, width=0.0, height=0.0, shape="", \
-                     start_station=None, end_station=None):
+                     start_station=None, end_station=None, part="wing"):
         self.width = width
         self.height = height
         self.shape = shape
         self.start_station = start_station
         self.end_station = end_station
+        self.part = part        # wing or flap
 
 
 class Flap:
@@ -148,8 +152,9 @@ class Wing:
         self.taper.top = curve
 
     def add_trailing_edge(self, width=0.0, height=0.0, shape="", \
-                         start_station=None, end_station=None):
-        te = TrailingEdge( width, height, shape, start_station, end_station )
+                         start_station=None, end_station=None, part=""):
+        te = TrailingEdge( width, height, shape, start_station, end_station, \
+                               part )
         self.trailing_edges.append( te )
 
     def add_stringer(self, side="top", orientation="tangent", \
@@ -234,7 +239,7 @@ class Wing:
         result.contour.add_label( posx, posy, 14, 0, label )
 
         # set plan position & twist
-        result.pos = (lat_dist, sweep_dist, 0.0)
+        result.pos = [lat_dist, sweep_dist, 0.0]
         result.twist = twist
 
         return result
@@ -245,7 +250,7 @@ class Wing:
 
         # leading edge cutout
         diamond = self.leading_edge_diamond
-        if diamond > 0.01:
+        if diamond > 0.01 and rib.has_le:
             rib.contour.cutout_leading_edge_diamond(diamond)
 
         # cutout stringers (before twist)
@@ -256,8 +261,9 @@ class Wing:
         # trailing edge cutout
         for te in self.trailing_edges:
             if self.match_station(te.start_station, te.end_station, lat_dist):
-                rib.contour.cutout_trailing_edge( te.width, te.height, \
-                                                         te.shape )
+                if rib.has_te and (rib.part == te.part):
+                    rib.contour.cutout_trailing_edge( te.width, te.height, \
+                                                          te.shape )
 
         # do rotate
         rib.contour.rotate(rib.twist)
@@ -267,6 +273,14 @@ class Wing:
             if self.match_station(spar.start_station, spar.end_station, lat_dist):
                 rib.contour.cutout_stringer( spar.cutout )
 
+    def trim_rear(self, rib, cutpos):
+        rib.contour.trim(side="top", discard="rear", cutpos=cutpos)
+        rib.contour.trim(side="bottom", discard="rear", cutpos=cutpos)
+
+    def trim_front(self, rib, cutpos):
+        rib.contour.trim(side="top", discard="front", cutpos=cutpos)
+        rib.contour.trim(side="bottom", discard="front", cutpos=cutpos)
+
     def build(self):
         if len(self.stations) < 2:
             print "Must define at least 2 stations to build a wing"
@@ -275,6 +289,7 @@ class Wing:
         sweep_y2 = spline.derivative2( self.sweep.top )
         taper_y2 = spline.derivative2( self.taper.top )
 
+        # make the base ribs at each defined station
         for index, station in enumerate(self.stations):
             percent = station / self.span
 
@@ -296,6 +311,9 @@ class Wing:
                 print "Cannot build a wing with no chord defined!"
                 return
 
+            print "building station @ " + str(lat_dist) \
+                + " chord = " + str(chord)
+
             # compute sweep offset pos if a sweep function provided
             if self.sweep:
                 sw_index = spline.binsearch(self.sweep.top, lat_dist)
@@ -304,44 +322,108 @@ class Wing:
             else:
                 sweep_dist = 0.0
 
-            # make the basic ribs
+            # make the rib (cutouts will be handled later)
             label = 'WR' + str(index+1) 
             right_rib = self.make_raw_rib(af, chord, lat_dist, sweep_dist, \
                                               twist, label)
+            if percent < 0.001:
+                right_rib.nudge = -right_rib.thickness * 0.5
+            elif percent > 0.999:
+                right_rib.nudge = right_rib.thickness * 0.5
             self.right_ribs.append(right_rib)
 
             label = 'WL' + str(index+1)
             left_rib = self.make_raw_rib(af, chord, -lat_dist, sweep_dist, \
                                              twist, label)
+            if percent < 0.001:
+                left_rib.nudge = right_rib.thickness * 0.5
+            elif percent > 0.999:
+                left_rib.nudge = -right_rib.thickness * 0.5
             self.left_ribs.append(left_rib)
 
-        for rib in self.right_ribs:
-            self.make_rib_cuts(rib)
-        for rib in self.left_ribs:
-            self.make_rib_cuts(rib)
-
-        # lets try cutting out control surfaces here
+        # make the control surface ribs.  Instead of dividing the
+        # original base ribs into two parts, we make copies of the
+        # base ribs and then trim off the parts we don't want.  This
+        # makes a bit of sense considering we need double ribs at the
+        # cutout edges.  We do this in one pass per side, stepping
+        # through each rib and seeing if it matches a control surface
+        # cutout and if it's an inner, outer, or mid rib.
+        new_ribs = []
         for rib in self.right_ribs:
             for flap in self.flaps:
                 if self.match_station(flap.start_station, flap.start_station, rib.pos[0]):
                     print "start station = " + str(rib.pos[0])
+                    newrib = copy.deepcopy(rib)
+                    rib.nudge = rib.thickness * 0.5
+                    newrib.nudge = -rib.thickness * 1.0
+                    self.trim_front(newrib, flap.pos)
+                    newrib.part = "flap"
+                    newrib.has_le = False
+                    new_ribs.append(newrib)
                 elif self.match_station(flap.end_station, flap.end_station, rib.pos[0]):
                     print "end station = " + str(rib.pos[0])
+                    newrib = copy.deepcopy(rib)
+                    rib.nudge = -rib.thickness * 0.5
+                    newrib.nudge = rib.thickness * 1.0
+                    self.trim_front(newrib, flap.pos)
+                    newrib.part = "flap"
+                    newrib.has_le = False
+                    new_ribs.append(newrib)
                 elif self.match_station(flap.start_station, flap.end_station, rib.pos[0]):
                     print "match flap at mid station " + str(rib.pos[0])
-                    rib.contour.trim(side="top", discard="rear", cutpos=flap.pos)
-                    rib.contour.trim(side="bottom", discard="rear", cutpos=flap.pos)
+                    newrib = copy.deepcopy(rib)
+                    self.trim_front(newrib, flap.pos)
+                    newrib.part = "flap"
+                    newrib.has_le = False
+                    new_ribs.append(newrib)
+                    self.trim_rear(rib, flap.pos)
+                    rib.has_te = False
+
+        for rib in new_ribs:
+            self.right_ribs.append(rib)
+
+        new_ribs = []
         for rib in self.left_ribs:
             for flap in self.flaps:
                 if self.match_station(flap.start_station, flap.start_station, rib.pos[0]):
                     print "start station = " + str(rib.pos[0])
+                    newrib = copy.deepcopy(rib)
+                    rib.nudge = -rib.thickness * 0.5
+                    newrib.nudge = rib.thickness * 1.0
+                    self.trim_front(newrib, flap.pos)
+                    newrib.part = "flap"
+                    newrib.has_le = False
+                    new_ribs.append(newrib)
                 elif self.match_station(flap.end_station, flap.end_station, rib.pos[0]):
                     print "end station = " + str(rib.pos[0])
+                    newrib = copy.deepcopy(rib)
+                    rib.nudge = rib.thickness * 0.5
+                    newrib.nudge = -rib.thickness * 1.0
+                    self.trim_front(newrib, flap.pos)
+                    newrib.part = "flap"
+                    newrib.has_le = False
+                    new_ribs.append(newrib)
                 elif self.match_station(flap.start_station, flap.end_station, rib.pos[0]):
                     print "left match flap at station " + str(rib.pos[0])
-                    rib.contour.trim(side="top", discard="rear", cutpos=flap.pos)
-                    rib.contour.trim(side="bottom", discard="rear", cutpos=flap.pos)
-            
+                    newrib = copy.deepcopy(rib)
+                    self.trim_front(newrib, flap.pos)
+                    newrib.part = "flap"
+                    newrib.has_le = False
+                    new_ribs.append(newrib)
+                    self.trim_rear(rib, flap.pos)
+                    rib.has_te = False
+                    #rib.contour.trim(side="top", discard="rear", cutpos=flap.pos)
+                    #rib.contour.trim(side="bottom", discard="rear", cutpos=flap.pos)
+        for rib in new_ribs:
+            self.left_ribs.append(rib)
+
+        # do all the cutouts now at the end after we've made and
+        # positioned all the ribs for the wing and the control
+        # surfaces
+        for rib in self.right_ribs:
+            self.make_rib_cuts(rib)
+        for rib in self.left_ribs:
+            self.make_rib_cuts(rib)            
 
     def layout_parts_sheets(self, basename, width, height, margin = 0.1):
         l = layout.Layout( basename + '-wing-sheet', width, height, margin )
@@ -369,11 +451,12 @@ class Wing:
         side1 = []
         side2 = []
         for rib in ribs:
-            idealfront = rib.contour.saved_bounds[0][0]
-            cutbounds = rib.contour.get_bounds()
-            cutfront = cutbounds[0][0]
-            side1.append( (idealfront+rib.pos[1], -rib.pos[0]) )
-            side2.append( (cutfront+rib.pos[1], -rib.pos[0]) )
+            if rib.has_le:
+                idealfront = rib.contour.saved_bounds[0][0]
+                cutbounds = rib.contour.get_bounds()
+                cutfront = cutbounds[0][0]
+                side1.append( (idealfront+rib.pos[1], -rib.pos[0]) )
+                side2.append( (cutfront+rib.pos[1], -rib.pos[0]) )
         side2.reverse()
         shape = side1 + side2
         return shape
@@ -386,10 +469,11 @@ class Wing:
         w = math.sqrt(le*le + le*le)
         halfwidth = w * 0.5
         for rib in ribs:
-            cutbounds = rib.contour.get_bounds()
-            cutfront = cutbounds[0][0]
-            side1.append( (cutfront+rib.pos[1], -rib.pos[0]) )
-            side2.append( (cutfront+halfwidth+rib.pos[1], -rib.pos[0]) )
+            if rib.has_le:
+                cutbounds = rib.contour.get_bounds()
+                cutfront = cutbounds[0][0]
+                side1.append( (cutfront+rib.pos[1], -rib.pos[0]) )
+                side2.append( (cutfront+halfwidth+rib.pos[1], -rib.pos[0]) )
         side2.reverse()
         shape = side1 + side2
         return shape
@@ -399,13 +483,16 @@ class Wing:
         side2 = []
         for rib in ribs:
             if self.match_station(te.start_station, te.end_station, rib.pos[0]):
-                idealtip = rib.contour.saved_bounds[1][0]
-                cutbounds = rib.contour.get_bounds()
-                cuttip = cutbounds[1][0]
-                side1.append( (cuttip+rib.pos[1], -rib.pos[0]) )
-                side2.append( (idealtip+rib.pos[1], -rib.pos[0]) )
+                if rib.part == te.part:
+                    if rib.has_te:
+                        idealtip = rib.contour.saved_bounds[1][0]
+                        cutbounds = rib.contour.get_bounds()
+                        cuttip = cutbounds[1][0]
+                        side1.append( (cuttip+rib.pos[1], -rib.pos[0]) )
+                        side2.append( (idealtip+rib.pos[1], -rib.pos[0]) )
         side2.reverse()
         shape = side1 + side2
+        #print "shape = " + str(shape)
         return shape
 
     def make_stringer(self, stringer, ribs):
@@ -445,15 +532,9 @@ class Wing:
         # right wing
         planoffset = (xmargin - minx, height - yoffset, -1)
         for index, rib in enumerate(self.right_ribs):
-            if index == 0:
-                nudge = -rib.thickness * 0.5
-            elif index == len(self.right_ribs) - 1:
-                nudge = rib.thickness * 0.5
-            else:
-                nudge = 0.0
             rib.placed = sheet.draw_part_top(planoffset, rib.contour, \
                                                  rib.pos, rib.thickness, \
-                                                 nudge, "1px", "red")
+                                                 rib.nudge, "1px", "red")
         shape = self.make_leading_edge1(self.right_ribs)
         sheet.draw_shape(planoffset, shape, "1px", "red")
         shape = self.make_leading_edge2(self.right_ribs)
@@ -471,15 +552,9 @@ class Wing:
         # left wing
         planoffset = ((width - xmargin) - dx - minx, yoffset, 1)
         for index, rib in enumerate(self.left_ribs):
-            if index == 0:
-                nudge = rib.thickness * 0.5
-            elif index == len(self.left_ribs) - 1:
-                nudge = -rib.thickness * 0.5
-            else:
-                nudge = 0.0
             rib.placed = sheet.draw_part_top(planoffset, rib.contour, \
                                                  rib.pos, rib.thickness, \
-                                                 nudge, "1px", "red")
+                                                 rib.nudge, "1px", "red")
         shape = self.make_leading_edge1(self.left_ribs)
         sheet.draw_shape(planoffset, shape, "1px", "red")
         shape = self.make_leading_edge2(self.left_ribs)
