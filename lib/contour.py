@@ -13,20 +13,20 @@ import spline
 
 
 class Cutpos:
-    def __init__(self, percent=None, front=None, rear=None, center=None, \
-                     xpos=None):
+    def __init__(self, percent=None, front=None, rear=None, \
+                     xpos=None, atstation=None, slope=None):
         self.percent = percent             # placed at % point in chord
         self.front = front                 # dist from front of chord
         self.rear = rear                   # dist from rear of chord
-        self.center = center               # dist from 25% chord if a
-        self.xpos = xpos                   # not relative, just the actual pos
+        self.xpos = xpos                   # abs position
 
-        # ypos + slope are defined, then the cut position will be at
-        # the point the contour intesects the line that passes through
-        # the xpos, ypos with the specified slope.  This is primarily
-        # used to cut control surface clearance wedges.
-        self.ypos = 0.0
-        self.slope = 0.0
+        # if atstation + slope are defined, then the cut position will
+        # be just like any other cut position at the specified
+        # station, but offset by dist+slope for any other station.
+        # This allows straight stringers or aileron cuts that are
+        # independent of wing slope or taper.
+        self.atstation = atstation
+        self.slope = slope
 
     # move the cutpos by dist amount
     def move(self, xdist=0.0):
@@ -36,8 +36,6 @@ class Cutpos:
             self.front += xdist
         elif self.rear != None:
             self.rear += xdist
-        elif self.center != None:
-            self.center += xdist
         elif self.xpos != None:
             self.xpos += xdist
 
@@ -45,7 +43,7 @@ class Cutpos:
 class Cutout:
     def __init__(self, side="top", orientation="tangent", cutpos=None, \
                      xsize=0.0, ysize=0.0):
-        # note: specify a value for only one of percent, front, rear, or center
+        # note: specify a value for only one of percent, front, rear, or xpos
         self.side = side                   # {top, bottom}
         self.orientation = orientation     # {tangent, vertical}
         self.xsize = xsize                 # horizontal size
@@ -234,7 +232,7 @@ class Contour:
 
     # given one of the possible ways to specify position, return the
     # actual position (relative to the original pre-cut part dimensions)
-    def get_xpos(self, cutpos):
+    def get_xpos(self, cutpos=None, station=None):
         if len(self.saved_bounds) == 0:
             print "need to call contour.save_bounds() after part created,"
             print "but before any cutouts are made"
@@ -246,21 +244,26 @@ class Contour:
             xpos = self.saved_bounds[0][0] + cutpos.front
         elif cutpos.rear != None:
             xpos = self.saved_bounds[1][0] - cutpos.rear
-        elif cutpos.center != None:
-            ctrpt = self.saved_bounds[0][0] + chord * 0.25
-            xpos = ctrpt + cutpos.center
         elif cutpos.xpos != None:
             xpos = cutpos.xpos
+        else:
+            print "get_xpos() called with no valid cut position!!!"
+        if cutpos.atstation != None and station != None:
+            if cutpos.slope == None:
+                cutpos.slope = 0.0
+            lat_dist = math.fabs(station) - cutpos.atstation
+            long_dist = lat_dist * cutpos.slope
+            xpos += long_dist
         return xpos
 
     # trim everything front or rear of a given position
-    def trim(self, side="top", discard="rear", cutpos=None):
+    def trim(self, side="top", discard="rear", cutpos=None, station=None):
         if side == "top":
             curve = list(self.top)
         else:
             curve = list(self.bottom)
         newcurve = []
-        xpos = self.get_xpos(cutpos)
+        xpos = self.get_xpos(cutpos, station)
         ypos = self.simple_interp(curve, xpos)
         n = len(curve)
         i = 0
@@ -290,15 +293,15 @@ class Contour:
  
     # side={top,bottom} (attached to top or bottom of airfoil)
     # orientation={tangent,vertical} (aligned vertically or flush with surface)
-    # xpos={percent,front,rear,zero} (position is relative to percent of chord,
-    #      distance from front, distance from rear, or distance from center 
-    #      (25% chord point)
+    # xpos={percent,front,rear,xpos} (position is relative to percent of chord,
+    #      distance from front, distance from rear, or distance from chord
+    #      zero point)
     # xsize=value (horizontal size of cutout)
     # ysize=value (vertical size)
 
     # use side="bottom" + ysize=-negative_value +
     # orientation="vertical" for build support tabs
-    def cutout(self, cutout):
+    def cutout(self, cutout, station=None):
         if len(self.saved_bounds) == 0:
             print "need to call contour.save_bounds() after part created,"
             print "but before any cutouts are made"
@@ -312,7 +315,7 @@ class Contour:
             tangent = True;
 
         # compute position of cutout
-        xpos = self.get_xpos(cutout.cutpos)
+        xpos = self.get_xpos(cutout.cutpos, station=station)
 
         # sanity check
         bounds = self.get_bounds()
@@ -397,8 +400,8 @@ class Contour:
         self.trim(side="top", discard="rear", cutpos=rear)
         self.trim(side="bottom", discard="rear", cutpos=rear)
 
-    def cutout_stringer(self, stringer):
-        self.cutout( stringer )
+    def cutout_stringer(self, stringer, station=None):
+        self.cutout( stringer, station )
 
     def add_build_tab(self, side = "top", percent=None, front=None, \
                           rear=None, center=None, \

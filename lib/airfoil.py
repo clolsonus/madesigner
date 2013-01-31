@@ -232,7 +232,7 @@ class Airfoil(Contour):
     def cutout_trailing_edge(self, width=0.0, height=0.0, shape="flat"):
         if shape == "flat":
             bottom_dist = width
-            top_dist = math.sqrt(width*width + height+height)
+            top_dist = math.sqrt(width*width + height*height)
         elif shape == "symmetrical":
             h2 = height*0.5
             bottom_dist = math.sqrt(width*width + h2*h2)
