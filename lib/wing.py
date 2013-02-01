@@ -42,18 +42,18 @@ class Rib:
     # returns the bottom front location which is hard to compute
     # externally (this can be used by the calling layer to position a
     # boundary stringer.
-    def trim_front(self, cutpos, angle):
-        wedge_angle = math.radians(angle)
-        xpos = self.contour.get_xpos(cutpos, station=self.pos[0])
-        ty = self.contour.simple_interp(self.contour.top, xpos)
-        by = self.contour.simple_interp(self.contour.bottom, xpos)
-        ydist = ty - by
-        xdist = math.tan(wedge_angle)*ydist
+    def trim_front_wedge(self, cutpos, angle):
         self.contour.trim(side="top", discard="front", cutpos=cutpos, station=self.pos[0])
-        botpos = copy.deepcopy(cutpos)
-        botpos.move(xdist)
+        wedge_angle = math.radians(90.0-angle)
+        wedge_slope = -math.tan(wedge_angle)
+        
+        tx = self.contour.get_xpos(cutpos, station=self.pos[0])
+        ty = self.contour.simple_interp(self.contour.top, tx)
+
+        bx = self.contour.intersect("bottom", (tx, ty), wedge_slope)
+        botpos = contour.Cutpos( xpos=bx )
         self.contour.trim(side="bottom", discard="front", cutpos=botpos, station=self.pos[0])
-        return xpos + xdist
+        return bx
 
     def get_label(self):
         if len(self.contour.labels):
@@ -408,7 +408,7 @@ class Wing:
                     newrib = copy.deepcopy(rib)
                     rib.nudge = rib.thickness * 0.5
                     newrib.nudge = -rib.thickness * 1.0
-                    flap.start_bot_str_pos = newrib.trim_front(flap.pos, flap.angle)
+                    flap.start_bot_str_pos = newrib.trim_front_wedge(flap.pos, flap.angle)
                     newrib.part = "flap"
                     newrib.has_le = False
                     new_ribs.append(newrib)
@@ -417,14 +417,14 @@ class Wing:
                     newrib = copy.deepcopy(rib)
                     rib.nudge = -rib.thickness * 0.5
                     newrib.nudge = rib.thickness * 1.0
-                    flap.end_bot_str_pos = newrib.trim_front(flap.pos, flap.angle)
+                    flap.end_bot_str_pos = newrib.trim_front_wedge(flap.pos, flap.angle)
                     newrib.part = "flap"
                     newrib.has_le = False
                     new_ribs.append(newrib)
                 elif self.match_station(flap.start_station, flap.end_station, rib.pos[0]):
                     #print "match flap at mid station " + str(rib.pos[0])
                     newrib = copy.deepcopy(rib)
-                    newrib.trim_front(flap.pos, flap.angle)
+                    newrib.trim_front_wedge(flap.pos, flap.angle)
                     newrib.part = "flap"
                     newrib.has_le = False
                     new_ribs.append(newrib)
@@ -442,7 +442,7 @@ class Wing:
                     newrib = copy.deepcopy(rib)
                     rib.nudge = -rib.thickness * 0.5
                     newrib.nudge = rib.thickness * 1.0
-                    newrib.trim_front(flap.pos, flap.angle)
+                    newrib.trim_front_wedge(flap.pos, flap.angle)
                     newrib.part = "flap"
                     newrib.has_le = False
                     new_ribs.append(newrib)
@@ -451,14 +451,14 @@ class Wing:
                     newrib = copy.deepcopy(rib)
                     rib.nudge = rib.thickness * 0.5
                     newrib.nudge = -rib.thickness * 1.0
-                    newrib.trim_front(flap.pos, flap.angle)
+                    newrib.trim_front_wedge(flap.pos, flap.angle)
                     newrib.part = "flap"
                     newrib.has_le = False
                     new_ribs.append(newrib)
                 elif self.match_station(flap.start_station, flap.end_station, rib.pos[0]):
                     #print "left match flap at station " + str(rib.pos[0])
                     newrib = copy.deepcopy(rib)
-                    newrib.trim_front(flap.pos, flap.angle)
+                    newrib.trim_front_wedge(flap.pos, flap.angle)
                     newrib.part = "flap"
                     newrib.has_le = False
                     new_ribs.append(newrib)
@@ -473,7 +473,8 @@ class Wing:
         # This is left until now because this can be very dynamic
         # depending on the wing layout and control surface blending.
         for flap in self.flaps:
-            if flap.start_bot_str_pos != None and flap.end_bot_str_pos != None:
+            if flap.start_bot_str_pos != None and flap.end_bot_str_pos != None \
+                    and flap.edge_stringer_size != None:
                 xdist = flap.end_station - flap.start_station
                 if xdist > 0.0001:
                     ydist = flap.end_bot_str_pos - flap.start_bot_str_pos

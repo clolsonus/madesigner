@@ -256,6 +256,41 @@ class Contour:
             xpos += long_dist
         return xpos
 
+    # given a line (point + slope) return the "xpos" of the
+    # intersection with the contour (does not handle the special case
+    # of a vertical slope in either line)
+    def intersect(self, side="top", pt=None, slope=None):
+        if side == "top":
+            curve = list(self.top)
+        else:
+            curve = list(self.bottom)
+        m1 = slope
+        b1 = pt[1] - m1 * pt[0]
+        n = len(curve)
+        i = 0
+        found = False
+        while i < n+1 and not found:
+            pt1 = curve[i]
+            pt2 = curve[i+1]
+            dx = pt2[0] - pt1[0]
+            dy = pt2[1] - pt1[1]
+            if math.fabs(dx) > 0.0001:
+                m2 = dy / dx
+                b2 = pt1[1] - m2 * pt1[0]
+                if math.fabs(m1 - m2) > 0.0001:
+                    x = (b2 - b1) / (m1 - m2)
+                    if x >= pt1[0] and x <= pt2[0]:
+                        found = True
+                else:
+                    print "parallel lines"
+            else:
+                print "vertical segment"
+            i += 1
+        if found:
+            return x
+        else:
+            return None
+
     # trim everything front or rear of a given position
     def trim(self, side="top", discard="rear", cutpos=None, station=None):
         if side == "top":
