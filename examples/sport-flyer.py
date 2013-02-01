@@ -23,7 +23,7 @@ wing = wing.Wing()
 wing.units = "in"
 wing.load_airfoils("naca0015")
 wing.span = 30.0
-wing.twist = 3
+wing.twist = 0
 wing.set_sweep_angle(0)
 #wing.set_sweep_curve( ((0.0,0.0), (15.0, -1.0), (30.0, 0.0)) )
 root_chord = 9.0
@@ -38,41 +38,58 @@ wing.set_stations( (0.0, 1.0, 2.0, 4.0, 7.0, 10.0, 13.0, 15.0, 17.0, \
 wing.leading_edge_diamond = 0.2
 
 wing.add_trailing_edge( width=1.0, height=0.25, shape="symmetrical", \
-                            start_station=0.0, end_station=20.0, part="wing" )
+                            start_station=0.0, end_station=1.0, part="wing" )
 wing.add_trailing_edge( width=1.0, height=0.25, shape="symmetrical", \
-                            start_station=29.0, end_station=30.0, part="wing" )
+                            start_station=15.0, end_station=17.0, part="wing" )
+wing.add_trailing_edge( width=1.0, height=0.25, shape="symmetrical", \
+                            start_station=28.0, end_station=30.0, part="wing" )
 
-#wing.add_spar( side="top", orientation="vertical", center=0.0, \
-#                       xsize=0.125, ysize=0.250 )
-#wing.add_spar( side="bottom", orientation="vertical", center=0.0, \
-#                       xsize=0.125, ysize=0.250 )
+wing.add_spar( side="top", orientation="vertical", xpos=0.0, \
+                   xsize=0.125, ysize=0.250, part="wing" )
+wing.add_spar( side="bottom", orientation="vertical", xpos=0.0, \
+                   xsize=0.125, ysize=0.250, part="wing" )
 
-#wing.add_stringer( side="top", orientation="tangent", percent=0.10, \
-#                       xsize=0.125, ysize=0.125 )
-#wing.add_stringer( side="bottom", orientation="tangent", percent=0.10, \
-#                       xsize=0.125, ysize=0.125 )
-#wing.add_stringer( side="top", orientation="tangent", percent=0.70, \
-#                       xsize=0.125, ysize=0.125, \
-#                       start_station=0.0, end_station=20.0 )
-#wing.add_stringer( side="bottom", orientation="tangent", percent=0.70, \
-#                       xsize=0.125, ysize=0.125, \
-#                       start_station=0.0, end_station=20.0 )
+wing.add_spar( side="top", orientation="vertical", xpos=4.0, \
+                   xsize=0.125, ysize=0.250, part="wing", \
+                   start_station=0.0, end_station=17.0 )
+wing.add_spar( side="bottom", orientation="vertical", xpos=4.0, \
+                   xsize=0.125, ysize=0.250, part="wing", \
+                   start_station=0.0, end_station=17.0 )
+
+wing.add_stringer( side="top", orientation="tangent", percent=0.10, \
+                       xsize=0.125, ysize=0.125, part="wing" )
+wing.add_stringer( side="bottom", orientation="tangent", percent=0.10, \
+                       xsize=0.125, ysize=0.125, part="wing" )
+wing.add_stringer( side="top", orientation="tangent", percent=0.50, \
+                       xsize=0.125, ysize=0.125, \
+                       start_station=10.0, end_station=30.0, part="wing" )
+wing.add_stringer( side="bottom", orientation="tangent", percent=0.50, \
+                       xsize=0.125, ysize=0.125, \
+                       start_station=10.0, end_station=30.0, part="wing" )
 #wing.add_stringer( side="top", orientation="tangent", percent=0.50, \
 #                       xsize=0.125, ysize=0.125, \
 #                       start_station=15.0, end_station=28.0 )
-#wing.add_stringer( side="top", orientation="tangent", center=3.0, \
+#wing.add_stringer( side="top", orientation="tangent", xpos=3.0, \
 #                   xsize=0.125, ysize=0.125 )
-#wing.add_stringer( side="bottom", orientation="tangent", center=3.0, \
+#wing.add_stringer( side="bottom", orientation="tangent", xpos=3.0, \
 #                   xsize=0.125, ysize=0.125 )
 
 # define the control surfaces
-pos = contour.Cutpos(center=3.0)
+ailpos = contour.Cutpos(xpos=4.0, atstation=17.0, slope=-0.1)
 edge_stringer_size = ( 0.250, 0.125 ) # width x height
-wing.add_flap( start_station=20.0, end_station=29.0, \
-                   pos=pos, type="builtup", \
+#edge_stringer_size = None
+wing.add_flap( start_station=17.0, end_station=28.0, \
+                   pos=ailpos, type="builtup", angle=30.0, \
                    edge_stringer_size=edge_stringer_size )
 wing.add_trailing_edge( width=1.0, height=0.25, shape="symmetrical", \
-                            start_station=20.0, end_station=29.0, part="flap" )
+                            start_station=17.0, end_station=28.0, part="flap" )
+
+flappos = contour.Cutpos(xpos=4.5, atstation=1.0, slope=0.05)
+wing.add_flap( start_station=1.0, end_station=15.0, \
+                   pos=flappos, type="builtup", angle=45.0, \
+                   edge_stringer_size=edge_stringer_size )
+wing.add_trailing_edge( width=1.0, height=0.25, shape="symmetrical", \
+                            start_station=1.0, end_station=15.0, part="flap" )
 
 # build the wing parts
 wing.build()
