@@ -1,64 +1,37 @@
 #!/usr/bin/env python
 
-import svgwrite
-
 try:
-    import airfoil
+    import wing
 except ImportError:
     # if airfoil is not 'installed' append parent dir of __file__ to sys.path
     import sys, os
     sys.path.insert(0, os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/../lib'))
-    import airfoil
+    import wing
 
-root = airfoil.Airfoil("naca633618", 1000, True)
-tip = airfoil.Airfoil("naca4412", 1000, True);
-#root.display()
-#tip.display()
+wing = wing.Wing()
 
-dim1 = 1520
-blend1 = airfoil.blend( root, tip, 0.0 )
-blend1.fit( 500, 0.0001 )
-#blend1.display()
-print len(blend1.top)
-print len(blend1.bottom)
-blend1.scale(dim1, -dim1)
-blend1.move(-dim1 / 3.0, 0)
-blend1.rotate(0)
-blend1.cutout_sweep( "top", -500, 100, 10 )
-blend1.cutout_sweep( "top", -350, 300, 10 )
-blend1.cutout_sweep( "bottom", -175, 350, 10 )
-blend1.cutout_stringer( "top", "vertical", 0, 25, 35 )
-blend1.cutout_stringer( "bottom", "vertical", 200, 20, 25 )
-blend1.cutout_stringer( "top", "tangent", -400, 25, 25 )
-blend1.cutout_stringer( "top", "tangent", 800, 25, 25 )
-blend1.cutout_stringer( "bottom", "tangent", -450, 25, 25 )
-blend1.cutout_stringer( "bottom", "vertical", 700, 25, 25 )
-#blend1.scale(0.1, 0.1)
-#blend1.display()
+# wing layout
+wing.units = "in"
+wing.load_airfoils("naca633618", "naca4412")
+wing.span = 32.0
+wing.twist = 0
+wing.center = 0.35
+wing.set_sweep_angle(0)
+wing.set_chord( 7.36, 2.45 )
+wing.set_num_stations(20)
 
-dim2 = 1010
-blend2 = airfoil.blend( root, tip, 0.5 )
-blend2.scale(dim2, -dim2)
-blend2.move( -dim2 / 3.0, 0 )
-blend2.rotate( 2.5 )
-blend2.cutout_stringer( "top", "vertical", 0, 25, 35 )
-blend2.cutout_stringer( "bottom", "vertical", 200, 20, 25 )
-#blend2.display()
+# wing structure
+wing.leading_edge_diamond = 0.1
+wing.add_trailing_edge( width=0.75, height=0.25, shape="flat", part="wing" )
 
-dim3 = 500
-blend3 = airfoil.blend( root, tip, 1.0 )
-blend3.scale(dim3, -dim3)
-blend3.move( -dim3 / 3.0, 0 )
-blend3.rotate( 5 )
-blend3.cutout_stringer( "top", "vertical", 0, 25, 35 )
-blend3.cutout_stringer( "bottom", "vertical", 200, 20, 25 )
-#blend3.display()
+# build the wing parts
+wing.build()
 
-print blend1.get_bounds()
-dwg = svgwrite.Drawing( 'test.svg', height = "500cm", width = "2000cm")
-reverse_top = list(blend1.top)
-reverse_top.reverse()
-shape = reverse_top + blend1.bottom
-dwg.add( dwg.polygon(shape, stroke = 'red', fill = 'none') )
-dwg.save()
+# create lasercut sheets
+wing.layout_parts_sheets( "vintage-glider", 24, 8 )
 
+# create paper templates
+wing.layout_parts_templates( "vintage-glider", 8.5, 11 )
+
+# generate building plans
+wing.layout_plans( "vintage-glider", 24, 36 )
