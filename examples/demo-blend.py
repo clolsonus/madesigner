@@ -52,9 +52,6 @@ for p in range(0, steps+1):
     hy = by + vd / 2.0
     rib.add_label( tx, hy, 14, 0, "W" + str(p) )
 
-    pos = contour.Cutpos(percent=0.6)
-    rib.trim( side="top", discard="rear", cutpos=pos)
-
     rib.rotate( percent * twist )
 
     layout.draw_part_demo( rib )

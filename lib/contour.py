@@ -10,6 +10,7 @@ import fileinput
 import math
 import string
 import spline
+import Polygon
 
 
 class Cutpos:
@@ -21,10 +22,10 @@ class Cutpos:
         self.xpos = xpos                   # abs position
 
         # if atstation + slope are defined, then the cut position will
-        # be just like any other cut position at the specified
-        # station, but offset by dist+slope for any other station.
-        # This allows straight stringers or aileron cuts that are
-        # independent of wing slope or taper.
+        # be just like any other cut position at the 'root' station,
+        # but offset by dist+slope for any other station.  This allows
+        # straight stringers or aileron cut at arbitray angles
+        # relative to the rest of the wing.
         self.atstation = atstation
         self.slope = slope
 
@@ -58,6 +59,7 @@ class Contour:
         self.description = ""
         self.top = []
         self.bottom = []
+        self.poly = None
         self.holes = []
         self.labels = []
         self.saved_bounds = []        # see self.save_bounds() for details
@@ -140,6 +142,7 @@ class Contour:
         for pt in self.bottom:
             print str(pt[0]) + " " + str(pt[1])
 
+    # rotate a point about (0, 0)
     def rotate_point( self, pt, angle ):
         rad = math.radians(angle)
         newx = pt[0] * math.cos(rad) - pt[1] * math.sin(rad)
@@ -161,6 +164,8 @@ class Contour:
         for label in self.labels:
             newpt = self.rotate_point( (label[0], label[1]), angle)
             newlabels.append( (newpt[0], newpt[1], label[2], label[3] + angle, label[4]) )
+        if self.poly != None:
+            self.poly.rotate(math.radians(angle), 0.0, 0.0)
         self.top = list(newtop)
         self.bottom = list(newbottom)
         self.holes = list(newholes)
@@ -326,6 +331,19 @@ class Contour:
         else:
             self.bottom = list(newcurve)
  
+    # build the Polygon representation of the shape from the
+    # top/bottom curves.  The Polygon representation is used for doing
+    # all the cutouts once the basic shape is created.  The Polygon
+    # form can also spit out try strips and do a few other tricks that
+    # are handy later on.
+    def make_poly(self):
+        reverse_top = list(self.top)
+        reverse_top.reverse()
+        shape = reverse_top + self.bottom
+        self.poly = Polygon.Polygon(shape)
+        # todo: add holes (should be easy, but want to work on other
+        # aspects first)
+        
     # side={top,bottom} (attached to top or bottom of airfoil)
     # orientation={tangent,vertical} (aligned vertically or flush with surface)
     # xpos={percent,front,rear,xpos} (position is relative to percent of chord,
@@ -349,28 +367,20 @@ class Contour:
         if cutout.orientation == "tangent":
             tangent = True;
 
+        # make the Polygon representation of this part if needed
+        if self.poly == None:
+            self.make_poly()
+
         # compute position of cutout
         xpos = self.get_xpos(cutout.cutpos, station=station)
 
-        # sanity check
-        bounds = self.get_bounds()
-        if xpos < bounds[0][0] or xpos > bounds[1][0]:
-            print "cutout is outside of part"
-            return
-        else:
-            print "bounds = " + str(bounds) + " xpos = " + str(xpos)
-
-        curve = []
         if top:
             curve = list(self.top)
         else:
             curve = list(self.bottom)
-
-        n = len(curve)
-
-        newcurve = []
         ypos = self.simple_interp(curve, xpos)
 
+        # make, position, and orient the cutout
         angle = 0
         if tangent:
             slopes = spline.derivative1(curve)
@@ -383,66 +393,36 @@ class Contour:
             if angle > 360:
                 angle -= 360
         xhalf = cutout.xsize / 2
-        r0 = self.rotate_point( (-xhalf, 0), angle )
+        yhalf = cutout.ysize / 2
+        # extend shape by yhalf past boundary so we get a clean cutout
+        # with no "flash"
+        r0 = self.rotate_point( (-xhalf, yhalf), angle )
         r1 = self.rotate_point( (-xhalf, -cutout.ysize), angle )
         r2 = self.rotate_point( (xhalf, -cutout.ysize), angle )
-        r3 = self.rotate_point( (xhalf, 0), angle )
-        if tangent:
-            p0 = ( r0[0] + xpos, r0[1] + ypos )
-            p1 = ( r1[0] + xpos, r1[1] + ypos )
-            p2 = ( r2[0] + xpos, r2[1] + ypos )
-            p3 = ( r3[0] + xpos, r3[1] + ypos )
-        else:
-            x = r0[0] + xpos
-            p0 = ( r0[0] + xpos, self.simple_interp(curve, x) )
-            p1 = ( r1[0] + xpos, r1[1] + ypos )
-            p2 = ( r2[0] + xpos, r2[1] + ypos )
-            x = r3[0] + xpos
-            p3 = ( r3[0] + xpos, self.simple_interp(curve, x) )
+        r3 = self.rotate_point( (xhalf, yhalf), angle )
 
-        i = 0
-        # nose portion
-        while i < n and (curve[i][0] < p0[0] and curve[i][0] < p3[0]):
-            newcurve.append( curve[i] )
-            i += 1
-        # cut out
-        if top:
-            newcurve.append( p0 )
-            newcurve.append( p1 )
-            newcurve.append( p2 )
-            newcurve.append( p3 )
+        p0 = ( r0[0] + xpos, r0[1] + ypos )
+        p1 = ( r1[0] + xpos, r1[1] + ypos )
+        p2 = ( r2[0] + xpos, r2[1] + ypos )
+        p3 = ( r3[0] + xpos, r3[1] + ypos )
+
+        hole = Polygon.Polygon( (p0, p1, p2, p3) )
+
+        if cutout.ysize > 0:
+            # cut hole
+            self.poly = self.poly - hole
         else:
-            newcurve.append( p3 )
-            newcurve.append( p2 )
-            newcurve.append( p1 )
-            newcurve.append( p0 )
-        # skip airfoil coutout points
-        while i < n and (curve[i][0] <= p0[0] or curve[i][0] <= p3[0]):
-            i += 1
-        # tail portion
-        while i < n:
-            newcurve.append( curve[i] )
-            i += 1
-        if top:
-            self.top = list(newcurve)
-        else:
-            self.bottom = list(newcurve)
-        # finally trim to the original part size
-        front = Cutpos(xpos=self.saved_bounds[0][0])
-        rear = Cutpos(xpos=self.saved_bounds[1][0])
-        self.trim(side="top", discard="front", cutpos=front)
-        self.trim(side="bottom", discard="front", cutpos=front)
-        self.trim(side="top", discard="rear", cutpos=rear)
-        self.trim(side="bottom", discard="rear", cutpos=rear)
+            # build tab
+            self.poly = self.poly + hole
+
 
     def cutout_stringer(self, stringer, station=None):
         self.cutout( stringer, station )
 
-    def add_build_tab(self, side = "top", percent=None, front=None, \
-                          rear=None, center=None, \
-                          xsize = 0, yextra = 0):
+    def add_build_tab(self, side="top", cutpos=None, \
+                          xsize=0.0, yextra=0.0):
         # compute actual "x" position
-        xpos = self.get_xpos(cutout.cutpos)
+        xpos = self.get_xpos(cutpos)
 
         # get current bounds
         bounds = self.get_bounds()
@@ -456,10 +436,12 @@ class Contour:
             ypos = self.simple_interp(self.bottom, xpos)
             ysize = ypos - bounds[0][1] + yextra
 
+        cutout = Cutout( side=side, orientation="vertical", \
+                             cutpos=cutpos, \
+                             xsize=xsize, ysize=-ysize )
+
         # call the cutout method with negative ysize to create a tab
-        self.cutout(side, orientation="vertical", percent=percent, \
-                        front=front, rear=rear, center=center, \
-                        xsize=xsize, ysize=-ysize)
+        self.cutout(cutout)
 
     def add_hole(self, xpos, ypos, radius):
         self.holes.append( (xpos, ypos, radius) )        

@@ -25,18 +25,18 @@ class Sheet:
         self.xpos = 0.0 + self.margin
         self.biggest_x = 0.0
 
-    def draw_part_side(self, orig_airfoil, stroke_width, color, \
+    def draw_part_side(self, airfoil, stroke_width, color, \
                            lines = True, points = False ):
-        airfoil = copy.deepcopy(orig_airfoil)
-        airfoil.scale(1,-1)
-        bounds = airfoil.get_bounds()
-        dx = bounds[1][0] - bounds[0][0]
-        dy = bounds[1][1] - bounds[0][1]
+        if airfoil.poly == None:
+            airfoil.make_poly()
+        p = copy.deepcopy(airfoil.poly)
+        p.flop(0.0)
+        bounds = p.boundingBox()
+        dx = bounds[1] - bounds[0]
+        dy = bounds[3] - bounds[2]
 
-        airfoil.scale( self.dpi, self.dpi )
-        reverse_top = list(airfoil.top)
-        reverse_top.reverse()
-        shape = reverse_top + airfoil.bottom
+        p.scale( self.dpi, self.dpi, 0.0, 0.0 )
+        shape = p[0]
         if self.ypos + dy + self.margin > self.height:
             self.xpos += self.biggest_x + self.margin
             self.ypos = self.margin
@@ -44,8 +44,8 @@ class Sheet:
         if self.xpos + dx + self.margin > self.width:
             return False
         g = self.dwg.g()
-        g.translate((self.xpos-bounds[0][0])*self.dpi, \
-                        (self.ypos-bounds[0][1])*self.dpi)
+        g.translate((self.xpos-bounds[0])*self.dpi, \
+                        (self.ypos-bounds[2])*self.dpi)
         self.ypos += dy + self.margin
         if dx > self.biggest_x:
             self.biggest_x = dx
@@ -55,9 +55,11 @@ class Sheet:
                                         stroke_width = stroke_width)
             g.add( poly )
 
+        # fixme: need to scale/position holes correctly (or do them as part
+        # of the poly so we don't need extra handling here
         for hole in airfoil.holes:
-            pt = ( hole[0], hole[1] )
-            radius = hole[2]
+            pt = ( hole[0]*self.dpi, -hole[1]*self.dpi )
+            radius = hole[2]*self.dpi
             c = self.dwg.circle( center = pt, r = radius, stroke = 'red', \
                                      fill = 'none', \
                                      stroke_width = stroke_width)
@@ -66,7 +68,7 @@ class Sheet:
         for label in airfoil.labels:
             #print "label = " + str(label[0]) + "," + str(label[1])
             t = self.dwg.text(label[4], (0, 0), font_size = label[2], text_anchor = "middle")
-            t.translate( (label[0], label[1]) )
+            t.translate( (label[0]*self.dpi, -label[1]*self.dpi) )
             t.rotate(-label[3])
             # text_align = center
             g.add(t)
