@@ -25,11 +25,11 @@ class Sheet:
         self.xpos = 0.0 + self.margin
         self.biggest_x = 0.0
 
-    def draw_part_side(self, airfoil, stroke_width, color, \
-                           lines = True, points = False ):
-        if airfoil.poly == None:
-            airfoil.make_poly()
-        p = copy.deepcopy(airfoil.poly)
+    def draw_part_side(self, part, stroke_width="1px", color="red", \
+                           lines=True, points=False, outline=False):
+        if part.poly == None:
+            part.make_poly()
+        p = copy.deepcopy(part.poly)
         p.flop(0.0)
         bounds = p.boundingBox()
         dx = bounds[1] - bounds[0]
@@ -50,13 +50,23 @@ class Sheet:
         if dx > self.biggest_x:
             self.biggest_x = dx
 
+        if outline:
+            tmp = copy.deepcopy(part)
+            tmp.scale( self.dpi, -self.dpi )
+            shape = tmp.top
+            shape.reverse()
+            shape += tmp.bottom
+            poly = self.dwg.polygon(shape, stroke='blue', fill='none', \
+                                        stroke_width=stroke_width)
+            g.add( poly )
+
         if lines:
             for shape in p:
                 poly = self.dwg.polygon(shape, stroke = 'red', fill = 'none', \
                                             stroke_width = stroke_width)
                 g.add( poly )
 
-        for label in airfoil.labels:
+        for label in part.labels:
             #print "label = " + str(label[0]) + "," + str(label[1])
             t = self.dwg.text(label[4], (0, 0), font_size = label[2], text_anchor = "middle")
             t.translate( (label[0]*self.dpi, -label[1]*self.dpi) )
@@ -153,51 +163,54 @@ class Layout:
         self.dpi = dpi
         self.sheets = []
 
-    def draw_part(self, af, stroke_width, color, lines = True, points = False ):
+    def draw_part(self, part, stroke_width="1px", color="red", \
+                      lines=False, points=False, outline=False ):
         # sanity check that part will fit on a sheet
-        bounds = af.get_bounds()
+        bounds = part.get_bounds()
         dx = bounds[1][0] - bounds[0][0]
         dy = bounds[1][1] - bounds[0][1]
         if (dx > self.width - 2*self.margin) or \
                 (dy > self.height - 2*self.margin):
-            if len(af.labels):
-                print "Failed to fit: " + af.labels[0][4]
+            if len(part.labels):
+                print "Failed to fit: " + part.labels[0][4]
             else:
-                print "Failed to fit: " + af.name
+                print "Failed to fit: " + part.name
             print "- Part dimensions exceed size of sheet!"
             return False
         num_sheets = len(self.sheets)
         i = 0
         done = False
         while i < num_sheets and not done:
-            done = self.sheets[i].draw_part_side(af, stroke_width, color, \
-                                                     lines, points)
+            done = self.sheets[i].draw_part_side(part, stroke_width, color, \
+                                                     lines, points, outline)
             i += 1
         if not done:
             # couldn't fit on any existing sheet so create a new one
             sheet = Sheet(self.basename + str(i), self.width, \
                               self.height, self.margin, self.units, self.dpi)
-            done = sheet.draw_part_side(af, stroke_width, color, lines, points)
+            done = sheet.draw_part_side(part, stroke_width, color, lines, \
+                                            points, outline)
             self.sheets.append(sheet)
         if not done:
             print "this should never happen!"
-            if len(af.labels):
-                print "Failed to fit: " + af.labels[0][4]
+            if len(part.labels):
+                print "Failed to fit: " + part.labels[0][4]
             else:
-                print "Failed to fit: " + af.name
+                print "Failed to fit: " + part.name
         return done
 
     def draw_part_cut_line(self, airfoil ):
-        self.draw_part(airfoil, '0.001in', 'red', True, False )
+        self.draw_part(airfoil, stroke_width="0.001in", color="red", lines=True)
 
     def draw_part_plan_side(self, airfoil ):
-        self.draw_part(airfoil, '1px', 'red', True, False )
+        self.draw_part(airfoil, stroke_width="1px", color="red", lines=True)
 
     def draw_part_demo(self, airfoil ):
-        self.draw_part(airfoil, '1px', 'red', True, True )
+        self.draw_part(airfoil, stroke_width="1px", color="red", \
+                           lines=True, points=True, outline=True )
 
     def draw_part_vertices(self, airfoil ):
-        self.draw_part(airfoil, '1px', 'red', False, True )
+        self.draw_part(airfoil, stroke_width="1px", color="red", points=True)
 
     def save(self):
         for sheet in self.sheets:
