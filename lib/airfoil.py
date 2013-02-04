@@ -9,6 +9,7 @@ __license__ = "GPL v2"
 import fileinput
 import math
 import string
+import Polygon
 
 from contour import Contour
 import spline
@@ -163,6 +164,10 @@ class Airfoil(Contour):
         return cur[0] - dx * pct
 
     def cutout_leading_edge_diamond(self, size):
+        # make the Polygon representation of this part if needed
+        if self.poly == None:
+            self.make_poly()
+
         target_diag = math.sqrt(2*size*size)
         # walk backwards equal amounts along both top and bottom curves until
         # find the first points that are diag apart.
@@ -197,37 +202,15 @@ class Airfoil(Contour):
         #print self.dist_2d( (xtop, ytop), corner )
         #print self.dist_2d( corner, (xbottom, ybottom) )
 
-        # top skin
-        newtop = []
-        n = len(self.top)
-        # skip cut out nose points
-        i = 0
-        while i < n and self.top[i][0] <= xtop:
-            i += 1
-        # 45 cutout
-        newtop.append( corner )
-        newtop.append( (xtop, ytop) )
-        # remainder
-        while i < n:
-            newtop.append( self.top[i] )
-            i += 1
-        self.top = list(newtop)
+        # make mask shape
+        p1 = (xbottom, ybottom)
+        p2 = corner
+        p3 = (xtop, ytop)
+        p4 = ( xtop-size*1.5, ytop )
+        p5 = ( xbottom-size*1.5, ybottom )
+        mask = Polygon.Polygon( (p1, p2, p3, p4, p5) )
 
-        # bottom skin
-        newbottom = []
-        n = len(self.bottom)
-        # skip cut out nose points
-        i = 0
-        while i < n and self.bottom[i][0] <= xbottom:
-            i += 1
-        # 45 cutout
-        newbottom.append( corner )
-        newbottom.append( (xbottom, ybottom) )
-        # remainder
-        while i < n:
-            newbottom.append( self.bottom[i] )
-            i += 1
-        self.bottom = list(newbottom)
+        self.poly = self.poly - mask
 
     def cutout_trailing_edge(self, width=0.0, height=0.0, shape="flat"):
         if shape == "flat":

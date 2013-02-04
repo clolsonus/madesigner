@@ -36,13 +36,13 @@ class Sheet:
         dy = bounds[3] - bounds[2]
 
         p.scale( self.dpi, self.dpi, 0.0, 0.0 )
-        shape = p[0]
         if self.ypos + dy + self.margin > self.height:
             self.xpos += self.biggest_x + self.margin
             self.ypos = self.margin
             self.biggest_x = 0.0
         if self.xpos + dx + self.margin > self.width:
             return False
+
         g = self.dwg.g()
         g.translate((self.xpos-bounds[0])*self.dpi, \
                         (self.ypos-bounds[2])*self.dpi)
@@ -51,9 +51,10 @@ class Sheet:
             self.biggest_x = dx
 
         if lines:
-            poly = self.dwg.polygon(shape, stroke = 'red', fill = 'none', \
-                                        stroke_width = stroke_width)
-            g.add( poly )
+            for shape in p:
+                poly = self.dwg.polygon(shape, stroke = 'red', fill = 'none', \
+                                            stroke_width = stroke_width)
+                g.add( poly )
 
         # fixme: need to scale/position holes correctly (or do them as part
         # of the poly so we don't need extra handling here
@@ -74,10 +75,11 @@ class Sheet:
             g.add(t)
 
         if points:
-            for pt in shape:
-                c = self.dwg.circle( center = pt, r = 2, stroke = 'green', \
-                                    fill = 'green', opacity = 0.6)
-                g.add(c)
+            for shape in p:
+                for pt in shape:
+                    c = self.dwg.circle( center = pt, r = 2, stroke = 'green', \
+                                             fill = 'green', opacity = 0.6)
+                    g.add(c)
 
         self.dwg.add(g)
 

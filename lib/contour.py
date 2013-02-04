@@ -351,9 +351,6 @@ class Contour:
     #      zero point)
     # xsize=value (horizontal size of cutout)
     # ysize=value (vertical size)
-
-    # use side="bottom" + ysize=-negative_value +
-    # orientation="vertical" for build support tabs
     def cutout(self, cutout, station=None):
         if len(self.saved_bounds) == 0:
             print "need to call contour.save_bounds() after part created,"
@@ -407,13 +404,59 @@ class Contour:
         p3 = ( r3[0] + xpos, r3[1] + ypos )
 
         hole = Polygon.Polygon( (p0, p1, p2, p3) )
+        self.poly = self.poly - hole
 
-        if cutout.ysize > 0:
-            # cut hole
-            self.poly = self.poly - hole
+
+    # build tab
+    def buildtab(self, cutout, station=None):
+        if len(self.saved_bounds) == 0:
+            print "need to call contour.save_bounds() after part created,"
+            print "but before any cutouts are made"
+            self.save_bounds()
+        top = False
+        if cutout.side == "top":
+            top = True
+
+        # no support of tangent build tabs
+
+        # make the Polygon representation of this part if needed
+        if self.poly == None:
+            self.make_poly()
+
+        if top:
+            curve = list(self.top)
         else:
-            # build tab
-            self.poly = self.poly + hole
+            curve = list(self.bottom)
+
+        # compute base position of cutout
+        xpos = self.get_xpos(cutout.cutpos, station=station)
+        ypos = self.simple_interp(curve, xpos)
+
+        xhalf = cutout.xsize / 2
+        x1 = xpos - xhalf
+        x2 = xpos + xhalf
+        y1 = self.simple_interp(curve, x1)
+        y2 = self.simple_interp(curve, x2)
+        ybase = y1
+        if top:
+            if y2 < y1:
+                ybase = y2
+        else:
+            if y2 > y1:
+                ybase = y2
+
+        # make the tab
+        p0 = (x1, ybase)
+        if top:
+            p1 = (x1, ypos + cutout.ysize)
+            p2 = (x2, ypos + cutout.ysize)
+        else:
+            p1 = (x1, ypos - cutout.ysize)
+            p2 = (x2, ypos - cutout.ysize)
+        p3 = (x2, ybase)
+
+        tab = Polygon.Polygon( (p0, p1, p2, p3) )
+        self.poly = self.poly + tab
 
 
     def cutout_stringer(self, stringer, station=None):
@@ -438,10 +481,10 @@ class Contour:
 
         cutout = Cutout( side=side, orientation="vertical", \
                              cutpos=cutpos, \
-                             xsize=xsize, ysize=-ysize )
+                             xsize=xsize, ysize=ysize )
 
         # call the cutout method with negative ysize to create a tab
-        self.cutout(cutout)
+        self.buildtab(cutout)
 
     def add_hole(self, xpos, ypos, radius):
         self.holes.append( (xpos, ypos, radius) )        
