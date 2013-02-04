@@ -89,7 +89,7 @@ for p in range(0, steps+1):
     vd = (ty - by)
     hy = by + vd / 2.0
     hr = (vd / 2.0)  * 0.5
-    blend.add_hole( hx, hy, hr)
+    blend.cut_hole( hx, hy, hr)
 
     hx = bounds[0][0] + size * 0.44
     ty = blend.simple_interp(blend.top, hx)
@@ -97,7 +97,7 @@ for p in range(0, steps+1):
     vd = (ty - by)
     hy = by + vd / 2.0
     hr = (vd / 2.0)  * 0.7
-    blend.add_hole( hx, hy, hr)
+    blend.cut_hole( hx, hy, hr)
 
     hx = bounds[0][0] + size * 0.73
     ty = blend.simple_interp(blend.top, hx)
@@ -105,7 +105,7 @@ for p in range(0, steps+1):
     vd = (ty - by)
     hy = by + vd / 2.0
     hr = (vd / 2.0)  * 0.6
-    blend.add_hole( hx, hy, hr)
+    blend.cut_hole( hx, hy, hr)
 
     # rotate entire part for twist/washout
     blend.rotate( percent * twist )
@@ -125,7 +125,7 @@ for p in range(0, steps+1):
     pos = contour.Cutpos( percent=0.15 )
     blend.add_build_tab(side="bottom", cutpos=pos, xsize=0.4 )
     pos = contour.Cutpos( percent=0.85 )
-    ##blend.add_build_tab(side="bottom", cutpos=pos, xsize=0.4 )
+    blend.add_build_tab(side="bottom", cutpos=pos, xsize=0.4 )
 
     # label
     at = bounds[0][0] + size * 0.27

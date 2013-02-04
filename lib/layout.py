@@ -56,16 +56,6 @@ class Sheet:
                                             stroke_width = stroke_width)
                 g.add( poly )
 
-        # fixme: need to scale/position holes correctly (or do them as part
-        # of the poly so we don't need extra handling here
-        for hole in airfoil.holes:
-            pt = ( hole[0]*self.dpi, -hole[1]*self.dpi )
-            radius = hole[2]*self.dpi
-            c = self.dwg.circle( center = pt, r = radius, stroke = 'red', \
-                                     fill = 'none', \
-                                     stroke_width = stroke_width)
-            g.add(c)
-
         for label in airfoil.labels:
             #print "label = " + str(label[0]) + "," + str(label[1])
             t = self.dwg.text(label[4], (0, 0), font_size = label[2], text_anchor = "middle")

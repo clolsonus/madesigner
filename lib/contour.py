@@ -11,6 +11,7 @@ import math
 import string
 import spline
 import Polygon
+import Polygon.Shapes
 
 
 class Cutpos:
@@ -60,7 +61,6 @@ class Contour:
         self.top = []
         self.bottom = []
         self.poly = None
-        self.holes = []
         self.labels = []
         self.saved_bounds = []        # see self.save_bounds() for details
 
@@ -152,15 +152,11 @@ class Contour:
     def rotate(self, angle):
         newtop = []
         newbottom = []
-        newholes = []
         newlabels = []
         for pt in self.top:
             newtop.append( self.rotate_point(pt, angle) )
         for pt in self.bottom:
             newbottom.append( self.rotate_point(pt, angle) )
-        for hole in self.holes:
-            newpt = self.rotate_point( (hole[0], hole[1]), angle)
-            newholes.append( (newpt[0], newpt[1], hole[2]) )
         for label in self.labels:
             newpt = self.rotate_point( (label[0], label[1]), angle)
             newlabels.append( (newpt[0], newpt[1], label[2], label[3] + angle, label[4]) )
@@ -168,13 +164,11 @@ class Contour:
             self.poly.rotate(math.radians(angle), 0.0, 0.0)
         self.top = list(newtop)
         self.bottom = list(newbottom)
-        self.holes = list(newholes)
         self.labels = list(newlabels)
 
     def scale(self, hsize, vsize):
         newtop = []
         newbottom = []
-        newholes = []
         newlabels = []
         for pt in self.top:
             newx = pt[0] * hsize
@@ -184,27 +178,17 @@ class Contour:
             newx = pt[0] * hsize
             newy = pt[1] * vsize
             newbottom.append( (newx, newy) )
-        for hole in self.holes:
-            newx = ( hole[0] * hsize )
-            newy = ( hole[1] * vsize )
-            if hsize <= vsize:
-                newr = math.fabs( hole[2] * hsize )
-            else:
-                newr = math.fabs( hole[2] * vsize )
-            newholes.append( (newx, newy, newr) )
         for label in self.labels:
             newx = ( label[0] * hsize )
             newy = ( label[1] * vsize )
             newlabels.append( (newx, newy, label[2], label[3], label[4]) )
         self.top = list(newtop)
         self.bottom = list(newbottom)
-        self.holes = list(newholes)
         self.labels = list(newlabels)
 
     def move(self, x, y):
         newtop = []
         newbottom = []
-        newholes = []
         newlabels = []
         for pt in self.top:
             newx = pt[0] + x
@@ -214,17 +198,12 @@ class Contour:
             newx = pt[0] + x
             newy = pt[1] + y
             newbottom.append( (newx, newy) )
-        for hole in self.holes:
-            newx = hole[0] + x
-            newy = hole[1] + y
-            newholes.append( (newx, newy, hole[2]) )
         for label in self.labels:
             newx = label[0] + x
             newy = label[1] + y
             newlabels.append( (newx, newy, label[2], label[3], label[4]) )
         self.top = list(newtop)
         self.bottom = list(newbottom)
-        self.holes = list(newholes)
         self.labels = list(newlabels)
 
     # the saved "bounds" are used cooperatively to mark the size of
@@ -486,8 +465,11 @@ class Contour:
         # call the cutout method with negative ysize to create a tab
         self.buildtab(cutout)
 
-    def add_hole(self, xpos, ypos, radius):
-        self.holes.append( (xpos, ypos, radius) )        
+    def cut_hole(self, xpos, ypos, radius):
+        if self.poly == None:
+            self.make_poly()
+        hole = Polygon.Shapes.Circle(radius=radius, center=(xpos, ypos), points=32)
+        self.poly = self.poly - hole
 
     def add_label(self, xpos, ypos, size, rotate, text):
         self.labels.append( (xpos, ypos, size, rotate, text) )        
