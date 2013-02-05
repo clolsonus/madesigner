@@ -468,7 +468,8 @@ class Contour:
     def cut_hole(self, xpos, ypos, radius):
         if self.poly == None:
             self.make_poly()
-        hole = Polygon.Shapes.Circle(radius=radius, center=(xpos, ypos), points=32)
+        hole = Polygon.Shapes.Circle(radius=radius, center=(xpos, ypos), \
+                                         points=32)
         self.poly = self.poly - hole
 
     def add_label(self, xpos, ypos, size, rotate, text):

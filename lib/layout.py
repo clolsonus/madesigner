@@ -77,8 +77,8 @@ class Sheet:
         if points:
             for shape in p:
                 for pt in shape:
-                    c = self.dwg.circle( center = pt, r = 2, stroke = 'green', \
-                                             fill = 'green', opacity = 0.6)
+                    c = self.dwg.circle( center=pt, r=2, stroke='green', \
+                                             fill='green', opacity=0.6)
                     g.add(c)
 
         self.dwg.add(g)

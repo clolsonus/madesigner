@@ -172,7 +172,7 @@ class Airfoil(Contour):
         # walk backwards equal amounts along both top and bottom curves until
         # find the first points that are diag apart.
         cur_diag = 0
-        step = size / 1000
+        step = 0.001
         dist = step
         n = len(self.top)
         xstart = self.top[0][0]
@@ -212,78 +212,138 @@ class Airfoil(Contour):
 
         self.poly = self.poly - mask
 
-    def cutout_trailing_edge(self, width=0.0, height=0.0, shape="flat"):
+    # Important note: If calling this with force_fit, this routine
+    # modifies the basic airfoil shape and thus should be called
+    # before any other cutouts are made to the part.  More specificall
+    # it will do the following.  (1) find the best fit / alignment of
+    # the specified trailing edge stock (matches the exact trailing
+    # edge point and then does a best fit rotation from there.)  (2)
+    # compute the vertical error at the attach point between the
+    # original airfoil and the trailing edge stock (factoring in any
+    # alignment rotation or angled intesection that might have been
+    # computed at the best fit stage.)  (3) shave a subtle wedge off
+    # the back 2/3 of the airfoil to make an exact fit (or add
+    # material if the airfoil is too thin rather than too thick.  This
+    # would be analogous to a builder carefully sanding the back 2/3
+    # of the rib to match the trailing edge stock and taking just the
+    # right amount off both the top and bottom evenly to minimize
+    # changes to the original airfoil shape.
+    #
+    # Sorry for the long complicated explanation!
+    #
+    def cutout_trailing_edge(self, width=0.0, height=0.0, shape="flat", \
+                                 force_fit=False):
+        h2 = height*0.5
         if shape == "flat":
             bottom_dist = width
+            mid_dist = math.sqrt(width*width + h2*h2)
             top_dist = math.sqrt(width*width + height*height)
         elif shape == "symmetrical":
-            h2 = height*0.5
             bottom_dist = math.sqrt(width*width + h2*h2)
+            mid_dist = width
             top_dist = bottom_dist
         else:
             print "Unknown trailing edge shape. Must be 'flat' or 'symmetrical'"
             return
 
-        n = len(self.top)
-        xstart = self.top[0][0]
-        xend = self.top[n-1][0]
-        chord = xend - xstart
+        tn = len(self.top)
+        bn = len(self.bottom)
+        xnose = self.top[0][0]
+        xtail = self.top[tn-1][0]
+        yttail = self.top[tn-1][1]
+        ybtail = self.bottom[bn-1][1]
+        ytail = (yttail + ybtail) * 0.5
+        chord = xtail - xnose
         if top_dist > chord or bottom_dist > chord:
             # unable
             return
 
+        step = 0.001
+        xpos = xtail - step
+        cur_mid = step
         # walk forward specified distances along top and bottom curves
-        xtop = self.walk_curve_from_back(self.top, xend, top_dist)
-        ytop = self.simple_interp(self.top, xtop)
-        xbottom = self.walk_curve_from_back(self.bottom, xend, bottom_dist)
-        ybottom = self.simple_interp(self.bottom, xbottom)
-        dy = ytop - ybottom
-        print "Trailing edge: stock height = " + str(height) + " rib height = " + str(dy)
+        # (starting at the back)
+        while cur_mid <= mid_dist and xpos >= xnose:
+            ytop = self.simple_interp(self.top, xpos)
+            ybottom = self.simple_interp(self.bottom, xpos)
+            ymid = (ytop + ybottom) * 0.5
+            cur_mid = self.dist_2d( (xtail, ytail), (xpos, ymid) )
+            xpos -= step
 
-        #print (xtop, ytop)
-        #print (xbottom, ybottom)
-        dx = xtop - xbottom
-        dy = ytop - ybottom
-        #print (dx, dy)
-        if math.fabs(dx) > 0.00001:
-            slope = dy/dx
-            #print "slope = " + str(slope)
-            if math.fabs(slope) > 0.00001:
-                b = ytop - slope*xtop
-                #print "b = " + str(b)
-                xint = -b / slope
-                corner = ( xint, 0 )
+        dx = xpos - xtail
+        dy = ymid - ytail
+        print (dx, dy)
+        angle = math.atan2(dy, -dx)
+        print "angle = " + str(math.degrees(angle))
+
+        print "Trailing edge: stock height = " + str(height)
+        print "Rotated stock end height = " + str(height*math.cos(angle))
+        print "Rib height at cut pt = " + str(ytop - ybottom)
+
+        if force_fit:
+            # cheat the vertical scale of the rib to match the stock
+            # size (linearly distorting 1.0 scale at nose, to whatever
+            # scale required at te point.  (1/2 the difference between
+            # the vertical component of the te stock and the actual
+            # airfoil vertical height at that point.)
+            ycheat = 0.5 * (height*math.cos(angle) - (ytop - ybottom))
+            print "ycheat = " + str(ycheat) + " @ " + str(xpos)
+            newtop = []
+            newbottom = []
+            newpoly = Polygon.Polygon()
+            for pt in self.top:
+                if pt[0] < 0.0:
+                    offset = 0.0
+                elif pt[0] <= xpos:
+                    offset = ycheat * pt[0] / xpos
+                else:
+                    offset = ycheat * (xtail - pt[0]) / (xtail - xpos)
+                newtop.append( (pt[0], pt[1]+offset) )
+            for pt in self.bottom:
+                if pt[0] < 0.0:
+                    offset = 0.0
+                elif pt[0] <= xpos:
+                    offset = ycheat * pt[0] / xpos
+                else:
+                    offset = ycheat * (xtail - pt[0]) / (xtail - xpos)
+                newbottom.append( (pt[0], pt[1]-offset) )
+            self.top = newtop
+            self.bottom = newbottom
+            # rebuild the polygon (which loses any cuts that might
+            # have been made earlier, thus the note to do this first
+            # if you want to force fit to trailing edge stock!)
+            self.make_poly()
+
+        # exact_shape = True can be a useful debugging tool because
+        # you can see exactly the trailing edge part that gets cutout.
+        exact_shape = False
+        if exact_shape:
+            # make the exact trailing edge stock shape
+            p1 = (xtail, ytail)
+            if shape == "symmetrical":
+                p2 = (xtail-width, ytail+h2)
+                p3 = (xtail-width, ytail-h2)
             else:
-                corner = ( (xtop+xbottom)*0.5, 0.0 )
+                p2 = (xtail-width, ytail+height)
+                p3 = (xtail-width, ytail)
+            te = Polygon.Polygon( (p1, p2, p3) )
         else:
-            corner = ( xtop, 0.0 )
-        #print "corner = " + str(corner)
+            # make an oversize mask
+            p1 = (xtail, ytail+h2)
+            p2 = (xtail-width, ytail+height*2)
+            p3 = (xtail-width, ytail-height*2)
+            p4 = (xtail, ytail-h2)
+            te = Polygon.Polygon( (p1, p2, p3, p4) )
+        if shape == "flat":
+            # need to prerotate to align mid line of stock with
+            # midline of airfoil
+            print "prerotate = " + str( (h2, width) )
+            preangle = math.atan2(h2, width)
+            te.rotate(preangle, xtail, ytail)
 
-        # top skin
-        newtop = []
-        n = len(self.top)
-        # add lead points
-        i = 0
-        while i < n and self.top[i][0] < xtop:
-            newtop.append( self.top[i] )
-            i += 1
-        # finish off the cut
-        newtop.append( (xtop, ytop) )
-        newtop.append( corner )
-        self.top = list(newtop)
+        te.rotate(-angle, xtail, ytail)
 
-        # bottom skin
-        newbottom = []
-        n = len(self.bottom)
-        # add lead points
-        i = 0
-        while i < n and self.bottom[i][0] < xbottom:
-            newbottom.append( self.bottom[i] )
-            i += 1
-        # finish off the cut
-        newbottom.append( (xbottom, ybottom) )
-        newbottom.append( corner )
-        self.bottom = list(newbottom)
+        self.poly = self.poly - te
 
 # returns an airfoil that is 1.0-percent of af1 + percent of af2
 def blend( af1, af2, percent ):

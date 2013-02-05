@@ -47,12 +47,16 @@ for p in range(0, steps+1):
     blend.scale( size, size )
     blend.move(-size / 3.0, 0)
 
+    # do this before any other cuts if "force_fit" is True because it
+    #can change the base airfoil a bit to match the trailing edge
+    #stock.
+    blend.cutout_trailing_edge( 1.0, 0.25, shape="symmetrical", force_fit=True )
+    #blend.cutout_trailing_edge( 1.0, 0.25, shape="flat", force_fit=True )
+
     bounds = blend.get_bounds()
 
     # leading edge diamond (before washout rotate)
     blend.cutout_leading_edge_diamond( 0.200 )
-
-    blend.cutout_trailing_edge( 1.0, 0.25, "symmetrical" )
 
     # leading edge sheeting (before washout rotate)
     le = bounds[0][0] + 0.125
@@ -124,8 +128,8 @@ for p in range(0, steps+1):
     # build alignment tabs
     pos = contour.Cutpos( percent=0.15 )
     blend.add_build_tab(side="bottom", cutpos=pos, xsize=0.4 )
-    pos = contour.Cutpos( percent=0.85 )
-    blend.add_build_tab(side="bottom", cutpos=pos, xsize=0.4 )
+    #pos = contour.Cutpos( percent=0.85 )
+    #blend.add_build_tab(side="bottom", cutpos=pos, xsize=0.4 )
 
     # label
     at = bounds[0][0] + size * 0.27
