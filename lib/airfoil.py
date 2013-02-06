@@ -212,22 +212,24 @@ class Airfoil(Contour):
 
         self.poly = self.poly - mask
 
-    # Important note: If calling this with force_fit, this routine
-    # modifies the basic airfoil shape and thus should be called
-    # before any other cutouts are made to the part.  More specificall
-    # it will do the following.  (1) find the best fit / alignment of
-    # the specified trailing edge stock (matches the exact trailing
-    # edge point and then does a best fit rotation from there.)  (2)
-    # compute the vertical error at the attach point between the
-    # original airfoil and the trailing edge stock (factoring in any
-    # alignment rotation or angled intesection that might have been
-    # computed at the best fit stage.)  (3) shave a subtle wedge off
-    # the back 2/3 of the airfoil to make an exact fit (or add
-    # material if the airfoil is too thin rather than too thick.  This
-    # would be analogous to a builder carefully sanding the back 2/3
-    # of the rib to match the trailing edge stock and taking just the
-    # right amount off both the top and bottom evenly to minimize
-    # changes to the original airfoil shape.
+    # Important note: If calling the trailing edge cutout function
+    # with force_fit, then please notice that this routine modifies
+    # the basic airfoil shape and rebuilds the self.poly object from
+    # scratch.  Thus, it should be called before any other cutouts are
+    # made to the part or those prior cutout will be lost.  More
+    # specifically it will do the following.  (1) find the best fit /
+    # alignment of the specified trailing edge stock (matches the
+    # exact trailing edge point and then does a best fit rotation from
+    # there.)  (2) compute the vertical error at the attach point
+    # between the original airfoil and the trailing edge stock
+    # (factoring in any alignment rotation or angled intesection that
+    # might have been computed at the best fit stage.)  (3) shave a
+    # subtle wedge off the back 2/3 of the airfoil to make an exact
+    # fit (or add material if the airfoil is too thin rather than too
+    # thick.  This would be analogous to a builder carefully sanding
+    # the back 2/3 of the rib to match the trailing edge stock and
+    # taking just the right amount off both the top and bottom evenly
+    # to minimize changes to the original airfoil shape.
     #
     # Sorry for the long complicated explanation!
     #

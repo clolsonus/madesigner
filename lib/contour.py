@@ -475,89 +475,75 @@ class Contour:
     def add_label(self, xpos, ypos, size, rotate, text):
         self.labels.append( (xpos, ypos, size, rotate, text) )        
 
-    def project_point(self, top, slopes, index, orig, ysize):
-        slope = slopes[index]
+    def project_point(self, orig, ysize, side, slope):
         rad = math.atan2(slope,1)
         angle = math.degrees(rad)
         #print "xpos " + str(xpos) + " angle = " + str(angle)
-        if not top:
+        if side == "top":
             angle += 180
             if angle > 360:
                 angle -= 360
         r0 = self.rotate_point( (0, ysize), angle )
         pt = ( r0[0] + orig[0], r0[1] + orig[1] )
-        if top and pt[1] < 0.0:
-            pt = (pt[0], 0.0)
-        elif not top and pt[1] > 0.0:
-            pt = (pt[0], 0.0)
         return pt
 
     def cutout_sweep(self, side="top", xstart=0, xsize=0, ysize=0):
-        top = False
-        if side == "top":
-            top = True
+        if self.poly == None:
+            self.make_poly()
 
         curve = []
-        if top:
+        if side == "top":
             curve = list(self.top)
         else:
             curve = list(self.bottom)
 
         n = len(curve)
-        newcurve = []
-
-        # nose portion
-        i = 0
-        while i < n and curve[i][0] < xstart:
-            newcurve.append( curve[i] )
-            i += 1
-
-        # anchor sweep
-        ypos = self.simple_interp(curve, xstart)
-        newcurve.append( (xstart, ypos) )
-
-        # sweep cutout
         slopes = spline.derivative1(curve)
+        shape = []
+
+        # make the exact sweep base line
         dist = 0.0
         xpos = xstart
+        ypos = self.simple_interp(curve, xstart)
+        shape.append( (xpos, ypos) )
         index = spline.binsearch(curve, xpos)
-        first = True
+        if curve[index][0] <= xpos:
+            index += 1
         next_dist = 0
         while index < n and dist + next_dist <= xsize:
-            dist += next_dist
-            ypos = self.simple_interp(curve, xpos)
-            pt = self.project_point(top, slopes, index, (xpos, ypos), -ysize)
-            newcurve.append( pt )
-            if index < n - 1:
-                nextpt = curve[index+1]
-                next_dist = self.dist_2d( (xpos, ypos), nextpt )
+            nextpt = curve[index]
+            next_dist = self.dist_2d( (xpos, ypos), nextpt )
+            if dist + next_dist <= xsize:
+                dist += next_dist
                 xpos = nextpt[0]
-            index += 1
+                ypos = nextpt[1]
+                shape.append( (xpos, ypos) )
+                index += 1
 
-        if index < n - 1:
-            # finish sweep (advance x in proportion to get close to the
-            # right total sweep dist
+        if index < n and dist < xsize:
+            # more points in original curve and we haven't quite made
+            # total distance
             rem = xsize - dist
             #print "rem = " + str(rem)
             pct = rem / next_dist
             #print "pct of next step = " + str(pct)
-            xpos = curve[index-1][0]
-            dx = curve[index][0] - xpos
-            xpos += dx * rem
+            dx = nextpt[0] - xpos
+            xpos += dx * pct
             ypos = self.simple_interp(curve, xpos)
-            pt = self.project_point(top, slopes, index-1, (xpos, ypos), -ysize)
-            newcurve.append( pt )
-            newcurve.append( (xpos, ypos) )
+            shape.append( (xpos, ypos) )
 
-        # tail portion
-        while index < n:
-            newcurve.append( curve[index] )
-            index += 1
+        # project the sweep line at the specified thickness
+        side2 = []
+        for p in shape:
+            index = spline.binsearch(curve, p[0])
+            slope = slopes[index]
+            proj = self.project_point(p, ysize, side, slope)
+            side2.append(proj)
 
-        if top:
-            self.top = list(newcurve)
-        else:
-            self.bottom = list(newcurve)
+        shape.reverse()
+        shape += side2
+        mask = Polygon.Polygon(shape)
+        self.poly = self.poly - mask
 
     def get_bounds(self):
         if len(self.top) < 1:

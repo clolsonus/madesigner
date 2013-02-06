@@ -58,11 +58,9 @@ for p in range(0, steps+1):
     # leading edge diamond (before washout rotate)
     blend.cutout_leading_edge_diamond( 0.200 )
 
-    # leading edge sheeting (before washout rotate)
-    le = bounds[0][0] + 0.125
-    d = size * 0.2
-    #blend.cutout_sweep( "top", le, d, 0.0625, 0.05 )
-    #blend.cutout_sweep( "bottom", le, d, 0.0625, 0.05 )
+    # sheet whole wing
+    blend.cutout_sweep( "top", bounds[0][0], size*2, 0.0625 )
+    blend.cutout_sweep( "bottom", bounds[0][0], size*2, 0.0625 )
 
     # stringer position tapers with wing (if there is a taper)
     cutpos = contour.Cutpos( percent=0.15 )
