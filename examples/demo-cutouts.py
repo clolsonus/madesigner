@@ -23,7 +23,7 @@ except ImportError:
 
 rchord = 8.0
 tchord = 5.0
-twist = 5
+twist = 0
 
 width = 8.5
 height = 11
@@ -38,7 +38,7 @@ steps = 8
 dp = 1.0 / steps
 
 for p in range(0, steps+1):
-    print p
+    print "Making rib " + str(p)
     percent = p*dp
 
     blend = airfoil.blend( root, tip, percent )
@@ -59,8 +59,8 @@ for p in range(0, steps+1):
     blend.cutout_leading_edge_diamond( 0.200 )
 
     # sheet whole wing
-    blend.cutout_sweep( "top", bounds[0][0], size*2, 0.0625 )
-    blend.cutout_sweep( "bottom", bounds[0][0], size*2, 0.0625 )
+    blend.cutout_sweep( side="top", xstart=bounds[0][0], xdist=size*2, ysize=0.0625 )
+    blend.cutout_sweep( side="bottom", xstart=bounds[0][0], xdist=size*2, ysize=0.0625 )
 
     # stringer position tapers with wing (if there is a taper)
     cutpos = contour.Cutpos( percent=0.15 )
@@ -84,6 +84,24 @@ for p in range(0, steps+1):
                                  xsize=0.125, ysize=0.125 )
     blend.cutout_stringer( cutout )
 
+    # shaped lightening holes
+    start = contour.Cutpos( percent=0.07 )
+    end = contour.Cutpos( percent=0.14 )
+    blend.carve_shaped_hole( pos1=start, pos2=end, \
+                                 material_width=0.20, radius=0.075 )
+    start = contour.Cutpos( percent=0.18 )
+    end = contour.Cutpos( percent=0.30 )
+    blend.carve_shaped_hole( pos1=start, pos2=end, \
+                                 material_width=0.20, radius=0.075 )
+    start = contour.Cutpos( percent=0.36 )
+    end = contour.Cutpos( percent=0.48 )
+    blend.carve_shaped_hole( pos1=start, pos2=end, \
+                                 material_width=0.20, radius=0.075 )
+    start = contour.Cutpos( percent=0.50 )
+    end = contour.Cutpos( percent=0.64 )
+    blend.carve_shaped_hole( pos1=start, pos2=end, \
+                                 material_width=0.20, radius=0.075 )
+
     # lightening holes
     hx = bounds[0][0] + size * 0.16
     ty = blend.simple_interp(blend.top, hx)
@@ -91,7 +109,7 @@ for p in range(0, steps+1):
     vd = (ty - by)
     hy = by + vd / 2.0
     hr = (vd / 2.0)  * 0.5
-    blend.cut_hole( hx, hy, hr)
+    #blend.cut_hole( hx, hy, hr)
 
     hx = bounds[0][0] + size * 0.44
     ty = blend.simple_interp(blend.top, hx)
@@ -99,7 +117,7 @@ for p in range(0, steps+1):
     vd = (ty - by)
     hy = by + vd / 2.0
     hr = (vd / 2.0)  * 0.7
-    blend.cut_hole( hx, hy, hr)
+    #blend.cut_hole( hx, hy, hr)
 
     hx = bounds[0][0] + size * 0.73
     ty = blend.simple_interp(blend.top, hx)
@@ -107,7 +125,7 @@ for p in range(0, steps+1):
     vd = (ty - by)
     hy = by + vd / 2.0
     hr = (vd / 2.0)  * 0.6
-    blend.cut_hole( hx, hy, hr)
+    #blend.cut_hole( hx, hy, hr)
 
     # rotate entire part for twist/washout
     blend.rotate( percent * twist )

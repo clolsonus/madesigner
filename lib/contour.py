@@ -12,6 +12,7 @@ import string
 import spline
 import Polygon
 import Polygon.Shapes
+import Polygon.Utils
 
 
 class Cutpos:
@@ -487,10 +488,10 @@ class Contour:
         pt = ( r0[0] + orig[0], r0[1] + orig[1] )
         return pt
 
-    def cutout_sweep(self, side="top", xstart=0, xsize=0, ysize=0):
-        if self.poly == None:
-            self.make_poly()
-
+    def project_contour(self, side="top", \
+                            xstart=0, xend=None, xdist=None, \
+                            ysize=0):
+        print "xstart=" + str(xstart) + " xend=" + str(xend) + " xdist=" + str(xdist)
         curve = []
         if side == "top":
             curve = list(self.top)
@@ -510,20 +511,24 @@ class Contour:
         if curve[index][0] <= xpos:
             index += 1
         next_dist = 0
-        while index < n and dist + next_dist <= xsize:
+        done = False
+        #while index < n and dist + next_dist <= xdist:
+        while index < n and not done:
             nextpt = curve[index]
             next_dist = self.dist_2d( (xpos, ypos), nextpt )
-            if dist + next_dist <= xsize:
+            if (xdist and dist + next_dist <= xdist) or \
+                    (xend and nextpt[0] <= xend):
                 dist += next_dist
                 xpos = nextpt[0]
                 ypos = nextpt[1]
                 shape.append( (xpos, ypos) )
                 index += 1
+            else:
+                done = True
 
-        if index < n and dist < xsize:
-            # more points in original curve and we haven't quite made
-            # total distance
-            rem = xsize - dist
+        # add the final point of the curve (if needed)
+        if index < n and xdist and dist < xdist:
+            rem = xdist - dist
             #print "rem = " + str(rem)
             pct = rem / next_dist
             #print "pct of next step = " + str(pct)
@@ -531,20 +536,134 @@ class Contour:
             xpos += dx * pct
             ypos = self.simple_interp(curve, xpos)
             shape.append( (xpos, ypos) )
+        elif index < n and xend and xpos < xend:
+            xpos = xend
+            ypos = self.simple_interp(curve, xpos)
+            shape.append( (xpos, ypos) )
 
         # project the sweep line at the specified thickness
-        side2 = []
+        result = []
         for p in shape:
             index = spline.binsearch(curve, p[0])
             slope = slopes[index]
             proj = self.project_point(p, ysize, side, slope)
-            side2.append(proj)
+            result.append(proj)
 
-        shape.reverse()
-        shape += side2
+        return result
+
+    def cutout_sweep(self, side="top", xstart=0, \
+                         xend=None, xdist=None, ysize=0):
+        if self.poly == None:
+            self.make_poly()
+        side1 = self.project_contour(side=side, xstart=xstart, \
+                                         xend=xend, xdist=xdist, \
+                                         ysize=-ysize)
+        side2 = self.project_contour(side=side, xstart=xstart, \
+                                         xend=xend, xdist=xdist, \
+                                         ysize=ysize)
+        side1.reverse()
+        shape = side1 + side2
         mask = Polygon.Polygon(shape)
         self.poly = self.poly - mask
 
+    # quick scan polygons for possible degenerate problems.  these can
+    # occur due to odd numerical issues when we pile a lot of stuff on
+    # top of each other close together.
+    def reduce_degeneracy(self, poly):
+        result = Polygon.Polygon()
+        for c in poly:
+            # look for simple out and backs (zero width peninsula)
+            shape1 = []
+            n = len(c)
+            shape1.append(c[0])
+            shape1.append(c[1])
+            i = 2
+            while i < n:
+                if math.fabs(c[i][0]-c[i-2][0]) > 0.001 or \
+                        math.fabs(c[i][1]-c[i-2][1]) > 0.001:
+                    shape1.append(c[i])
+                else:
+                    print "--> found zero width peninsula!!!"
+                i += 1
+
+            # look for 3 points in a row with the same x value
+            shape2 = []
+            shape2.append(shape1[0])
+            i = 1
+            while i < n - 1:
+                if math.fabs(c[i-1][0]-c[i][0]) > 0.001 or \
+                        math.fabs(c[i+1][0]-c[i][0]) > 0.001:
+                    shape2.append(c[i])
+                else:
+                    print "--> found 3x in a row!!!"
+                i += 1
+            shape2.append(shape1[n-1])
+
+            result.addContour(shape2)
+        return result            
+
+    # follow the inner contour of the rib on the top and bottom and
+    # (hopefully) add rounded corners.  Right now left right walls are
+    # vertical, but it should be possible to do angles (to leave an
+    # interior triangle structure someday.)
+    def carve_shaped_hole(self, pos1=None, pos2=None, \
+                              material_width=0.0, radius=0.0):
+        if self.poly == None:
+            self.make_poly()
+
+        bounds = self.get_bounds()
+
+        # hollow entire interior (longitudinal axis) at cut radius +
+        # corner radius.  This like the center 'cut' line if we were
+        # cutting with a 'radius' radius tool.
+        top = self.project_contour(side="top", \
+                                       xstart=bounds[0][0], \
+                                       xend=bounds[1][0], \
+                                       ysize=material_width+radius)
+        bot = self.project_contour(side="bottom", \
+                                       xstart=bounds[0][0], \
+                                       xend=bounds[1][0], \
+                                       ysize=material_width+radius)
+        top.reverse()
+        shape = top + bot
+        mask1 = Polygon.Polygon(shape)
+
+        # vertical column (narrowed by radius)
+        xstart = self.get_xpos( pos1 ) + radius
+        xend = self.get_xpos( pos2 ) - radius
+        shape = []
+        shape.append( (xstart, bounds[0][1]) )
+        shape.append( (xend, bounds[0][1]) )
+        shape.append( (xend, bounds[1][1]) )
+        shape.append( (xstart, bounds[1][1]) )
+        mask2 = Polygon.Polygon(shape)
+
+        # combined the shared area of the two hollowed shapes.
+        # Essentially if we sweep a circle centered on the enge of
+        # this polygon, the outer bounds of that cut is the final
+        # shape we want
+        mask_cut = mask1 & mask2
+
+        # pretend we are cutting by placing a 'radius' size circle at
+        # each point in the cut line and taking the union of all of
+        # those (incrementally)
+        mask = None
+        for p in mask_cut[0]:
+            circle = Polygon.Shapes.Circle(radius=radius, center=p, points=23)
+            if mask == None:
+                mask = circle
+            else:
+                mask = Polygon.Utils.convexHull(mask | circle)
+                mask = self.reduce_degeneracy(mask)
+
+        mask = Polygon.Utils.convexHull(mask)
+        for p in mask:
+            print "contour..."
+            print p
+
+        self.poly = self.poly - mask
+
+                    
     def get_bounds(self):
         if len(self.top) < 1:
             return ( (0,0), (0,0) )
