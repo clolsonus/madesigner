@@ -50,7 +50,7 @@ for p in range(0, steps+1):
     # do this before any other cuts if "force_fit" is True because it
     #can change the base airfoil a bit to match the trailing edge
     #stock.
-    blend.cutout_trailing_edge( 1.0, 0.25, shape="symmetrical", force_fit=True )
+    #blend.cutout_trailing_edge( 1.0, 0.25, shape="symmetrical", force_fit=True )
     #blend.cutout_trailing_edge( 1.0, 0.25, shape="flat", force_fit=True )
 
     bounds = blend.get_bounds()
@@ -59,8 +59,12 @@ for p in range(0, steps+1):
     blend.cutout_leading_edge_diamond( 0.200 )
 
     # sheet whole wing
-    blend.cutout_sweep( side="top", xstart=bounds[0][0], xdist=size*2, ysize=0.0625 )
-    blend.cutout_sweep( side="bottom", xstart=bounds[0][0], xdist=size*2, ysize=0.0625 )
+    #blend.cutout_sweep( side="top", xstart=bounds[0][0], xdist=size*2, ysize=0.0625 )
+    #blend.cutout_sweep( side="bottom", xstart=bounds[0][0], xdist=size*2, ysize=0.0625 )
+
+    # sheet trailing eng
+    blend.cutout_sweep( side="top", xstart=bounds[1][0]-2.0, xdist=3, ysize=0.0625 )
+    blend.cutout_sweep( side="bottom", xstart=bounds[1][0]-2.0, xdist=3, ysize=0.0625 )
 
     # stringer position tapers with wing (if there is a taper)
     cutpos = contour.Cutpos( percent=0.15 )

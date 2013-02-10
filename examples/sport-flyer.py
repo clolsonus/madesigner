@@ -74,6 +74,16 @@ wing.add_stringer( side="bottom", orientation="tangent", percent=0.50, \
 #wing.add_stringer( side="bottom", orientation="tangent", xpos=3.0, \
 #                   xsize=0.125, ysize=0.125 )
 
+# simple round hole
+pos=contour.Cutpos(xpos=-0.75)
+wing.add_simple_hole( radius=0.325, pos1=pos, part="wing" )
+
+# shaped lightening holes
+start = contour.Cutpos( percent=0.35 )
+end = contour.Cutpos( percent=0.55 )
+wing.add_shaped_hole( pos1=start, pos2=end, \
+                          material_width=0.2, radius=0.1, part="wing" )
+
 # define the control surfaces
 ailpos = contour.Cutpos(xpos=4.0, atstation=17.0, slope=-0.1)
 edge_stringer_size = ( 0.250, 0.125 ) # width x height
@@ -102,6 +112,8 @@ wing.layout_parts_templates( "sport-flyer", 8.5, 11 )
 
 # generate building plans
 wing.layout_plans( "sport-flyer", 24, 36 )
+
+wing.build_ac3d( "sport-flyer" )
 
 if False:
     # leading edge sheeting (before washout rotate)
