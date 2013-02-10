@@ -17,6 +17,7 @@ except ImportError:
     sys.path.insert(0, os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/..'))
     import svgwrite
 
+import ac3d
 import airfoil
 import contour
 import layout
@@ -106,6 +107,21 @@ class Flap:
         self.bottom_str_slope = 0.0
 
 
+class Hole:
+    def __init__(self, type="simple", pos1=None, pos2=None, \
+                     radius=0.0, material_width=None, \
+                     start_station=None, end_station=None, \
+                     part=""):
+        self.type = type
+        self.pos1 = pos1
+        self.pos2 = pos2
+        self.radius = radius
+        self.material_width = material_width
+        self.start_station = start_station
+        self.end_station = end_station
+        self.part = part        # wing or flap
+
+
 class Wing:
 
     def __init__(self):
@@ -130,6 +146,7 @@ class Wing:
         self.stringers = []
         self.spars = []
         self.flaps = []
+        self.holes = []
 
         # generated parts
         self.right_ribs = []
@@ -261,6 +278,22 @@ class Wing:
             # blended airfoils and get the start/end points of the
             # bottom flap front stringer correct.
 
+    def add_simple_hole(self, radius=0.0, pos1=None, \
+                            start_station=None, end_station=None, part="wing"):
+        hole = Hole( type="simple", radius=radius, pos1=pos1, \
+                         start_station=start_station, end_station=end_station,\
+                         part=part )
+        self.holes.append( hole )
+
+    def add_shaped_hole(self, pos1=None, pos2=None, \
+                            material_width=None, radius=0.0,\
+                            start_station=None, end_station=None, part="wing"):
+        hole = Hole( type="shaped", pos1=pos1, pos2=pos2, \
+                         material_width=material_width, radius=radius, \
+                         start_station=start_station, end_station=end_station,\
+                         part=part )
+        self.holes.append( hole )
+
     # return true of lat_dist is between station1 and station2, inclusive.
     # properly handle cases where station1 or station2 is not defined (meaning
     # all the way to the end.
@@ -319,6 +352,25 @@ class Wing:
                 if rib.has_te and (rib.part == te.part):
                     rib.contour.cutout_trailing_edge( te.width, te.height, \
                                                           te.shape )
+
+        # hole cutouts
+        for hole in self.holes:
+            if self.match_station(hole.start_station, hole.end_station, lat_dist):
+                if rib.part == hole.part:
+                    if hole.type == "simple":
+                        xpos = rib.contour.get_xpos(hole.pos1, \
+                                                        station=rib.pos[0])
+                        ty = rib.contour.simple_interp(rib.contour.top, xpos)
+                        by = rib.contour.simple_interp(rib.contour.bottom, xpos)
+                        ypos = (ty + by) * 0.5
+                        rib.contour.cut_hole( xpos, ypos, hole.radius )
+                    elif hole.type == "shaped":
+                        print "make shaped hole"
+                        rib.contour.carve_shaped_hole( pos1=hole.pos1,\
+                                          pos2=hole.pos2, \
+                                          material_width=hole.material_width, \
+                                          radius=hole.radius )
+
 
         # do rotate
         rib.contour.rotate(rib.twist)
@@ -659,3 +711,31 @@ class Wing:
             sheet.draw_shape(planoffset, shape, "1px", "red")
 
         sheet.save()
+
+    def build_ac3d(self, basename):
+        ac = ac3d.AC3D(basename)
+        ac.gen_headers("wing", 2)
+        # right wing
+        ac.start_object_group("right wing", len(self.right_ribs))
+        for rib in self.right_ribs:
+            ac.make_object_poly("wing rib", rib.contour.poly, rib.thickness, rib.pos)
+        # left wing
+        ac.start_object_group("left wing", len(self.left_ribs))
+        for rib in self.left_ribs:
+            ac.make_object_poly("wing rib", rib.contour.poly, rib.thickness, rib.pos)
+
+        shape = self.make_leading_edge1(self.right_ribs)
+        #sheet.draw_shape(planoffset, shape, "1px", "red")
+        shape = self.make_leading_edge2(self.right_ribs)
+        #sheet.draw_shape(planoffset, shape, "1px", "red")
+        for te in self.trailing_edges:
+            shape = self.make_trailing_edge(te, self.right_ribs)
+            #sheet.draw_shape(planoffset, shape, "1px", "red")
+        for stringer in self.stringers:
+            shape = self.make_stringer(stringer, self.right_ribs)
+            #sheet.draw_shape(planoffset, shape, "1px", "red")
+        for spar in self.spars:
+            shape = self.make_stringer(spar, self.right_ribs)
+            #sheet.draw_shape(planoffset, shape, "1px", "red")
+        ac.end_object_group()
+        ac.close()
