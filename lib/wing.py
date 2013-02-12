@@ -34,7 +34,8 @@ class Rib:
         self.twist = 0.0
         self.part = "wing"      # wing or flap
         self.side = "right"
-        self.has_le = True      # has leading edge (TODO: can we remove this?)
+        # todo can we eliminate has_le/has_te by using self.part names?
+        self.has_le = True      # has leading edge
         self.has_te = True      # has trailing edge
 
     def trim_rear(self, cutpos):
@@ -99,7 +100,7 @@ class Stringer:
 
 class TrailingEdge:
     def __init__(self, width=0.0, height=0.0, shape="", \
-                     start_station=None, end_station=None, part="wing"):
+                     start_station=None, end_station=None, part=""):
         self.width = width
         self.height = height
         self.shape = shape
@@ -107,6 +108,7 @@ class TrailingEdge:
         self.end_station = end_station
         self.part = part        # wing or flap
         self.side = "right"
+        self.points = []
 
 
 class Flap:
@@ -117,9 +119,10 @@ class Flap:
         self.pos = pos
         self.angle = angle      # wedge angle for surface movement clearance
         self.edge_stringer_size = edge_stringer_size
-        self.start_bottom_str_pos = None
+        self.start_bot_str_pos = None
         self.end_bottom_str_pos = None
         self.bottom_str_slope = 0.0
+        self.side = "right"
 
 
 class Hole:
@@ -251,9 +254,19 @@ class Wing:
     def add_trailing_edge(self, width=0.0, height=0.0, shape="", \
                               start_station=None, end_station=None, \
                               mirror=True, part=""):
-        te = TrailingEdge( width, height, shape, start_station, end_station, \
-                               part )
+        if start_station == None:
+            start_station = self.stations[0]
+        if end_station == None:
+            end_station = self.stations[len(self.stations)-1]
+        te = TrailingEdge( width, height, shape, \
+                               start_station, end_station, part )
+        te.side = "right"
         self.trailing_edges.append( te )
+        if mirror:
+            te = TrailingEdge( width, height, shape, \
+                                   -start_station, -end_station, part )
+            te.side = "left"
+            self.trailing_edges.append( te )
 
     def add_stringer(self, side="top", orientation="tangent", \
                          percent=None, front=None, rear=None, xpos=None, \
@@ -295,10 +308,18 @@ class Wing:
 
     def add_flap(self, start_station=None, end_station=None, \
                      pos=None, type="builtup", angle=30.0, \
-                     edge_stringer_size=None):
+                     edge_stringer_size=None, \
+                     mirror=True):
         flap = Flap( start_station, end_station, pos, angle, \
                          edge_stringer_size )
+        flap.side = "right"
         self.flaps.append( flap )
+        if mirror:
+            flap = Flap( -start_station, -end_station, pos, angle, \
+                             edge_stringer_size )
+            flap.side = "left"
+            self.flaps.append( flap )
+
         if flap.edge_stringer_size != None:
             #double_width = flap.edge_stringer_size[0] * 2.0
             half_offset = flap.edge_stringer_size[0] * 0.5
@@ -388,17 +409,24 @@ class Wing:
         lat_dist = rib.pos[0]
         chord = rib.contour.saved_bounds[1][0] - rib.contour.saved_bounds[0][0]
 
+        # trailing edge cutout (first!)
+        for te in self.trailing_edges:
+            if self.match_station(te.start_station, te.end_station, lat_dist):
+                if rib.has_te and rib.part == te.part and rib.side == te.side:
+                    shape = rib.contour.cutout_trailing_edge( width=te.width, height=te.height, shape =te.shape, force_fit=True, station=rib.pos[0]-rib.nudge )
+                    if len(shape):
+                        te.points.append(shape)
+
         # leading edge cutout
-        #diamond = self.leading_edge_diamond
-        #if diamond > 0.01 and rib.has_le:
-        #    rib.contour.cutout_leading_edge_diamond(diamond)
         for le in self.leading_edges:
             if self.match_station(le.start_station, le.end_station, lat_dist):
                 if rib.part == le.part and rib.side == le.side:
                     shape = rib.contour.cutout_leading_edge_diamond( le.size, \
                                                                          rib.pos[0]-rib.nudge )
                     if len(shape):
-                        le.points.append( shape )
+                        le.points.append(shape)
+                else:
+                    print "no match: " + rib.part + " != " + le.part + " or " + rib.side + " != " + le.side + " (has_le= " + str(rib.has_le) + ")"
 
         # cutout stringers (before twist)
         for stringer in self.stringers:
@@ -407,14 +435,7 @@ class Wing:
                     shape = rib.contour.cutout_stringer( stringer.cutout, \
                                                              rib.pos[0]-rib.nudge )
                     if len(shape):
-                        stringer.points.append( shape )
-
-        # trailing edge cutout
-        for te in self.trailing_edges:
-            if self.match_station(te.start_station, te.end_station, lat_dist):
-                if rib.has_te and (rib.part == te.part):
-                    rib.contour.cutout_trailing_edge( te.width, te.height, \
-                                                          te.shape )
+                        stringer.points.append(shape)
 
         # hole cutouts
         for hole in self.holes:
@@ -796,6 +817,8 @@ class Wing:
     def build_ac3d(self, basename):
         ac = ac3d.AC3D(basename)
         groups = 2              # left & right wings
+        if len(self.trailing_edges):
+            groups += 1
         if len(self.leading_edges):
             groups += 1
         if len(self.stringers):
@@ -812,13 +835,14 @@ class Wing:
         for rib in self.left_ribs:
             ac.make_object_poly("wing rib", rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
 
+        ac.start_object_group("trailing edges", len(self.trailing_edges))
+        for te in self.trailing_edges:
+            ac.make_extrusion("trailing edge", te.points, \
+                                  te.side=="left")
         ac.start_object_group("leading edges", len(self.leading_edges))
         for le in self.leading_edges:
             ac.make_extrusion("leading edge", le.points, \
                                   le.side=="left")
-        for te in self.trailing_edges:
-            shape = self.make_trailing_edge(te, self.right_ribs)
-            #sheet.draw_shape(planoffset, shape, "1px", "red")
         ac.start_object_group("stringers", len(self.stringers))
         for stringer in self.stringers:
             ac.make_extrusion("stringer", stringer.points, \

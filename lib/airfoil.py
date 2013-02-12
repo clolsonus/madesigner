@@ -247,7 +247,7 @@ class Airfoil(Contour):
     # Sorry for the long complicated explanation!
     #
     def cutout_trailing_edge(self, width=0.0, height=0.0, shape="flat", \
-                                 force_fit=False):
+                                 force_fit=False, station=None):
         h2 = height*0.5
         if shape == "flat":
             bottom_dist = width
@@ -329,36 +329,48 @@ class Airfoil(Contour):
             # if you want to force fit to trailing edge stock!)
             self.make_poly()
 
-        # exact_shape = True can be a useful debugging tool because
-        # you can see exactly the trailing edge part that gets cutout.
-        exact_shape = False
-        if exact_shape:
-            # make the exact trailing edge stock shape
-            p1 = (xtail, ytail)
-            if shape == "symmetrical":
-                p2 = (xtail-width, ytail+h2)
-                p3 = (xtail-width, ytail-h2)
-            else:
-                p2 = (xtail-width, ytail+height)
-                p3 = (xtail-width, ytail)
-            te = Polygon.Polygon( (p1, p2, p3) )
+        # make the exact trailing edge stock shape
+        p1 = (xtail, ytail)
+        if shape == "symmetrical":
+            p2 = (xtail-width, ytail+h2)
+            p3 = (xtail-width, ytail-h2)
         else:
-            # make an oversize mask
-            p1 = (xtail, ytail+h2)
-            p2 = (xtail-width, ytail+height*2)
-            p3 = (xtail-width, ytail-height*2)
-            p4 = (xtail, ytail-h2)
-            te = Polygon.Polygon( (p1, p2, p3, p4) )
+            p2 = (xtail-width, ytail+height)
+            p3 = (xtail-width, ytail)
+        contour = Polygon.Polygon( (p1, p2, p3) )
+
+        # make an oversize mask
+        p1 = (xtail, ytail+h2)
+        p2 = (xtail-width, ytail+height*2)
+        p3 = (xtail-width, ytail-height*2)
+        p4 = (xtail, ytail-h2)
+        mask = Polygon.Polygon( (p1, p2, p3, p4) )
+
         if shape == "flat":
             # need to prerotate to align mid line of stock with
             # midline of airfoil
             print "prerotate = " + str( (h2, width) )
             preangle = math.atan2(h2, width)
-            te.rotate(preangle, xtail, ytail)
+            contour.rotate(preangle, xtail, ytail)
+            mask.rotate(preangle, xtail, ytail)
 
-        te.rotate(-angle, xtail, ytail)
+        # rotate to best fit alignment
+        contour.rotate(-angle, xtail, ytail)
+        mask.rotate(-angle, xtail, ytail)
 
-        self.poly = self.poly - te
+        # exact_shape = True can be a useful debugging tool because
+        # you can see exactly the trailing edge part that gets cutout.
+        exact_shape = False
+        if exact_shape:
+            self.poly = self.poly - contour
+        else:
+            self.poly = self.poly - mask
+
+        result = []
+        for p2 in contour[0]:
+            p3 = (p2[0], station, p2[1])
+            result.append(p3)
+        return result
 
 # returns an airfoil that is 1.0-percent of af1 + percent of af2
 def blend( af1, af2, percent ):
