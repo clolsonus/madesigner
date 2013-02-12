@@ -371,21 +371,31 @@ class Contour:
                 angle -= 360
         xhalf = cutout.xsize / 2
         yhalf = cutout.ysize / 2
-        # extend shape by yhalf past boundary so we get a clean cutout
+        # extend mask shape by yhalf past boundary so we get a clean cutout
         # with no "flash"
         r0 = self.rotate_point( (-xhalf, yhalf), angle )
         r1 = self.rotate_point( (-xhalf, -cutout.ysize), angle )
         r2 = self.rotate_point( (xhalf, -cutout.ysize), angle )
         r3 = self.rotate_point( (xhalf, yhalf), angle )
-
         p0 = ( r0[0] + xpos, r0[1] + ypos )
         p1 = ( r1[0] + xpos, r1[1] + ypos )
         p2 = ( r2[0] + xpos, r2[1] + ypos )
         p3 = ( r3[0] + xpos, r3[1] + ypos )
+        mask = Polygon.Polygon( (p0, p1, p2, p3) )
+        self.poly = self.poly - mask
 
-        hole = Polygon.Polygon( (p0, p1, p2, p3) )
-        self.poly = self.poly - hole
-
+        # also make the true shape while we are here (reusing the
+        # bottom of the cut mask)
+        r0 = self.rotate_point( (-xhalf, 0.0), angle )
+        r3 = self.rotate_point( (xhalf, 0.0), angle )
+        p0 = ( r0[0] + xpos, r0[1] + ypos )
+        p3 = ( r3[0] + xpos, r3[1] + ypos )
+        v0 = ( p0[0], station, p0[1] )
+        v1 = ( p1[0], station, p1[1] )
+        v2 = ( p2[0], station, p2[1] )
+        v3 = ( p3[0], station, p3[1] )
+        shape = (v0, v1, v2, v3)
+        return shape
 
     # build tab
     def buildtab(self, cutout, station=None):
@@ -440,7 +450,7 @@ class Contour:
 
 
     def cutout_stringer(self, stringer, station=None):
-        self.cutout( stringer, station )
+        return self.cutout( stringer, station )
 
     def add_build_tab(self, side="top", cutpos=None, \
                           xsize=0.0, yextra=0.0):

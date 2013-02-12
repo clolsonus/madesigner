@@ -163,7 +163,7 @@ class Airfoil(Contour):
 
         return cur[0] - dx * pct
 
-    def cutout_leading_edge_diamond(self, size):
+    def cutout_leading_edge_diamond(self, size, station=None):
         # make the Polygon representation of this part if needed
         if self.poly == None:
             self.make_poly()
@@ -209,8 +209,21 @@ class Airfoil(Contour):
         p4 = ( xtop-size*1.5, ytop )
         p5 = ( xbottom-size*1.5, ybottom )
         mask = Polygon.Polygon( (p1, p2, p3, p4, p5) )
-
         self.poly = self.poly - mask
+
+        # also make the true shape while we are here (reusing the
+        # bottom of the cut mask)
+        p1 = (xbottom, ybottom)
+        p2 = corner
+        p3 = (xtop, ytop)
+        p4 = self.top[0]
+        v1 = ( p1[0], station, p1[1] )
+        v2 = ( p2[0], station, p2[1] )
+        v3 = ( p3[0], station, p3[1] )
+        v4 = ( p4[0], station, p4[1] )
+        shape = (v1, v2, v3, v4)
+        return shape
+
 
     # Important note: If calling the trailing edge cutout function
     # with force_fit, then please notice that this routine modifies

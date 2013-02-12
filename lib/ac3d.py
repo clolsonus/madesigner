@@ -67,18 +67,18 @@ class AC3D:
     def end_object_group(self):
         self.f.write("kids 0\n")
 
-    def make_object_poly(self, name, poly2d, thickness, pos):
+    def make_object_poly(self, name, poly2d, thickness, pos, nudge):
         halfw = thickness*0.5
-        tris = 0
+        surfs = 0
         vertices = VertexDB()
 
-        # pass 1a assemble unique vertex list and count outer edge tris
+        # pass 1a assemble unique vertex list and count outer edge surfs
         for contour in poly2d:
-            tris += len(contour)
+            surfs += len(contour)
             for p2 in contour:
-                p3 = (p2[0], -halfw, p2[1])
+                p3 = (p2[0], -halfw-nudge, p2[1])
                 v = vertices.add_point(p3)
-                p3 = (p2[0], +halfw, p2[1])
+                p3 = (p2[0], +halfw-nudge, p2[1])
                 v = vertices.add_point(p3)
 
         # pass 1b run through the tristrip and count the number of
@@ -86,11 +86,11 @@ class AC3D:
         strip_list = poly2d.triStrip()
         for strip in strip_list:
             # times 2 because we have 2 sides
-            tris += 2 * (len(strip) - 2)
+            surfs += 2 * (len(strip) - 2)
             for p2 in strip:
-                p3 = (p2[0], -halfw, p2[1])
+                p3 = (p2[0], -halfw-nudge, p2[1])
                 v = vertices.add_point(p3)
-                p3 = (p2[0], +halfw, p2[1])
+                p3 = (p2[0], +halfw-nudge, p2[1])
                 v = vertices.add_point(p3)
 
         print "vertex db = " + str(len(vertices.v))
@@ -102,14 +102,14 @@ class AC3D:
             self.f.write(str(v[0]) + " " + str(v[1]) + " " + str(v[2]) + "\n")
 
         # pass 2, make side triangles
-        self.f.write("numsurf " + str(tris) + "\n")
+        self.f.write("numsurf " + str(surfs) + "\n")
         # side 1
         for strip in strip_list:
             v1 = 0
             v2 = 0
             flip = True
             for i, p2 in enumerate(strip):
-                p3 = (p2[0], -halfw, p2[1])
+                p3 = (p2[0], -halfw-nudge, p2[1])
                 v = vertices.add_point(p3)
                 if i > 1:
                     self.f.write("SURF 0x10\n")
@@ -132,7 +132,7 @@ class AC3D:
             v2 = 0
             flip = False
             for i, p2 in enumerate(strip):
-                p3 = (p2[0], halfw, p2[1])
+                p3 = (p2[0], halfw-nudge, p2[1])
                 v = vertices.add_point(p3)
                 if i > 1:
                     self.f.write("SURF 0x10\n")
@@ -153,8 +153,8 @@ class AC3D:
         # pass 3 make edge triangles
         for contour in poly2d:
             for i, p2 in enumerate(contour):
-                p3a = (p2[0], -halfw, p2[1])
-                p3b = (p2[0], halfw, p2[1])
+                p3a = (p2[0], -halfw-nudge, p2[1])
+                p3b = (p2[0], halfw-nudge, p2[1])
                 v1a = vertices.add_point(p3a)
                 v1b = vertices.add_point(p3b)
                 if i > 0:
@@ -168,8 +168,8 @@ class AC3D:
                 v0a = v1a
                 v0b = v1b
             # connect the loop to the front
-            p3a = (contour[0][0], -halfw, contour[0][1])
-            p3b = (contour[0][0], halfw, contour[0][1])
+            p3a = (contour[0][0], -halfw-nudge, contour[0][1])
+            p3b = (contour[0][0], halfw-nudge, contour[0][1])
             v1a = vertices.add_point(p3a)
             v1b = vertices.add_point(p3b)
             self.f.write("SURF 0x10\n")
@@ -180,6 +180,71 @@ class AC3D:
             self.f.write(str(v1b) + " 0 0\n")
             self.f.write(str(v0b) + " 0 0\n")
 
+        self.f.write("kids 0\n")
+
+    def make_extrusion(self, name, points, invert_order):
+        surfs = 0
+        vertices = VertexDB()
+
+        # pass 1 assemble unique vertex list and count outer edge surfs
+        i = 0
+        while i < len(points):
+            contour = points[i]
+            if i > 0:
+                surfs += len(contour)
+            for p3 in contour:
+                v = vertices.add_point(p3)
+            i += 1
+
+        # account for the end faces of the extrusion
+        # surfs += 2
+
+        print "vertex db = " + str(len(vertices.v))
+        self.f.write("OBJECT poly\n")
+        self.f.write("name \"" + name + "\"\n")
+        self.f.write("loc 0 0 0\n")
+        self.f.write("numvert " + str(len(vertices.v)) + "\n")
+        for v in vertices.v:
+            self.f.write(str(v[0]) + " " + str(v[1]) + " " + str(v[2]) + "\n")
+
+        self.f.write("numsurf " + str(surfs) + "\n")
+        print "predict numsurf = " + str(surfs)
+
+        # pass 2, make side triangles
+        tmp = 0
+        i = 1
+        while i < len(points):
+            c0 = points[i-1]
+            c1 = points[i]
+            j = 0
+            while j < len(c0) and j < len(c1):
+                p0 = c0[j]
+                p1 = c0[(j+1) % len(c0)]
+                p2 = c1[j]
+                p3 = c1[(j+1) % len(c1)]
+                v0 = vertices.add_point(p0)
+                v1 = vertices.add_point(p1)
+                v2 = vertices.add_point(p2)
+                v3 = vertices.add_point(p3)
+
+                self.f.write("SURF 0x10\n")
+                self.f.write("mat 0\n")
+                self.f.write("refs 4\n")
+                if not invert_order:
+                    self.f.write(str(v0) + " 0 0\n")
+                    self.f.write(str(v2) + " 0 0\n")
+                    self.f.write(str(v3) + " 0 0\n")
+                    self.f.write(str(v1) + " 0 0\n")
+                else:
+                    self.f.write(str(v0) + " 0 0\n")
+                    self.f.write(str(v1) + " 0 0\n")
+                    self.f.write(str(v3) + " 0 0\n")
+                    self.f.write(str(v2) + " 0 0\n")
+                tmp += 1
+                j += 1
+            i += 1
+
+        print "actual surf = " + str(tmp)
         self.f.write("kids 0\n")
 
     def close(self):

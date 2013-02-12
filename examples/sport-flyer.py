@@ -35,8 +35,8 @@ wing.set_taper_curve( ((0.0, root_chord), (5.0, root_chord*1.2), (30.0, tip_chor
 #wing.set_num_stations(20)
 wing.set_stations( (0.0, 1.0, 2.0, 4.0, 7.0, 10.0, 13.0, 15.0, 17.0, \
                         20.0, 23.0, 26.0, 28.0, 29.0, 30.0) )
-wing.leading_edge_diamond = 0.2
 
+wing.add_leading_edge( size=0.25, part="wing" )
 wing.add_trailing_edge( width=1.0, height=0.25, shape="symmetrical", \
                             start_station=0.0, end_station=1.0, part="wing" )
 wing.add_trailing_edge( width=1.0, height=0.25, shape="symmetrical", \

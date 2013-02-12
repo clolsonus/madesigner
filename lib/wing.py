@@ -33,7 +33,8 @@ class Rib:
         self.nudge = 0.0        # left right nudge for drawing top down plans
         self.twist = 0.0
         self.part = "wing"      # wing or flap
-        self.has_le = True      # has leading edge
+        self.side = "right"
+        self.has_le = True      # has leading edge (TODO: can we remove this?)
         self.has_te = True      # has trailing edge
 
     def trim_rear(self, cutpos):
@@ -74,6 +75,17 @@ class Rib:
         self.contour.add_label( xcenter, ycenter, 14, 0, label )
 
 
+class LeadingEdge:
+    def __init__(self, size=None, start_station=None, end_station=None, \
+                     part=""):
+        self.size = size
+        self.start_station = start_station
+        self.end_station = end_station
+        self.part = part        # wing or flap
+        self.side = "right"
+        self.points = []
+
+
 class Stringer:
     def __init__(self, cutout=None, start_station=None, end_station=None, \
                      part=""):
@@ -81,6 +93,8 @@ class Stringer:
         self.start_station = start_station
         self.end_station = end_station
         self.part = part        # wing or flap
+        self.side = "right"
+        self.points = []
 
 
 class TrailingEdge:
@@ -92,6 +106,7 @@ class TrailingEdge:
         self.start_station = start_station
         self.end_station = end_station
         self.part = part        # wing or flap
+        self.side = "right"
 
 
 class Flap:
@@ -120,6 +135,7 @@ class Hole:
         self.start_station = start_station
         self.end_station = end_station
         self.part = part        # wing or flap
+        self.side = "right"
 
 
 class Wing:
@@ -141,7 +157,7 @@ class Wing:
 
         # structural components
         self.steps = 10
-        self.leading_edge_diamond = 0.0
+        self.leading_edges = []
         self.trailing_edges = []
         self.stringers = []
         self.spars = []
@@ -215,8 +231,26 @@ class Wing:
         self.taper = contour.Contour()
         self.taper.top = curve
 
+    def add_leading_edge(self, size=0.0, \
+                             start_station=None, end_station=None, \
+                             mirror=True, part=""):
+        if start_station == None:
+            start_station = self.stations[0]
+        if end_station == None:
+            end_station = self.stations[len(self.stations)-1]
+        le = LeadingEdge( size, start_station, end_station, \
+                               part )
+        le.side = "right"
+        self.leading_edges.append( le )
+        if mirror:
+            le = LeadingEdge( size, -start_station, -end_station, \
+                               part )
+            le.side = "left"
+            self.leading_edges.append( le )
+
     def add_trailing_edge(self, width=0.0, height=0.0, shape="", \
-                         start_station=None, end_station=None, part=""):
+                              start_station=None, end_station=None, \
+                              mirror=True, part=""):
         te = TrailingEdge( width, height, shape, start_station, end_station, \
                                part )
         self.trailing_edges.append( te )
@@ -224,20 +258,40 @@ class Wing:
     def add_stringer(self, side="top", orientation="tangent", \
                          percent=None, front=None, rear=None, xpos=None, \
                          xsize=0.0, ysize=0.0, \
-                         start_station=None, end_station=None, part=""):
+                         start_station=None, end_station=None, mirror=True, \
+                         part=""):
         cutpos = contour.Cutpos( percent, front, rear, xpos )
         cutout = contour.Cutout( side, orientation, cutpos, xsize, ysize )
+        if start_station == None:
+            start_station = self.stations[0]
+        if end_station == None:
+            end_station = self.stations[len(self.stations)-1]
         stringer = Stringer( cutout, start_station, end_station, part )
+        stringer.side = "right"
         self.stringers.append( stringer )
+        if mirror:
+            stringer = Stringer( cutout, -start_station, -end_station, part )
+            stringer.side = "left"
+            self.stringers.append( stringer )
 
     def add_spar(self, side="top", orientation="vertical", \
                      percent=None, front=None, rear=None, xpos=None, \
                      xsize=0.0, ysize=0.0, \
-                     start_station=None, end_station=None, part=""):
+                     start_station=None, end_station=None, mirror=True, \
+                     part=""):
         cutpos = contour.Cutpos( percent, front, rear, xpos )
         cutout = contour.Cutout( side, orientation, cutpos, xsize, ysize )
+        if start_station == None:
+            start_station = self.stations[0]
+        if end_station == None:
+            end_station = self.stations[len(self.stations)-1]
         spar = Stringer( cutout, start_station, end_station, part )
+        spar.side = "right"
         self.spars.append( spar )
+        if mirror:
+            spar = Stringer( cutout, -start_station, -end_station, part )
+            spar.side = "left"
+            self.spars.append( spar )
 
     def add_flap(self, start_station=None, end_station=None, \
                      pos=None, type="builtup", angle=30.0, \
@@ -299,12 +353,11 @@ class Wing:
     # all the way to the end.
     def match_station(self, start_dist, end_dist, lat_dist):
         result = True
-        abs_lat = math.fabs(lat_dist)
-        if start_dist != None:
-            if start_dist - abs_lat > 0.01:
+        if start_dist > 0.0 or end_dist > 0.0:
+            if lat_dist < start_dist or lat_dist > end_dist:
                 result = False
-        if end_dist != None:
-            if abs_lat - end_dist > 0.01:
+        else:
+            if lat_dist > start_dist or lat_dist < end_dist:
                 result = False
         return result
             
@@ -336,15 +389,25 @@ class Wing:
         chord = rib.contour.saved_bounds[1][0] - rib.contour.saved_bounds[0][0]
 
         # leading edge cutout
-        diamond = self.leading_edge_diamond
-        if diamond > 0.01 and rib.has_le:
-            rib.contour.cutout_leading_edge_diamond(diamond)
+        #diamond = self.leading_edge_diamond
+        #if diamond > 0.01 and rib.has_le:
+        #    rib.contour.cutout_leading_edge_diamond(diamond)
+        for le in self.leading_edges:
+            if self.match_station(le.start_station, le.end_station, lat_dist):
+                if rib.part == le.part and rib.side == le.side:
+                    shape = rib.contour.cutout_leading_edge_diamond( le.size, \
+                                                                         rib.pos[0]-rib.nudge )
+                    if len(shape):
+                        le.points.append( shape )
 
         # cutout stringers (before twist)
         for stringer in self.stringers:
             if self.match_station(stringer.start_station, stringer.end_station, lat_dist):
-                if rib.part == stringer.part:
-                    rib.contour.cutout_stringer( stringer.cutout, rib.pos[0] )
+                if rib.part == stringer.part and rib.side == stringer.side:
+                    shape = rib.contour.cutout_stringer( stringer.cutout, \
+                                                             rib.pos[0]-rib.nudge )
+                    if len(shape):
+                        stringer.points.append( shape )
 
         # trailing edge cutout
         for te in self.trailing_edges:
@@ -381,9 +444,12 @@ class Wing:
             if self.match_station(spar.start_station, spar.end_station, lat_dist):
                 print "spar cut match station"
                 print "ribpart=" + str(rib.part) + " spar part=" + str(spar.part)
-                if rib.part == spar.part:
+                if rib.part == spar.part and rib.side == spar.side:
                     print "cutting a spar: " + str(spar)
-                    rib.contour.cutout_stringer( spar.cutout )
+                    shape = rib.contour.cutout_stringer( spar.cutout, \
+                                                             rib.pos[0]-rib.nudge )
+                    if len(shape):
+                        spar.points.append( shape )
 
     def build(self):
         if len(self.stations) < 2:
@@ -430,6 +496,7 @@ class Wing:
             label = 'WR' + str(index+1) 
             right_rib = self.make_raw_rib(af, chord, lat_dist, sweep_dist, \
                                               twist, label)
+            right_rib.side = "right"
             if percent < 0.001:
                 right_rib.nudge = -right_rib.thickness * 0.5
             elif percent > 0.999:
@@ -439,6 +506,7 @@ class Wing:
             label = 'WL' + str(index+1)
             left_rib = self.make_raw_rib(af, chord, -lat_dist, sweep_dist, \
                                              twist, label)
+            left_rib.side = "left"
             if percent < 0.001:
                 left_rib.nudge = right_rib.thickness * 0.5
             elif percent > 0.999:
@@ -599,18 +667,19 @@ class Wing:
         return shape
 
     # make portion from tip of rib cutout to rear of diamond
-    def make_leading_edge2(self, ribs):
+    def make_leading_edge2(self, le, ribs):
         side1 = []
         side2 = []
-        le = self.leading_edge_diamond
-        w = math.sqrt(le*le + le*le)
+        size = le.size
+        w = math.sqrt(size*size + size*size)
         halfwidth = w * 0.5
         for rib in ribs:
-            if rib.has_le:
-                cutbounds = rib.contour.get_bounds()
-                cutfront = cutbounds[0][0]
-                side1.append( (cutfront+rib.pos[1], -rib.pos[0]) )
-                side2.append( (cutfront+halfwidth+rib.pos[1], -rib.pos[0]) )
+            if self.match_station(le.start_station, le.end_station, rib.pos[0]):
+                if rib.part == le.part:
+                    cutbounds = rib.contour.get_bounds()
+                    cutfront = cutbounds[0][0]
+                    side1.append( (cutfront+rib.pos[1], -rib.pos[0]) )
+                    side2.append( (cutfront+halfwidth+rib.pos[1], -rib.pos[0]) )
         side2.reverse()
         shape = side1 + side2
         return shape
@@ -645,7 +714,7 @@ class Wing:
         shape = side1 + side2
 
         if len(shape) < 4:
-            print "error, made a bad shape!"
+            print "wing: made a bad shape!"
 
         return shape
 
@@ -676,19 +745,25 @@ class Wing:
             rib.placed = sheet.draw_part_top(planoffset, rib.contour, \
                                                  rib.pos, rib.thickness, \
                                                  rib.nudge, "1px", "red")
-        shape = self.make_leading_edge1(self.right_ribs)
-        sheet.draw_shape(planoffset, shape, "1px", "red")
-        shape = self.make_leading_edge2(self.right_ribs)
-        sheet.draw_shape(planoffset, shape, "1px", "red")
+        for le in self.leading_edges:
+            shape = self.make_leading_edge1(self.right_ribs)
+            if len(shape):
+                sheet.draw_shape(planoffset, shape, "1px", "red")
+            shape = self.make_leading_edge2(le, self.right_ribs)
+            if len(shape):
+                sheet.draw_shape(planoffset, shape, "1px", "red")
         for te in self.trailing_edges:
             shape = self.make_trailing_edge(te, self.right_ribs)
-            sheet.draw_shape(planoffset, shape, "1px", "red")
+            if len(shape):
+                sheet.draw_shape(planoffset, shape, "1px", "red")
         for stringer in self.stringers:
             shape = self.make_stringer(stringer, self.right_ribs)
-            sheet.draw_shape(planoffset, shape, "1px", "red")
+            if len(shape):
+                sheet.draw_shape(planoffset, shape, "1px", "red")
         for spar in self.spars:
             shape = self.make_stringer(spar, self.right_ribs)
-            sheet.draw_shape(planoffset, shape, "1px", "red")
+            if len(shape):
+                sheet.draw_shape(planoffset, shape, "1px", "red")
 
         # left wing
         planoffset = ((width - xmargin) - dx - minx, yoffset, 1)
@@ -696,46 +771,60 @@ class Wing:
             rib.placed = sheet.draw_part_top(planoffset, rib.contour, \
                                                  rib.pos, rib.thickness, \
                                                  rib.nudge, "1px", "red")
-        shape = self.make_leading_edge1(self.left_ribs)
-        sheet.draw_shape(planoffset, shape, "1px", "red")
-        shape = self.make_leading_edge2(self.left_ribs)
-        sheet.draw_shape(planoffset, shape, "1px", "red")
+        for le in self.leading_edges:
+            shape = self.make_leading_edge1(self.left_ribs)
+            if len(shape):
+                sheet.draw_shape(planoffset, shape, "1px", "red")
+            shape = self.make_leading_edge2(le, self.left_ribs)
+            if len(shape):
+                sheet.draw_shape(planoffset, shape, "1px", "red")
         for te in self.trailing_edges:
             shape = self.make_trailing_edge(te, self.left_ribs)
-            sheet.draw_shape(planoffset, shape, "1px", "red")
+            if len(shape):
+                sheet.draw_shape(planoffset, shape, "1px", "red")
         for stringer in self.stringers:
             shape = self.make_stringer(stringer, self.left_ribs)
-            sheet.draw_shape(planoffset, shape, "1px", "red")
+            if len(shape):
+                sheet.draw_shape(planoffset, shape, "1px", "red")
         for spar in self.spars:
             shape = self.make_stringer(spar, self.left_ribs)
-            sheet.draw_shape(planoffset, shape, "1px", "red")
+            if len(shape):
+                sheet.draw_shape(planoffset, shape, "1px", "red")
 
         sheet.save()
 
     def build_ac3d(self, basename):
         ac = ac3d.AC3D(basename)
-        ac.gen_headers("wing", 2)
+        groups = 2              # left & right wings
+        if len(self.leading_edges):
+            groups += 1
+        if len(self.stringers):
+            groups += 1
+        if len(self.spars):
+            groups += 1
+        ac.gen_headers("wing", groups)
         # right wing
         ac.start_object_group("right wing", len(self.right_ribs))
         for rib in self.right_ribs:
-            ac.make_object_poly("wing rib", rib.contour.poly, rib.thickness, rib.pos)
+            ac.make_object_poly("wing rib", rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
         # left wing
         ac.start_object_group("left wing", len(self.left_ribs))
         for rib in self.left_ribs:
-            ac.make_object_poly("wing rib", rib.contour.poly, rib.thickness, rib.pos)
+            ac.make_object_poly("wing rib", rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
 
-        shape = self.make_leading_edge1(self.right_ribs)
-        #sheet.draw_shape(planoffset, shape, "1px", "red")
-        shape = self.make_leading_edge2(self.right_ribs)
-        #sheet.draw_shape(planoffset, shape, "1px", "red")
+        ac.start_object_group("leading edges", len(self.leading_edges))
+        for le in self.leading_edges:
+            ac.make_extrusion("leading edge", le.points, \
+                                  le.side=="left")
         for te in self.trailing_edges:
             shape = self.make_trailing_edge(te, self.right_ribs)
             #sheet.draw_shape(planoffset, shape, "1px", "red")
+        ac.start_object_group("stringers", len(self.stringers))
         for stringer in self.stringers:
-            shape = self.make_stringer(stringer, self.right_ribs)
-            #sheet.draw_shape(planoffset, shape, "1px", "red")
+            ac.make_extrusion("stringer", stringer.points, \
+                                  stringer.side=="left")
+        ac.start_object_group("spars", len(self.spars))
         for spar in self.spars:
-            shape = self.make_stringer(spar, self.right_ribs)
-            #sheet.draw_shape(planoffset, shape, "1px", "red")
+            ac.make_extrusion("spar", spar.points, spar.side=="left")
         ac.end_object_group()
         ac.close()
