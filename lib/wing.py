@@ -369,20 +369,49 @@ class Wing:
             # bottom flap front stringer correct.
 
     def add_simple_hole(self, radius=0.0, pos1=None, \
-                            start_station=None, end_station=None, part="wing"):
+                            start_station=None, end_station=None, mirror=True, \
+                            part="wing"):
+        if start_station == None:
+            start_station = self.stations[0]
+        if end_station == None:
+            end_station = self.stations[len(self.stations)-1]
         hole = Hole( type="simple", radius=radius, pos1=pos1, \
                          start_station=start_station, end_station=end_station,\
                          part=part )
+        hole.side = "right"
         self.holes.append( hole )
+        if mirror:
+            hole = Hole( type="simple", radius=radius, pos1=pos1, \
+                             start_station=-start_station, \
+                             end_station=-end_station,\
+                             part=part )
+            hole.side = "left"
+            self.holes.append( hole )
+  
 
     def add_shaped_hole(self, pos1=None, pos2=None, \
                             material_width=None, radius=0.0,\
-                            start_station=None, end_station=None, part="wing"):
+                            start_station=None, end_station=None, mirror=True, \
+                            part="wing"):
+        if start_station == None:
+            start_station = self.stations[0]
+        if end_station == None:
+            end_station = self.stations[len(self.stations)-1]
         hole = Hole( type="shaped", pos1=pos1, pos2=pos2, \
                          material_width=material_width, radius=radius, \
                          start_station=start_station, end_station=end_station,\
                          part=part )
+        hole.side = "right"
         self.holes.append( hole )
+        if mirror:
+            hole = Hole( type="shaped", pos1=pos1, pos2=pos2, \
+                             material_width=material_width, radius=radius, \
+                             start_station=-start_station, \
+                             end_station=-end_station,\
+                             part=part )
+            hole.side = "left"
+            self.holes.append( hole )
+
 
     # return true of lat_dist is between station1 and station2, inclusive.
     # properly handle cases where station1 or station2 is not defined (meaning
