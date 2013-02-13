@@ -197,7 +197,7 @@ class AC3D:
             i += 1
 
         # account for the end faces of the extrusion
-        # surfs += 2
+        surfs += 2
 
         print "vertex db = " + str(len(vertices.v))
         self.f.write("OBJECT poly\n")
@@ -242,6 +242,35 @@ class AC3D:
                     self.f.write(str(v2) + " 0 0\n")
                 tmp += 1
                 j += 1
+            i += 1
+
+        # make the two end caps
+        self.f.write("SURF 0x10\n")
+        self.f.write("mat 0\n")
+        pts = list(copy.deepcopy(points[0]))
+        if invert_order:
+            pts.reverse()
+        n = len(pts)
+        self.f.write("refs " + str(n) + "\n")
+        i = 0
+        while i < n:
+            p = pts[i]
+            v = vertices.add_point(p)
+            self.f.write(str(v) + " 0 0\n")
+            i += 1
+  
+        self.f.write("SURF 0x10\n")
+        self.f.write("mat 0\n")
+        pts = list(copy.deepcopy(points[len(points)-1]))
+        if not invert_order:
+            pts.reverse()
+        n = len(pts)
+        self.f.write("refs " + str(n) + "\n")
+        i = 0
+        while i < n:
+            p = pts[i]
+            v = vertices.add_point(p)
+            self.f.write(str(v) + " 0 0\n")
             i += 1
 
         print "actual surf = " + str(tmp)
