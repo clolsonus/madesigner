@@ -120,7 +120,7 @@ class Flap:
         self.angle = angle      # wedge angle for surface movement clearance
         self.edge_stringer_size = edge_stringer_size
         self.start_bot_str_pos = None
-        self.end_bottom_str_pos = None
+        self.end_bot_str_pos = None
         self.bottom_str_slope = 0.0
         self.side = "right"
 
@@ -330,14 +330,24 @@ class Wing:
                                             xsize=flap.edge_stringer_size[0], \
                                             ysize=flap.edge_stringer_size[1] )
             stringer = Stringer( topcutout, start_station, end_station, "wing" )
+            stringer.side = "right"
             self.stringers.append( stringer )
+            if mirror:
+                stringer = Stringer( topcutout, -start_station, -end_station, "wing" )
+                stringer.side = "left"
+                self.stringers.append( stringer )
 
             botcutout = contour.Cutout( side="bottom", orientation="tangent", \
                                             cutpos=front_pos, \
                                             xsize=flap.edge_stringer_size[0], \
                                             ysize=flap.edge_stringer_size[1] )
             stringer = Stringer( botcutout, start_station, end_station, "wing" )
+            stringer.side = "right"
             self.stringers.append( stringer )
+            if mirror:
+                stringer = Stringer( botcutout, -start_station, -end_station, "wing" )
+                stringer.side = "left"
+                self.stringers.append( stringer )
 
             rear_pos = copy.deepcopy(pos)
             rear_pos.move(half_offset)
@@ -346,7 +356,12 @@ class Wing:
                                             xsize=flap.edge_stringer_size[0], \
                                             ysize=flap.edge_stringer_size[1] )
             stringer = Stringer( topcutout, start_station, end_station, "flap" )
+            stringer.side = "right"
             self.stringers.append( stringer )
+            if mirror:
+                stringer = Stringer( topcutout, -start_station, -end_station, "flap" )
+                stringer.side = "left"
+                self.stringers.append( stringer )
 
             # the final bottom flap stinger is computed later so we
             # can deal more properly with curved/tapered wings,
@@ -583,7 +598,7 @@ class Wing:
                     newrib = copy.deepcopy(rib)
                     rib.nudge = -rib.thickness * 0.5
                     newrib.nudge = rib.thickness * 1.0
-                    newrib.trim_front_wedge(flap.pos, flap.angle)
+                    flap.start_bot_str_pos = newrib.trim_front_wedge(flap.pos, flap.angle)
                     newrib.part = "flap"
                     newrib.has_le = False
                     new_ribs.append(newrib)
@@ -592,7 +607,7 @@ class Wing:
                     newrib = copy.deepcopy(rib)
                     rib.nudge = rib.thickness * 0.5
                     newrib.nudge = -rib.thickness * 1.0
-                    newrib.trim_front_wedge(flap.pos, flap.angle)
+                    flap.end_bot_str_pos =  newrib.trim_front_wedge(flap.pos, flap.angle)
                     newrib.part = "flap"
                     newrib.has_le = False
                     new_ribs.append(newrib)
@@ -617,12 +632,16 @@ class Wing:
             if flap.start_bot_str_pos != None and flap.end_bot_str_pos != None \
                     and flap.edge_stringer_size != None:
                 xdist = flap.end_station - flap.start_station
-                if xdist > 0.0001:
+                if math.fabs(xdist) > 0.0001:
+                    atstation = flap.start_station
                     ydist = flap.end_bot_str_pos - flap.start_bot_str_pos
                     slope = ydist / xdist
                     half_offset = flap.edge_stringer_size[0] * 0.5
+                    if flap.side == "left":
+                        atstation *= -1.0
+                        slope *= -1.0
                     cutpos = contour.Cutpos(xpos=flap.start_bot_str_pos, \
-                                                atstation=flap.start_station, \
+                                                atstation=atstation, \
                                                 slope=slope)
                     cutpos.move(half_offset)
                     cutout = contour.Cutout(side="bottom", \
@@ -630,8 +649,15 @@ class Wing:
                                                 cutpos=cutpos, \
                                                 xsize=flap.edge_stringer_size[0], \
                                                 ysize=flap.edge_stringer_size[1] )
+                    print "making bottom stringer: " + str(flap.start_station) + " - " + str(flap.end_station)
                     stringer = Stringer( cutout, flap.start_station, flap.end_station, "flap" )
+                    stringer.side = flap.side
                     self.stringers.append( stringer )
+            else:
+                print "skipped building a flap bottom stringer"
+                print str(flap.start_bot_str_pos)
+                print str(flap.end_bot_str_pos)
+                print str(flap.edge_stringer_size)
 
         # do all the cutouts now at the end after we've made and
         # positioned all the ribs for the wing and the control
