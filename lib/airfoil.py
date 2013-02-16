@@ -41,28 +41,31 @@ class Airfoil(Contour):
             if f.isfirstline():
                 self.description = string.join(line.split())
             else:
+                line.strip()
                 xa, ya = line.split()
                 x = float(xa)
                 y = float(ya)
-                #print str(x) + " " + str(y)
+                # print str(x) + " " + str(y)
                 if firstpt:
                     xlast = x
                     ylast = y
+                    dlast = 0.0
                     firstpt = False
                 dist += self.dist_2d( (xlast, ylast), (x, y) )
                 self.parax.append( (dist, x) )
                 self.paray.append( (dist, y) )
                 if top:
                     self.top.append( (x, y) )
-                if x < 0.000001:
+                if top and x - xlast > 0.0:
                     # mark the exact airfoil nose in parameterized
                     # surface distance space
-                    self.nosedist = dist
+                    self.nosedist = dlast
                     top = False
                 if not top:
                     self.bottom.append( (x, y) )
                 xlast = x
                 ylast = y
+                dlast = dist
         self.top.reverse()
         if samples > 0:
             self.resample( samples, use_spline )
@@ -163,7 +166,7 @@ class Airfoil(Contour):
 
         return cur[0] - dx * pct
 
-    def cutout_leading_edge_diamond(self, size, station=None):
+    def cutout_leading_edge_diamond(self, size, pos=None, nudge=0.0):
         # make the Polygon representation of this part if needed
         if self.poly == None:
             self.make_poly()
@@ -185,8 +188,8 @@ class Airfoil(Contour):
             cur_diag = self.dist_2d( (xtop, ytop), (xbottom, ybottom) )
             dist += step
         if dist >= chord:
-            # unable
-            return
+            print "unable to fit leading edge, stock diagonal longer than rib height?"
+            return []
         #print (xtop, ytop)
         #print (xbottom, ybottom)
         #print (cur_diag, target_diag)
@@ -217,10 +220,10 @@ class Airfoil(Contour):
         p2 = corner
         p3 = (xtop, ytop)
         p4 = self.top[0]
-        v1 = ( p1[0], station, p1[1] )
-        v2 = ( p2[0], station, p2[1] )
-        v3 = ( p3[0], station, p3[1] )
-        v4 = ( p4[0], station, p4[1] )
+        v1 = ( p1[0]+pos[1], pos[0]-nudge, p1[1] )
+        v2 = ( p2[0]+pos[1], pos[0]-nudge, p2[1] )
+        v3 = ( p3[0]+pos[1], pos[0]-nudge, p3[1] )
+        v4 = ( p4[0]+pos[1], pos[0]-nudge, p4[1] )
         shape = (v1, v2, v3, v4)
         return shape
 
@@ -247,7 +250,7 @@ class Airfoil(Contour):
     # Sorry for the long complicated explanation!
     #
     def cutout_trailing_edge(self, width=0.0, height=0.0, shape="flat", \
-                                 force_fit=False, station=None):
+                                 force_fit=False, pos=None, nudge=0.0):
         h2 = height*0.5
         if shape == "flat":
             bottom_dist = width
@@ -287,13 +290,13 @@ class Airfoil(Contour):
 
         dx = xpos - xtail
         dy = ymid - ytail
-        print (dx, dy)
+        #print (dx, dy)
         angle = math.atan2(dy, -dx)
-        print "angle = " + str(math.degrees(angle))
+        #print "angle = " + str(math.degrees(angle))
 
-        print "Trailing edge: stock height = " + str(height)
-        print "Rotated stock end height = " + str(height*math.cos(angle))
-        print "Rib height at cut pt = " + str(ytop - ybottom)
+        #print "Trailing edge: stock height = " + str(height)
+        #print "Rotated stock end height = " + str(height*math.cos(angle))
+        #print "Rib height at cut pt = " + str(ytop - ybottom)
 
         if force_fit:
             # cheat the vertical scale of the rib to match the stock
@@ -302,7 +305,7 @@ class Airfoil(Contour):
             # the vertical component of the te stock and the actual
             # airfoil vertical height at that point.)
             ycheat = 0.5 * (height*math.cos(angle) - (ytop - ybottom))
-            print "ycheat = " + str(ycheat) + " @ " + str(xpos)
+            #print "ycheat = " + str(ycheat) + " @ " + str(xpos)
             newtop = []
             newbottom = []
             newpoly = Polygon.Polygon()
@@ -349,7 +352,7 @@ class Airfoil(Contour):
         if shape == "flat":
             # need to prerotate to align mid line of stock with
             # midline of airfoil
-            print "prerotate = " + str( (h2, width) )
+            #print "prerotate = " + str( (h2, width) )
             preangle = math.atan2(h2, width)
             contour.rotate(preangle, xtail, ytail)
             mask.rotate(preangle, xtail, ytail)
@@ -368,7 +371,7 @@ class Airfoil(Contour):
 
         result = []
         for p2 in contour[0]:
-            p3 = (p2[0], station, p2[1])
+            p3 = (p2[0]+pos[1], pos[0]-nudge, p2[1])
             result.append(p3)
         return result
 
