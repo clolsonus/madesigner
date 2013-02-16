@@ -331,7 +331,7 @@ class Contour:
     #      zero point)
     # xsize=value (horizontal size of cutout)
     # ysize=value (vertical size)
-    def cutout(self, cutout, station=None):
+    def cutout(self, cutout, pos=None, nudge=0.0):
         if len(self.saved_bounds) == 0:
             print "need to call contour.save_bounds() after part created,"
             print "but before any cutouts are made"
@@ -349,7 +349,7 @@ class Contour:
             self.make_poly()
 
         # compute position of cutout
-        xpos = self.get_xpos(cutout.cutpos, station=station)
+        xpos = self.get_xpos(cutout.cutpos, station=pos[0])
 
         if top:
             curve = list(self.top)
@@ -390,10 +390,10 @@ class Contour:
         r3 = self.rotate_point( (xhalf, 0.0), angle )
         p0 = ( r0[0] + xpos, r0[1] + ypos )
         p3 = ( r3[0] + xpos, r3[1] + ypos )
-        v0 = ( p0[0], station, p0[1] )
-        v1 = ( p1[0], station, p1[1] )
-        v2 = ( p2[0], station, p2[1] )
-        v3 = ( p3[0], station, p3[1] )
+        v0 = ( p0[0]+pos[1], pos[0]-nudge, p0[1] )
+        v1 = ( p1[0]+pos[1], pos[0]-nudge, p1[1] )
+        v2 = ( p2[0]+pos[1], pos[0]-nudge, p2[1] )
+        v3 = ( p3[0]+pos[1], pos[0]-nudge, p3[1] )
         shape = (v0, v1, v2, v3)
         return shape
 
@@ -449,8 +449,8 @@ class Contour:
         self.poly = self.poly + tab
 
 
-    def cutout_stringer(self, stringer, station=None):
-        return self.cutout( stringer, station )
+    def cutout_stringer(self, stringer, pos=None, nudge=0.0):
+        return self.cutout( stringer, pos=pos, nudge=nudge )
 
     def add_build_tab(self, side="top", cutpos=None, \
                           xsize=0.0, yextra=0.0):
