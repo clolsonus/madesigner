@@ -20,7 +20,7 @@ except ImportError:
     import svgwrite
 
 # inner wing panels
-wing1 = wing.Wing()
+wing1 = wing.Wing("ukulalela-wing1")
 
 # layout
 wing1.units = "in"
@@ -49,13 +49,13 @@ wing1.add_stringer( side="top", orientation="tangent", percent=0.10, \
 wing1.add_stringer( side="bottom", orientation="tangent", percent=0.10, \
                        xsize=0.125, ysize=0.125, part="wing" )
 
-wing1.build()                                        # build the wing parts
-wing1.layout_parts_sheets( "ukulalela", 24, 8 )      # create lasercut sheets
-wing1.layout_parts_templates( "ukulalela", 8.5, 11 ) # create paper templates
-wing1.layout_plans( "ukulalela", 24, 36 )            # generate building plans
+wing1.build()                           # build the wing parts
+wing1.layout_parts_sheets( 24, 8 )      # create lasercut sheets
+wing1.layout_parts_templates( 8.5, 11 ) # create paper templates
+wing1.layout_plans( 24, 36 )            # generate building plans
 
 # outer wing panels
-wing2 = wing.Wing()
+wing2 = wing.Wing("ukulalela-wing2")
 
 # layout
 wing2.units = "in"
@@ -83,10 +83,10 @@ wing2.add_stringer( side="top", orientation="tangent", percent=0.10, \
 wing2.add_stringer( side="bottom", orientation="tangent", percent=0.10, \
                        xsize=0.125, ysize=0.125, part="wing" )
 
-wing2.build()                                        # build the wing parts
-wing2.layout_parts_sheets( "ukulalela", 24, 8 )      # create lasercut sheets
-wing2.layout_parts_templates( "ukulalela", 8.5, 11 ) # create paper templates
-wing2.layout_plans( "ukulalela", 24, 36 )            # generate building plans
+wing2.build()                           # build the wing parts
+wing2.layout_parts_sheets( 24, 8 )      # create lasercut sheets
+wing2.layout_parts_templates( 8.5, 11 ) # create paper templates
+wing2.layout_plans( 24, 36 )            # generate building plans
 
 # make the 3d model
 ac = ac3d.AC3D( "ukulalela" )
