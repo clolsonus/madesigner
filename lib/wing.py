@@ -158,6 +158,7 @@ class Wing:
         self.center = 0.25      # center of sweep/taper/pressure/gravity
         self.sweep = None       # Contour()
         self.taper = None       # Contour()
+        self.dihedral = 0.0
 
         # structural components
         self.steps = 10
@@ -418,6 +419,14 @@ class Wing:
             hole.side = "left"
             self.holes.append( hole )
 
+    # return the tip position of the wing panel after dihedral rotation
+    def get_tip_pos(self):
+        rad = math.radians(self.dihedral)
+        sa = math.sin(rad)
+        ca = math.cos(rad)
+        newy = self.span * math.cos(rad)
+        newz = self.span * math.sin(rad)
+        return( 0.0, newy, newz )
 
     # return true of lat_dist is between station1 and station2, inclusive.
     # properly handle cases where station1 or station2 is not defined (meaning
@@ -868,42 +877,105 @@ class Wing:
 
         sheet.save()
 
-    def build_ac3d(self, ac):
+    def make_dihedral_matrix(self, angle):
+        rad = math.radians(angle)
+        sa = math.sin(rad)
+        ca = math.cos(rad)
+        m = ( (1.0, 0.0, 0.0),
+              (0.0, ca, -sa),
+              (0.0, sa, ca) )
+        return m
+
+    def build_ac3d(self, ac, xspread=0.0, yoffset=0.0):
         groups = 2              # left & right wings
-        if len(self.trailing_edges):
-            groups += 1
-        if len(self.leading_edges):
-            groups += 1
-        if len(self.stringers):
-            groups += 1
-        if len(self.spars):
-            groups += 1
         ac.start_object_group("wing", groups)
+
         # right wing
-        ac.start_object_group("right wing", len(self.right_ribs))
+
+        # first count right wing parts
+        kids = len(self.right_ribs)
+        for te in self.trailing_edges:
+            if te.side == "right":
+                kids += 1
+        for le in self.leading_edges:
+            if le.side == "right":
+                kids += 1
+        for stringer in self.stringers:
+            if stringer.side == "right":
+                kids += 1
+        for spar in self.spars:
+            if spar.side == "right":
+                kids += 1
+
+        m = ac.make_rotation_matrix("X", self.dihedral)
+        loc = (0.0, xspread, yoffset)
+        ac.start_object_group("right wing", kids, m, loc)
+
+        # make parts
         for rib in self.right_ribs:
             ac.make_object_poly("wing rib", rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
+
+        if len(self.trailing_edges):
+            for te in self.trailing_edges:
+                if te.side == "right":
+                    ac.make_extrusion("trailing edge", te.points, \
+                                          te.side=="left")
+        if len(self.leading_edges):
+            for le in self.leading_edges:
+                if le.side == "right":
+                    ac.make_extrusion("leading edge", le.points, \
+                                          le.side=="left")
+        if len(self.stringers):
+            for stringer in self.stringers:
+                if stringer.side == "right":
+                    ac.make_extrusion("stringer", stringer.points, \
+                                          stringer.side=="left")
+        if len(self.spars):
+            for spar in self.spars:
+                if spar.side == "right":
+                    ac.make_extrusion("spar", spar.points, spar.side=="left")
+                    
         # left wing
-        ac.start_object_group("left wing", len(self.left_ribs))
+
+        # first count left wing parts
+        kids = len(self.left_ribs)
+        for te in self.trailing_edges:
+            if te.side == "left":
+                kids += 1
+        for le in self.leading_edges:
+            if le.side == "left":
+                kids += 1
+        for stringer in self.stringers:
+            if stringer.side == "left":
+                kids += 1
+        for spar in self.spars:
+            if spar.side == "left":
+                kids += 1
+
+        m = ac.make_rotation_matrix("X", -self.dihedral)
+        loc = (0.0, -xspread, yoffset)
+        ac.start_object_group("left wing", kids, m, loc)
+
+        # make parts
         for rib in self.left_ribs:
             ac.make_object_poly("wing rib", rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
 
         if len(self.trailing_edges):
-            ac.start_object_group("trailing edges", len(self.trailing_edges))
             for te in self.trailing_edges:
-                ac.make_extrusion("trailing edge", te.points, \
-                                      te.side=="left")
+                if te.side == "left":
+                    ac.make_extrusion("trailing edge", te.points, \
+                                          te.side=="left")
         if len(self.leading_edges):
-            ac.start_object_group("leading edges", len(self.leading_edges))
             for le in self.leading_edges:
-                ac.make_extrusion("leading edge", le.points, \
-                                      le.side=="left")
+                if le.side == "left":
+                    ac.make_extrusion("leading edge", le.points, \
+                                          le.side=="left")
         if len(self.stringers):
-            ac.start_object_group("stringers", len(self.stringers))
             for stringer in self.stringers:
-                ac.make_extrusion("stringer", stringer.points, \
-                                      stringer.side=="left")
+                if stringer.side == "left":
+                    ac.make_extrusion("stringer", stringer.points, \
+                                          stringer.side=="left")
         if len(self.spars):
-            ac.start_object_group("spars", len(self.spars))
             for spar in self.spars:
-                ac.make_extrusion("spar", spar.points, spar.side=="left")
+                if spar.side == "left":
+                    ac.make_extrusion("spar", spar.points, spar.side=="left")

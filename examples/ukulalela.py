@@ -32,6 +32,7 @@ wing1.set_stations( (0.0, 1.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, \
 wing1.twist = 0
 wing1.set_sweep_angle(0)
 wing1.set_chord( 10.0 )
+wing1.dihedral = 5.0
 
 # structure
 wing1.add_leading_edge( size=(3.0/32.0), part="wing" )
@@ -61,11 +62,14 @@ wing2 = wing.Wing("ukulalela-wing2")
 wing2.units = "in"
 wing2.load_airfoils("mh43")      # http://www.mh-aerotools.de/airfoils/
 wing2.span = 21.0
-wing2.set_stations( (35.0, 36.0, 38.0, 40.0, 42.0, 44.0, 46.0, 48.0, 50.0, \
-                        52.0, 54.0, 55.0, 56.0) )
+#wing2.set_stations( (35.0, 36.0, 38.0, 40.0, 42.0, 44.0, 46.0, 48.0, 50.0, \
+#                        52.0, 54.0, 55.0, 56.0) )
+wing2.set_stations( (0.0, 1.0, 3.0, 5.0, 7.0, 9.0, 11.0, 13.0, 15.0, \
+                        17.0, 19.0, 20.0, 21.0) )
 wing2.twist = 0
 wing2.set_sweep_angle(0)
 wing2.set_chord( 10.0, 6.0 )
+wing2.dihedral = 10.0
 
 # structure
 wing2.add_leading_edge( size=(3.0/32.0), part="wing" )
@@ -92,5 +96,6 @@ wing2.layout_plans( 24, 36 )            # generate building plans
 ac = ac3d.AC3D( "ukulalela" )
 ac.gen_headers( "airframe", 2 )
 wing1.build_ac3d( ac )
-wing2.build_ac3d( ac )
+tip = wing1.get_tip_pos()
+wing2.build_ac3d( ac, xspread=tip[1], yoffset=tip[2] )
 ac.close()

@@ -59,9 +59,20 @@ class AC3D:
         self.f.write("name \"" + name + "\"\n")
         self.f.write("kids " + str(kids) + "\n")
 
-    def start_object_group(self, name, kids):
+    def start_object_group(self, name, kids, m=None, loc=None):
         self.f.write("OBJECT group\n")
         self.f.write("name \"" + name + "\"\n")
+        if loc:
+            self.f.write("loc ")
+            for v in loc:
+                self.f.write(str(v) + " ")
+            self.f.write("\n")
+        if m:
+            self.f.write("rot ")
+            for row in m:
+                for v in row:
+                    self.f.write(str(v) + " ")
+            self.f.write("\n")
         self.f.write("kids " + str(kids) + "\n")
 
     def end_object_group(self):
@@ -279,3 +290,23 @@ class AC3D:
     def close(self):
         self.f.write("kids 0\n")
         self.f.close()
+
+    def make_rotation_matrix(self, axis, angle):
+        m = None
+        rad = math.radians(angle)
+        sa = math.sin(rad)
+        ca = math.cos(rad)
+        if axis == "x" or axis == "X":
+            m = ( (1.0, 0.0, 0.0),
+                  (0.0, ca, -sa),
+                  (0.0, sa,  ca) )
+        elif axis == "y" or axis == "Y":
+            m = ( (ca,  0.0, -sa),
+                  (0.0, 1.0, 0.0),
+                  (sa,  sa,  ca) )
+        elif axis == "z" or axis == "Z":
+            m = ( (ca,  -sa,  0.0),
+                  (sa,   ca,  0.0),
+                  (0.0, 0.0,  1.0) )
+
+        return m
