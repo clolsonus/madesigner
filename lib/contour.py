@@ -561,8 +561,8 @@ class Contour:
 
         return result
 
-    def cutout_sweep(self, side="top", xstart=0, \
-                         xend=None, xdist=None, ysize=0):
+    def cutout_sweep(self, side="top", xstart=0.0, \
+                         xend=None, xdist=None, ysize=0.0):
         if self.poly == None:
             self.make_poly()
         side1 = self.project_contour(side=side, xstart=xstart, \

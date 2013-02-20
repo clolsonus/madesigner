@@ -24,6 +24,83 @@ import layout
 import spline
 
 
+class TrailingEdge:
+    def __init__(self, width=0.0, height=0.0, shape="", \
+                     start_station=None, end_station=None, part=""):
+        self.width = width
+        self.height = height
+        self.shape = shape
+        self.start_station = start_station
+        self.end_station = end_station
+        self.part = part        # wing or flap
+        self.side = "right"
+        self.points = []
+
+
+class Sheet:
+    def __init__(self, side="top", xstart=0.0, xend=None, xdist=None, \
+                     start_station=None, end_station=None, \
+                     ysize=0.0):
+        self.side = side
+        self.start_station = start_station
+        self.end_station = end_station
+        self.part = part
+        self.side = "right"
+        self.points = []
+
+
+class LeadingEdge:
+    def __init__(self, size=None, start_station=None, end_station=None, \
+                     part=""):
+        self.size = size
+        self.start_station = start_station
+        self.end_station = end_station
+        self.part = part        # wing or flap
+        self.side = "right"
+        self.points = []
+
+
+class Stringer:
+    def __init__(self, cutout=None, start_station=None, end_station=None, \
+                     part=""):
+        self.cutout = cutout
+        self.start_station = start_station
+        self.end_station = end_station
+        self.part = part        # wing or flap
+        self.side = "right"
+        self.points = []
+
+
+class Hole:
+    def __init__(self, type="simple", pos1=None, pos2=None, \
+                     radius=0.0, material_width=None, \
+                     start_station=None, end_station=None, \
+                     part=""):
+        self.type = type
+        self.pos1 = pos1
+        self.pos2 = pos2
+        self.radius = radius
+        self.material_width = material_width
+        self.start_station = start_station
+        self.end_station = end_station
+        self.part = part        # wing or flap
+        self.side = "right"
+
+
+class Flap:
+    def __init__(self, start_station=None, end_station=None, \
+                     pos=None, angle=30.0, edge_stringer_size=None):
+        self.start_station = start_station
+        self.end_station = end_station
+        self.pos = pos
+        self.angle = angle      # wedge angle for surface movement clearance
+        self.edge_stringer_size = edge_stringer_size
+        self.start_bot_str_pos = None
+        self.end_bot_str_pos = None
+        self.bottom_str_slope = 0.0
+        self.side = "right"
+
+
 class Rib:
     def __init__(self):
         self.thickness = 0.0625
@@ -74,71 +151,6 @@ class Rib:
             label = "unlabeled"
         self.contour.labels = []
         self.contour.add_label( xcenter, ycenter, 14, 0, label )
-
-
-class LeadingEdge:
-    def __init__(self, size=None, start_station=None, end_station=None, \
-                     part=""):
-        self.size = size
-        self.start_station = start_station
-        self.end_station = end_station
-        self.part = part        # wing or flap
-        self.side = "right"
-        self.points = []
-
-
-class Stringer:
-    def __init__(self, cutout=None, start_station=None, end_station=None, \
-                     part=""):
-        self.cutout = cutout
-        self.start_station = start_station
-        self.end_station = end_station
-        self.part = part        # wing or flap
-        self.side = "right"
-        self.points = []
-
-
-class TrailingEdge:
-    def __init__(self, width=0.0, height=0.0, shape="", \
-                     start_station=None, end_station=None, part=""):
-        self.width = width
-        self.height = height
-        self.shape = shape
-        self.start_station = start_station
-        self.end_station = end_station
-        self.part = part        # wing or flap
-        self.side = "right"
-        self.points = []
-
-
-class Flap:
-    def __init__(self, start_station=None, end_station=None, \
-                     pos=None, angle=30.0, edge_stringer_size=None):
-        self.start_station = start_station
-        self.end_station = end_station
-        self.pos = pos
-        self.angle = angle      # wedge angle for surface movement clearance
-        self.edge_stringer_size = edge_stringer_size
-        self.start_bot_str_pos = None
-        self.end_bot_str_pos = None
-        self.bottom_str_slope = 0.0
-        self.side = "right"
-
-
-class Hole:
-    def __init__(self, type="simple", pos1=None, pos2=None, \
-                     radius=0.0, material_width=None, \
-                     start_station=None, end_station=None, \
-                     part=""):
-        self.type = type
-        self.pos1 = pos1
-        self.pos2 = pos2
-        self.radius = radius
-        self.material_width = material_width
-        self.start_station = start_station
-        self.end_station = end_station
-        self.part = part        # wing or flap
-        self.side = "right"
 
 
 class Wing:
@@ -241,23 +253,6 @@ class Wing:
         self.taper = contour.Contour()
         self.taper.top = curve
 
-    def add_leading_edge(self, size=0.0, \
-                             start_station=None, end_station=None, \
-                             mirror=True, part=""):
-        if start_station == None:
-            start_station = self.stations[0]
-        if end_station == None:
-            end_station = self.stations[len(self.stations)-1]
-        le = LeadingEdge( size, start_station, end_station, \
-                               part )
-        le.side = "right"
-        self.leading_edges.append( le )
-        if mirror:
-            le = LeadingEdge( size, -start_station, -end_station, \
-                               part )
-            le.side = "left"
-            self.leading_edges.append( le )
-
     def add_trailing_edge(self, width=0.0, height=0.0, shape="", \
                               start_station=None, end_station=None, \
                               mirror=True, part=""):
@@ -274,6 +269,23 @@ class Wing:
                                    -start_station, -end_station, part )
             te.side = "left"
             self.trailing_edges.append( te )
+
+    def add_leading_edge(self, size=0.0, \
+                             start_station=None, end_station=None, \
+                             mirror=True, part=""):
+        if start_station == None:
+            start_station = self.stations[0]
+        if end_station == None:
+            end_station = self.stations[len(self.stations)-1]
+        le = LeadingEdge( size, start_station, end_station, \
+                               part )
+        le.side = "right"
+        self.leading_edges.append( le )
+        if mirror:
+            le = LeadingEdge( size, -start_station, -end_station, \
+                               part )
+            le.side = "left"
+            self.leading_edges.append( le )
 
     def add_stringer(self, side="top", orientation="tangent", \
                          percent=None, front=None, rear=None, xpos=None, \
@@ -312,6 +324,50 @@ class Wing:
             spar = Stringer( cutout, -start_station, -end_station, part )
             spar.side = "left"
             self.spars.append( spar )
+
+    def add_simple_hole(self, radius=0.0, pos1=None, \
+                            start_station=None, end_station=None, mirror=True, \
+                            part="wing"):
+        if start_station == None:
+            start_station = self.stations[0]
+        if end_station == None:
+            end_station = self.stations[len(self.stations)-1]
+        hole = Hole( type="simple", radius=radius, pos1=pos1, \
+                         start_station=start_station, end_station=end_station,\
+                         part=part )
+        hole.side = "right"
+        self.holes.append( hole )
+        if mirror:
+            hole = Hole( type="simple", radius=radius, pos1=pos1, \
+                             start_station=-start_station, \
+                             end_station=-end_station,\
+                             part=part )
+            hole.side = "left"
+            self.holes.append( hole )
+  
+
+    def add_shaped_hole(self, pos1=None, pos2=None, \
+                            material_width=None, radius=0.0,\
+                            start_station=None, end_station=None, mirror=True, \
+                            part="wing"):
+        if start_station == None:
+            start_station = self.stations[0]
+        if end_station == None:
+            end_station = self.stations[len(self.stations)-1]
+        hole = Hole( type="shaped", pos1=pos1, pos2=pos2, \
+                         material_width=material_width, radius=radius, \
+                         start_station=start_station, end_station=end_station,\
+                         part=part )
+        hole.side = "right"
+        self.holes.append( hole )
+        if mirror:
+            hole = Hole( type="shaped", pos1=pos1, pos2=pos2, \
+                             material_width=material_width, radius=radius, \
+                             start_station=-start_station, \
+                             end_station=-end_station,\
+                             part=part )
+            hole.side = "left"
+            self.holes.append( hole )
 
     def add_flap(self, start_station=None, end_station=None, \
                      pos=None, type="builtup", angle=30.0, \
@@ -374,50 +430,6 @@ class Wing:
             # can deal more properly with curved/tapered wings,
             # blended airfoils and get the start/end points of the
             # bottom flap front stringer correct.
-
-    def add_simple_hole(self, radius=0.0, pos1=None, \
-                            start_station=None, end_station=None, mirror=True, \
-                            part="wing"):
-        if start_station == None:
-            start_station = self.stations[0]
-        if end_station == None:
-            end_station = self.stations[len(self.stations)-1]
-        hole = Hole( type="simple", radius=radius, pos1=pos1, \
-                         start_station=start_station, end_station=end_station,\
-                         part=part )
-        hole.side = "right"
-        self.holes.append( hole )
-        if mirror:
-            hole = Hole( type="simple", radius=radius, pos1=pos1, \
-                             start_station=-start_station, \
-                             end_station=-end_station,\
-                             part=part )
-            hole.side = "left"
-            self.holes.append( hole )
-  
-
-    def add_shaped_hole(self, pos1=None, pos2=None, \
-                            material_width=None, radius=0.0,\
-                            start_station=None, end_station=None, mirror=True, \
-                            part="wing"):
-        if start_station == None:
-            start_station = self.stations[0]
-        if end_station == None:
-            end_station = self.stations[len(self.stations)-1]
-        hole = Hole( type="shaped", pos1=pos1, pos2=pos2, \
-                         material_width=material_width, radius=radius, \
-                         start_station=start_station, end_station=end_station,\
-                         part=part )
-        hole.side = "right"
-        self.holes.append( hole )
-        if mirror:
-            hole = Hole( type="shaped", pos1=pos1, pos2=pos2, \
-                             material_width=material_width, radius=radius, \
-                             start_station=-start_station, \
-                             end_station=-end_station,\
-                             part=part )
-            hole.side = "left"
-            self.holes.append( hole )
 
     # return the tip position of the wing panel after dihedral rotation
     def get_tip_pos(self):

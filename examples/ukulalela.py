@@ -69,7 +69,7 @@ wing2.set_stations( (0.0, 1.0, 3.0, 5.0, 7.0, 9.0, 11.0, 13.0, 15.0, \
 wing2.twist = 0
 wing2.set_sweep_angle(0)
 wing2.set_chord( 10.0, 6.0 )
-wing2.dihedral = 10.0
+wing2.dihedral = 15.0
 
 # structure
 wing2.add_leading_edge( size=(3.0/32.0), part="wing" )
