@@ -55,6 +55,7 @@ class AC3D:
     def gen_headers(self, name, kids):
         self.f.write("AC3Db\n")
         self.f.write("MATERIAL \"res\" rgb 1 1 1 amb 1 1 1 emis 0 0 0 spec 0.2 0.2 0.2 shi 128 trans 0\n")
+        self.f.write("MATERIAL \"res\" rgb 1 1 1 amb 1 1 1 emis 0 0 0 spec 0.2 0.2 0.2 shi 128 trans 0.5\n")
         self.f.write("OBJECT world\n")
         self.f.write("name \"" + name + "\"\n")
         self.f.write("kids " + str(kids) + "\n")
@@ -193,6 +194,132 @@ class AC3D:
 
         self.f.write("kids 0\n")
 
+    def make_sheet_help1(self, vertices, top_points, invert_order):
+        # pass 2, make top surface triangles
+        tmp = 0
+        i = 1
+        while i < len(top_points):
+            c0 = top_points[i-1]
+            c1 = top_points[i]
+            j = 1
+            k = 1
+            while j < len(c0) or k < len(c1):
+                p0 = c0[j-1]
+                if j < len(c0):
+                    p1 = c0[j]
+                else:
+                    p1 = None
+                p2 = c1[k-1]
+                if k < len(c1):
+                    p3 = c1[k]
+                else:
+                    p3 = None
+                if p1[0] < p3[0]:
+                    p3 = None
+                elif p1[0] > p3[0]:
+                    p1 = None
+                vlist = []
+                if p3 == None:
+                    vlist.append( vertices.add_point(p0) )
+                    vlist.append( vertices.add_point(p2) )
+                    vlist.append( vertices.add_point(p1) )
+                    j += 1
+                elif p1 == None:
+                    vlist.append( vertices.add_point(p0) )
+                    vlist.append( vertices.add_point(p2) )
+                    vlist.append( vertices.add_point(p3) )
+                    k += 1
+                else:
+                    vlist.append( vertices.add_point(p0) )
+                    vlist.append( vertices.add_point(p1) )
+                    vlist.append( vertices.add_point(p3) )
+                    vlist.append( vertices.add_point(p2) )
+                    j += 1
+                    k += 1
+                self.f.write("SURF 0x10\n")
+                self.f.write("mat 1\n")
+                self.f.write("refs " + str(len(vlist)) + "\n")
+                if invert_order:
+                    vlist.reverse()
+                for v in vlist:
+                    self.f.write(str(v) + " 0 0\n")
+                tmp += 1
+            i += 1
+        return tmp
+
+    def make_sheet(self, name, top_points, bot_points, invert_order):
+        surfs = 0
+        vertices = VertexDB()
+
+        # pass 1 assemble unique vertex list and count surfs
+        i = 0
+        while i < len(top_points):
+            contour = top_points[i]
+            if i > 0:
+                surfs += len(contour) - 1
+            for p3 in contour:
+                v = vertices.add_point(p3)
+            i += 1
+        i = 0
+        while i < len(bot_points):
+            contour = bot_points[i]
+            if i > 0:
+                surfs += len(contour) - 1
+            for p3 in contour:
+                v = vertices.add_point(p3)
+            i += 1
+
+        # account for the end faces of the extrusion
+        # surfs += 2
+
+        print "vertex db = " + str(len(vertices.v))
+        self.f.write("OBJECT poly\n")
+        self.f.write("name \"" + name + "\"\n")
+        self.f.write("loc 0 0 0\n")
+        self.f.write("numvert " + str(len(vertices.v)) + "\n")
+        for v in vertices.v:
+            self.f.write(str(v[0]) + " " + str(v[1]) + " " + str(v[2]) + "\n")
+
+        self.f.write("numsurf " + str(surfs) + "\n")
+        print "predict numsurf = " + str(surfs)
+
+        # pass 2, make top surface triangles
+        total = 0
+        total += self.make_sheet_help1(vertices, top_points, invert_order)
+        total += self.make_sheet_help1(vertices, bot_points, not invert_order)
+
+        # make the two end caps
+        #self.f.write("SURF 0x10\n")
+        #self.f.write("mat 1\n")
+        #pts = list(copy.deepcopy(points[0]))
+        #if invert_order:
+        #    pts.reverse()
+        #n = len(pts)
+        #self.f.write("refs " + str(n) + "\n")
+        #i = 0
+        #while i < n:
+        #    p = pts[i]
+        #    v = vertices.add_point(p)
+        #    self.f.write(str(v) + " 0 0\n")
+        #    i += 1
+  
+        #self.f.write("SURF 0x10\n")
+        #self.f.write("mat 1\n")
+        #pts = list(copy.deepcopy(points[len(points)-1]))
+        #if not invert_order:
+        #    pts.reverse()
+        #n = len(pts)
+        #self.f.write("refs " + str(n) + "\n")
+        #i = 0
+        #while i < n:
+        #    p = pts[i]
+        #    v = vertices.add_point(p)
+        #    self.f.write(str(v) + " 0 0\n")
+        #    i += 1
+
+        print "actual surf = " + str(total)
+        self.f.write("kids 0\n")
+
     def make_extrusion(self, name, points, invert_order):
         surfs = 0
         vertices = VertexDB()
@@ -210,7 +337,7 @@ class AC3D:
         # account for the end faces of the extrusion
         surfs += 2
 
-        print "vertex db = " + str(len(vertices.v))
+        #print "vertex db = " + str(len(vertices.v))
         self.f.write("OBJECT poly\n")
         self.f.write("name \"" + name + "\"\n")
         self.f.write("loc 0 0 0\n")
@@ -219,7 +346,7 @@ class AC3D:
             self.f.write(str(v[0]) + " " + str(v[1]) + " " + str(v[2]) + "\n")
 
         self.f.write("numsurf " + str(surfs) + "\n")
-        print "predict numsurf = " + str(surfs)
+        #print "predict numsurf = " + str(surfs)
 
         # pass 2, make side triangles
         tmp = 0

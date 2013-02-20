@@ -37,17 +37,18 @@ wing1.dihedral = 5.0
 # structure
 wing1.add_leading_edge( size=(3.0/32.0), part="wing" )
 wing1.add_trailing_edge( width=0.75, height=0.125, shape="flat", part="wing" )
-wing1.add_spar( side="top", orientation="vertical", xpos=0.0, \
+wing1.add_sheeting( surf="top", xstart=0.0, xend=2.0, ysize=0.0625, part="wing")
+wing1.add_spar( surf="top", orientation="vertical", xpos=0.0, \
                    xsize=0.125, ysize=0.250, part="wing" )
-wing1.add_spar( side="bottom", orientation="vertical", xpos=0.0, \
+wing1.add_spar( surf="bottom", orientation="vertical", xpos=0.0, \
                    xsize=0.125, ysize=0.250, part="wing" )
-wing1.add_spar( side="top", orientation="vertical", percent=0.60, \
+wing1.add_spar( surf="top", orientation="vertical", percent=0.60, \
                    xsize=0.125, ysize=0.125, part="wing" )
-wing1.add_spar( side="bottom", orientation="vertical", percent=0.60, \
+wing1.add_spar( surf="bottom", orientation="vertical", percent=0.60, \
                    xsize=0.125, ysize=0.125, part="wing" )
-wing1.add_stringer( side="top", orientation="tangent", percent=0.10, \
+wing1.add_stringer( surf="top", orientation="tangent", percent=0.10, \
                        xsize=0.125, ysize=0.125, part="wing" )
-wing1.add_stringer( side="bottom", orientation="tangent", percent=0.10, \
+wing1.add_stringer( surf="bottom", orientation="tangent", percent=0.10, \
                        xsize=0.125, ysize=0.125, part="wing" )
 
 wing1.build()                           # build the wing parts
@@ -74,17 +75,17 @@ wing2.dihedral = 15.0
 # structure
 wing2.add_leading_edge( size=(3.0/32.0), part="wing" )
 wing2.add_trailing_edge( width=0.75, height=0.125, shape="flat", part="wing" )
-wing2.add_spar( side="top", orientation="vertical", xpos=0.0, \
+wing2.add_spar( surf="top", orientation="vertical", xpos=0.0, \
                    xsize=0.125, ysize=0.250, part="wing" )
-wing2.add_spar( side="bottom", orientation="vertical", xpos=0.0, \
+wing2.add_spar( surf="bottom", orientation="vertical", xpos=0.0, \
                    xsize=0.125, ysize=0.250, part="wing" )
-wing2.add_spar( side="top", orientation="vertical", percent=0.60, \
+wing2.add_spar( surf="top", orientation="vertical", percent=0.60, \
                    xsize=0.125, ysize=0.125, part="wing" )
-wing2.add_spar( side="bottom", orientation="vertical", percent=0.60, \
+wing2.add_spar( surf="bottom", orientation="vertical", percent=0.60, \
                    xsize=0.125, ysize=0.125, part="wing" )
-wing2.add_stringer( side="top", orientation="tangent", percent=0.10, \
+wing2.add_stringer( surf="top", orientation="tangent", percent=0.10, \
                        xsize=0.125, ysize=0.125, part="wing" )
-wing2.add_stringer( side="bottom", orientation="tangent", percent=0.10, \
+wing2.add_stringer( surf="bottom", orientation="tangent", percent=0.10, \
                        xsize=0.125, ysize=0.125, part="wing" )
 
 wing2.build()                           # build the wing parts

@@ -44,10 +44,10 @@ class Cutpos:
 
 
 class Cutout:
-    def __init__(self, side="top", orientation="tangent", cutpos=None, \
+    def __init__(self, surf="top", orientation="tangent", cutpos=None, \
                      xsize=0.0, ysize=0.0):
         # note: specify a value for only one of percent, front, rear, or xpos
-        self.side = side                   # {top, bottom}
+        self.surf = surf                   # {top, bottom}
         self.orientation = orientation     # {tangent, vertical}
         self.xsize = xsize                 # horizontal size
         self.ysize = ysize                 # vertical size
@@ -244,8 +244,8 @@ class Contour:
     # given a line (point + slope) return the "xpos" of the
     # intersection with the contour (does not handle the special case
     # of a vertical slope in either line)
-    def intersect(self, side="top", pt=None, slope=None):
-        if side == "top":
+    def intersect(self, surf="top", pt=None, slope=None):
+        if surf == "top":
             curve = list(self.top)
         else:
             curve = list(self.bottom)
@@ -277,8 +277,8 @@ class Contour:
             return None
 
     # trim everything front or rear of a given position
-    def trim(self, side="top", discard="rear", cutpos=None, station=None):
-        if side == "top":
+    def trim(self, surf="top", discard="rear", cutpos=None, station=None):
+        if surf == "top":
             curve = list(self.top)
         else:
             curve = list(self.bottom)
@@ -306,7 +306,7 @@ class Contour:
                 newcurve.append( curve[i] )
                 #print "add=" + str(curve[i])
                 i += 1
-        if side == "top":
+        if surf == "top":
             self.top = list(newcurve)
         else:
             self.bottom = list(newcurve)
@@ -324,7 +324,7 @@ class Contour:
         # todo: add holes (should be easy, but want to work on other
         # aspects first)
         
-    # side={top,bottom} (attached to top or bottom of airfoil)
+    # surf={top,bottom} (attached to top or bottom of airfoil)
     # orientation={tangent,vertical} (aligned vertically or flush with surface)
     # xpos={percent,front,rear,xpos} (position is relative to percent of chord,
     #      distance from front, distance from rear, or distance from chord
@@ -337,7 +337,7 @@ class Contour:
             print "but before any cutouts are made"
             self.save_bounds()
         top = False
-        if cutout.side == "top":
+        if cutout.surf == "top":
             top = True
 
         tangent = False
@@ -404,7 +404,7 @@ class Contour:
             print "but before any cutouts are made"
             self.save_bounds()
         top = False
-        if cutout.side == "top":
+        if cutout.surf == "top":
             top = True
 
         # no support of tangent build tabs
@@ -452,7 +452,7 @@ class Contour:
     def cutout_stringer(self, stringer, pos=None, nudge=0.0):
         return self.cutout( stringer, pos=pos, nudge=nudge )
 
-    def add_build_tab(self, side="top", cutpos=None, \
+    def add_build_tab(self, surf="top", cutpos=None, \
                           xsize=0.0, yextra=0.0):
         # compute actual "x" position
         xpos = self.get_xpos(cutpos)
@@ -462,14 +462,14 @@ class Contour:
 
         # find the y value of the attach point and compute the
         # vertical size of the tab needed
-        if side == "top":
+        if surf == "top":
             ypos = self.simple_interp(self.top, xpos)
             ysize = bounds[1][1] - ypos + yextra
         else:
             ypos = self.simple_interp(self.bottom, xpos)
             ysize = ypos - bounds[0][1] + yextra
 
-        cutout = Cutout( side=side, orientation="vertical", \
+        cutout = Cutout( surf=surf, orientation="vertical", \
                              cutpos=cutpos, \
                              xsize=xsize, ysize=ysize )
 
@@ -486,11 +486,11 @@ class Contour:
     def add_label(self, xpos, ypos, size, rotate, text):
         self.labels.append( (xpos, ypos, size, rotate, text) )        
 
-    def project_point(self, orig, ysize, side, slope):
+    def project_point(self, orig, ysize, surf, slope):
         rad = math.atan2(slope,1)
         angle = math.degrees(rad)
         #print "xpos " + str(xpos) + " angle = " + str(angle)
-        if side == "top":
+        if surf == "top":
             angle += 180
             if angle > 360:
                 angle -= 360
@@ -498,12 +498,13 @@ class Contour:
         pt = ( r0[0] + orig[0], r0[1] + orig[1] )
         return pt
 
-    def project_contour(self, side="top", \
+    def project_contour(self, surf="top", \
                             xstart=0, xend=None, xdist=None, \
                             ysize=0):
-        print "xstart=" + str(xstart) + " xend=" + str(xend) + " xdist=" + str(xdist)
+        #print "xstart=" + str(xstart) + " xend=" + str(xend) + " xdist=" + str(xdist)
         curve = []
-        if side == "top":
+        #print "surf == " + surf
+        if surf == "top":
             curve = list(self.top)
         else:
             curve = list(self.bottom)
@@ -556,25 +557,39 @@ class Contour:
         for p in shape:
             index = spline.binsearch(curve, p[0])
             slope = slopes[index]
-            proj = self.project_point(p, ysize, side, slope)
+            proj = self.project_point(p, ysize, surf, slope)
             result.append(proj)
 
         return result
 
-    def cutout_sweep(self, side="top", xstart=0.0, \
-                         xend=None, xdist=None, ysize=0.0):
+    def cutout_sweep(self, surf="top", xstart=0.0, \
+                         xend=None, xdist=None, ysize=0.0, pos=None, nudge=0.0):
         if self.poly == None:
             self.make_poly()
-        side1 = self.project_contour(side=side, xstart=xstart, \
+        flush = self.project_contour(surf=surf, xstart=xstart, \
+                                        xend=xend, xdist=xdist, \
+                                        ysize=0.0)
+        surf1 = self.project_contour(surf=surf, xstart=xstart, \
                                          xend=xend, xdist=xdist, \
                                          ysize=-ysize)
-        side2 = self.project_contour(side=side, xstart=xstart, \
+        surf2 = self.project_contour(surf=surf, xstart=xstart, \
                                          xend=xend, xdist=xdist, \
                                          ysize=ysize)
-        side1.reverse()
-        shape = side1 + side2
+        surf1.reverse()
+        shape = surf1 + surf2
         mask = Polygon.Polygon(shape)
         self.poly = self.poly - mask
+
+        # generate 3d points as top surface and bottom surface
+        top = []
+        for p2 in flush:
+            v3 = (p2[0]+pos[1], pos[0]-nudge, p2[1])
+            top.append(v3)
+        bot =[]
+        for p2 in surf2:
+            v3 = (p2[0]+pos[1], pos[0]-nudge, p2[1])
+            bot.append(v3)
+        return (top, bot)
 
     # quick scan polygons for possible degenerate problems.  these can
     # occur due to odd numerical issues when we pile a lot of stuff on
@@ -626,11 +641,11 @@ class Contour:
         # hollow entire interior (longitudinal axis) at cut radius +
         # corner radius.  This like the center 'cut' line if we were
         # cutting with a 'radius' radius tool.
-        top = self.project_contour(side="top", \
+        top = self.project_contour(surf="top", \
                                        xstart=bounds[0][0], \
                                        xend=bounds[1][0], \
                                        ysize=material_width+radius)
-        bot = self.project_contour(side="bottom", \
+        bot = self.project_contour(surf="bottom", \
                                        xstart=bounds[0][0], \
                                        xend=bounds[1][0], \
                                        ysize=material_width+radius)

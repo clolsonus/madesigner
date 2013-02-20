@@ -37,18 +37,6 @@ class TrailingEdge:
         self.points = []
 
 
-class Sheet:
-    def __init__(self, side="top", xstart=0.0, xend=None, xdist=None, \
-                     start_station=None, end_station=None, \
-                     ysize=0.0):
-        self.side = side
-        self.start_station = start_station
-        self.end_station = end_station
-        self.part = part
-        self.side = "right"
-        self.points = []
-
-
 class LeadingEdge:
     def __init__(self, size=None, start_station=None, end_station=None, \
                      part=""):
@@ -58,6 +46,22 @@ class LeadingEdge:
         self.part = part        # wing or flap
         self.side = "right"
         self.points = []
+
+
+class Sheeting:
+    def __init__(self, surf="top", xstart=0.0, xend=None, xdist=None, \
+                     ysize=0.0, start_station=None, end_station=None, part=""):
+        self.surf = surf
+        self.xstart = xstart
+        self.xend = xend
+        self.xdist = xdist
+        self.ysize = ysize
+        self.start_station = start_station
+        self.end_station = end_station
+        self.part = part
+        self.side = "right"
+        self.top_points = []
+        self.bot_points = []
 
 
 class Stringer:
@@ -116,14 +120,14 @@ class Rib:
         self.has_te = True      # has trailing edge
 
     def trim_rear(self, cutpos):
-        self.contour.trim(side="top", discard="rear", cutpos=cutpos, station=self.pos[0])
-        self.contour.trim(side="bottom", discard="rear", cutpos=cutpos, station=self.pos[0])
+        self.contour.trim(surf="top", discard="rear", cutpos=cutpos, station=self.pos[0])
+        self.contour.trim(surf="bottom", discard="rear", cutpos=cutpos, station=self.pos[0])
 
     # returns the bottom front location which is hard to compute
     # externally (this can be used by the calling layer to position a
     # boundary stringer.
     def trim_front_wedge(self, cutpos, angle):
-        self.contour.trim(side="top", discard="front", cutpos=cutpos, station=self.pos[0])
+        self.contour.trim(surf="top", discard="front", cutpos=cutpos, station=self.pos[0])
         wedge_angle = math.radians(90.0-angle)
         wedge_slope = -math.tan(wedge_angle)
         
@@ -132,7 +136,7 @@ class Rib:
 
         bx = self.contour.intersect("bottom", (tx, ty), wedge_slope)
         botpos = contour.Cutpos( xpos=bx )
-        self.contour.trim(side="bottom", discard="front", cutpos=botpos, station=self.pos[0])
+        self.contour.trim(surf="bottom", discard="front", cutpos=botpos, station=self.pos[0])
         return bx
 
     def get_label(self):
@@ -176,6 +180,7 @@ class Wing:
         self.steps = 10
         self.leading_edges = []
         self.trailing_edges = []
+        self.sheeting = []
         self.stringers = []
         self.spars = []
         self.flaps = []
@@ -287,13 +292,29 @@ class Wing:
             le.side = "left"
             self.leading_edges.append( le )
 
-    def add_stringer(self, side="top", orientation="tangent", \
+    def add_sheeting(self, surf="top", xstart=0.0, xend=None, xdist=None, \
+                         ysize=0.0,
+                         start_station=None, end_station=None, mirror=True, \
+                         part=""):
+        if start_station == None:
+            start_station = self.stations[0]
+        if end_station == None:
+            end_station = self.stations[len(self.stations)-1]
+        sheet = Sheeting( surf, xstart, xend, xdist, ysize, start_station, end_station, part )
+        sheet.side = "right"
+        self.sheeting.append( sheet )
+        if mirror:
+            sheet = Sheeting( surf, xstart, xend, xdist, ysize, -start_station, -end_station, part )
+            sheet.side = "left"
+            self.sheeting.append( sheet )
+
+    def add_stringer(self, surf="top", orientation="tangent", \
                          percent=None, front=None, rear=None, xpos=None, \
                          xsize=0.0, ysize=0.0, \
                          start_station=None, end_station=None, mirror=True, \
                          part=""):
         cutpos = contour.Cutpos( percent, front, rear, xpos )
-        cutout = contour.Cutout( side, orientation, cutpos, xsize, ysize )
+        cutout = contour.Cutout( surf, orientation, cutpos, xsize, ysize )
         if start_station == None:
             start_station = self.stations[0]
         if end_station == None:
@@ -306,13 +327,13 @@ class Wing:
             stringer.side = "left"
             self.stringers.append( stringer )
 
-    def add_spar(self, side="top", orientation="vertical", \
+    def add_spar(self, surf="top", orientation="vertical", \
                      percent=None, front=None, rear=None, xpos=None, \
                      xsize=0.0, ysize=0.0, \
                      start_station=None, end_station=None, mirror=True, \
                      part=""):
         cutpos = contour.Cutpos( percent, front, rear, xpos )
-        cutout = contour.Cutout( side, orientation, cutpos, xsize, ysize )
+        cutout = contour.Cutout( surf, orientation, cutpos, xsize, ysize )
         if start_station == None:
             start_station = self.stations[0]
         if end_station == None:
@@ -388,7 +409,7 @@ class Wing:
             half_offset = flap.edge_stringer_size[0] * 0.5
             front_pos = copy.deepcopy(pos)
             front_pos.move(-half_offset)
-            topcutout = contour.Cutout( side="top", orientation="tangent", \
+            topcutout = contour.Cutout( surf="top", orientation="tangent", \
                                             cutpos=front_pos, \
                                             xsize=flap.edge_stringer_size[0], \
                                             ysize=flap.edge_stringer_size[1] )
@@ -400,7 +421,7 @@ class Wing:
                 stringer.side = "left"
                 self.stringers.append( stringer )
 
-            botcutout = contour.Cutout( side="bottom", orientation="tangent", \
+            botcutout = contour.Cutout( surf="bottom", orientation="tangent", \
                                             cutpos=front_pos, \
                                             xsize=flap.edge_stringer_size[0], \
                                             ysize=flap.edge_stringer_size[1] )
@@ -414,7 +435,7 @@ class Wing:
 
             rear_pos = copy.deepcopy(pos)
             rear_pos.move(half_offset)
-            topcutout = contour.Cutout( side="top", orientation="tangent", \
+            topcutout = contour.Cutout( surf="top", orientation="tangent", \
                                             cutpos=rear_pos, \
                                             xsize=flap.edge_stringer_size[0], \
                                             ysize=flap.edge_stringer_size[1] )
@@ -497,6 +518,15 @@ class Wing:
                         le.points.append(shape)
                 else:
                     print "no match: " + rib.part + " != " + le.part + " or " + rib.side + " != " + le.side + " (has_le= " + str(rib.has_le) + ")"
+
+        # sheeting next
+        for sheet in self.sheeting:
+            if self.match_station(sheet.start_station, sheet.end_station, lat_dist):
+                if rib.part == sheet.part and rib.side == sheet.side:
+                    shape = rib.contour.cutout_sweep(surf=sheet.surf, xstart=sheet.xstart, xend=sheet.xend, xdist=sheet.xdist, ysize=sheet.ysize, pos=rib.pos, nudge=rib.nudge)
+                    if len(shape) > 1:
+                        sheet.top_points.append(shape[0])
+                        sheet.bot_points.append(shape[1])
 
         # cutout stringers (before twist)
         for stringer in self.stringers:
@@ -669,8 +699,8 @@ class Wing:
                     new_ribs.append(newrib)
                     rib.trim_rear(flap.pos)
                     rib.has_te = False
-                    #rib.contour.trim(side="top", discard="rear", cutpos=flap.pos)
-                    #rib.contour.trim(side="bottom", discard="rear", cutpos=flap.pos)
+                    #rib.contour.trim(surf="top", discard="rear", cutpos=flap.pos)
+                    #rib.contour.trim(surf="bottom", discard="rear", cutpos=flap.pos)
         for rib in new_ribs:
             self.left_ribs.append(rib)
 
@@ -693,7 +723,7 @@ class Wing:
                                                 atstation=atstation, \
                                                 slope=slope)
                     cutpos.move(half_offset)
-                    cutout = contour.Cutout(side="bottom", \
+                    cutout = contour.Cutout(surf="bottom", \
                                                 orientation="tangent", \
                                                 cutpos=cutpos, \
                                                 xsize=flap.edge_stringer_size[0], \
@@ -912,6 +942,9 @@ class Wing:
         for le in self.leading_edges:
             if le.side == "right":
                 kids += 1
+        for sheet in self.sheeting:
+            if sheet.side == "right":
+                kids += 1
         for stringer in self.stringers:
             if stringer.side == "right":
                 kids += 1
@@ -937,6 +970,11 @@ class Wing:
                 if le.side == "right":
                     ac.make_extrusion("leading edge", le.points, \
                                           le.side=="left")
+        if len(self.sheeting):
+            for sheet in self.sheeting:
+                if sheet.side == "right":
+                    ac.make_sheet("sheet", sheet.top_points, sheet.bot_points, \
+                                      sheet.side=="left")
         if len(self.stringers):
             for stringer in self.stringers:
                 if stringer.side == "right":
