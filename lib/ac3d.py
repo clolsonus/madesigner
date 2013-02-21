@@ -55,7 +55,7 @@ class AC3D:
     def gen_headers(self, name, kids):
         self.f.write("AC3Db\n")
         self.f.write("MATERIAL \"res\" rgb 1 1 1 amb 1 1 1 emis 0 0 0 spec 0.2 0.2 0.2 shi 128 trans 0\n")
-        self.f.write("MATERIAL \"res\" rgb 1 1 1 amb 1 1 1 emis 0 0 0 spec 0.2 0.2 0.2 shi 128 trans 0.5\n")
+        self.f.write("MATERIAL \"res\" rgb 1 1 1 amb 1 1 1 emis 0 0 0 spec 0.2 0.2 0.2 shi 128 trans 0.25\n")
         self.f.write("OBJECT world\n")
         self.f.write("name \"" + name + "\"\n")
         self.f.write("kids " + str(kids) + "\n")
@@ -195,7 +195,7 @@ class AC3D:
         self.f.write("kids 0\n")
 
     def make_sheet_help1(self, vertices, top_points, invert_order):
-        # pass 2, make top surface triangles
+        # make surface polys
         tmp = 0
         i = 1
         while i < len(top_points):
@@ -247,6 +247,113 @@ class AC3D:
             i += 1
         return tmp
 
+    def make_sheet_help2(self, vertices, top_points, bot_points, invert_order):
+        # make edge (lengthwise) polys
+        if len(top_points) != len(bot_points):
+            print "top/bottom surface size mismatch in making sheets!"
+            return 0
+
+        tmp = 0
+        i = 1
+        while i < len(top_points):
+            c0 = top_points[i-1]
+            c1 = top_points[i]
+            c2 = bot_points[i-1]
+            c3 = bot_points[i]
+
+            # edge 1
+            vlist = []
+            p0 = c0[0]
+            p1 = c1[0]
+            p2 = c2[0]
+            p3 = c3[0]
+            vlist.append( vertices.add_point(p0) )
+            vlist.append( vertices.add_point(p1) )
+            vlist.append( vertices.add_point(p3) )
+            vlist.append( vertices.add_point(p2) )
+            self.f.write("SURF 0x10\n")
+            self.f.write("mat 1\n")
+            self.f.write("refs " + str(len(vlist)) + "\n")
+            if invert_order:
+                vlist.reverse()
+            for v in vlist:
+                self.f.write(str(v) + " 0 0\n")
+
+            # edge 2
+            vlist = []
+            p0 = c0[len(c0)-1]
+            p1 = c1[len(c1)-1]
+            p2 = c2[len(c2)-1]
+            p3 = c3[len(c3)-1]
+            vlist.append( vertices.add_point(p0) )
+            vlist.append( vertices.add_point(p2) )
+            vlist.append( vertices.add_point(p3) )
+            vlist.append( vertices.add_point(p1) )
+            self.f.write("SURF 0x10\n")
+            self.f.write("mat 1\n")
+            self.f.write("refs " + str(len(vlist)) + "\n")
+            if invert_order:
+                vlist.reverse()
+            for v in vlist:
+                self.f.write(str(v) + " 0 0\n")
+
+            i += 1
+            tmp += 2
+        return tmp
+
+    def make_sheet_help3(self, vertices, top_points, bot_points, invert_order):
+        # make end polys
+        tmp = 0
+
+        # end 1
+        c0 = top_points[0]
+        c1 = bot_points[0]
+        i = 1
+        while i < len(c0):
+            p0 = c0[i-1]
+            p1 = c0[i]
+            p2 = c1[i-1]
+            p3 = c1[i]
+            vlist = []
+            vlist.append( vertices.add_point(p0) )
+            vlist.append( vertices.add_point(p2) )
+            vlist.append( vertices.add_point(p3) )
+            vlist.append( vertices.add_point(p1) )
+            self.f.write("SURF 0x10\n")
+            self.f.write("mat 1\n")
+            self.f.write("refs " + str(len(vlist)) + "\n")
+            if invert_order:
+                vlist.reverse()
+            for v in vlist:
+                self.f.write(str(v) + " 0 0\n")
+            tmp += 1
+            i += 1
+        
+        # end 2
+        c0 = top_points[len(top_points)-1]
+        c1 = bot_points[len(bot_points)-1]
+        i = 1
+        while i < len(c0):
+            p0 = c0[i-1]
+            p1 = c0[i]
+            p2 = c1[i-1]
+            p3 = c1[i]
+            vlist = []
+            vlist.append( vertices.add_point(p0) )
+            vlist.append( vertices.add_point(p1) )
+            vlist.append( vertices.add_point(p3) )
+            vlist.append( vertices.add_point(p2) )
+            self.f.write("SURF 0x10\n")
+            self.f.write("mat 1\n")
+            self.f.write("refs " + str(len(vlist)) + "\n")
+            if invert_order:
+                vlist.reverse()
+            for v in vlist:
+                self.f.write(str(v) + " 0 0\n")
+            tmp += 1
+            i += 1
+        return tmp
+
     def make_sheet(self, name, top_points, bot_points, invert_order):
         surfs = 0
         vertices = VertexDB()
@@ -256,7 +363,7 @@ class AC3D:
         while i < len(top_points):
             contour = top_points[i]
             if i > 0:
-                surfs += len(contour) - 1
+                surfs += len(contour)
             for p3 in contour:
                 v = vertices.add_point(p3)
             i += 1
@@ -264,13 +371,14 @@ class AC3D:
         while i < len(bot_points):
             contour = bot_points[i]
             if i > 0:
-                surfs += len(contour) - 1
+                surfs += len(contour)
             for p3 in contour:
                 v = vertices.add_point(p3)
             i += 1
 
         # account for the end faces of the extrusion
-        # surfs += 2
+        surfs += len(top_points[0]) - 1
+        surfs += len(top_points[len(top_points)-1]) - 1
 
         print "vertex db = " + str(len(vertices.v))
         self.f.write("OBJECT poly\n")
@@ -287,6 +395,8 @@ class AC3D:
         total = 0
         total += self.make_sheet_help1(vertices, top_points, invert_order)
         total += self.make_sheet_help1(vertices, bot_points, not invert_order)
+        total += self.make_sheet_help2(vertices, top_points, bot_points, invert_order)
+        total += self.make_sheet_help3(vertices, top_points, bot_points, invert_order)
 
         # make the two end caps
         #self.f.write("SURF 0x10\n")

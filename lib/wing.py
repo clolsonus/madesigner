@@ -995,6 +995,9 @@ class Wing:
         for le in self.leading_edges:
             if le.side == "left":
                 kids += 1
+        for sheet in self.sheeting:
+            if sheet.side == "left":
+                kids += 1
         for stringer in self.stringers:
             if stringer.side == "left":
                 kids += 1
@@ -1020,6 +1023,11 @@ class Wing:
                 if le.side == "left":
                     ac.make_extrusion("leading edge", le.points, \
                                           le.side=="left")
+        if len(self.sheeting):
+            for sheet in self.sheeting:
+                if sheet.side == "left":
+                    ac.make_sheet("sheet", sheet.top_points, sheet.bot_points, \
+                                      sheet.side=="left")
         if len(self.stringers):
             for stringer in self.stringers:
                 if stringer.side == "left":

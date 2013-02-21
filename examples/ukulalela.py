@@ -37,7 +37,7 @@ wing1.dihedral = 5.0
 # structure
 wing1.add_leading_edge( size=(3.0/32.0), part="wing" )
 wing1.add_trailing_edge( width=0.75, height=0.125, shape="flat", part="wing" )
-wing1.add_sheeting( surf="top", xstart=0.0, xend=2.0, ysize=0.0625, part="wing")
+wing1.add_sheeting( surf="top", xstart=-2.5, xend=2.5, ysize=0.03125, part="wing")
 wing1.add_spar( surf="top", orientation="vertical", xpos=0.0, \
                    xsize=0.125, ysize=0.250, part="wing" )
 wing1.add_spar( surf="bottom", orientation="vertical", xpos=0.0, \
