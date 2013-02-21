@@ -86,6 +86,45 @@ class Contour:
         else:
             return points[index][1]
 
+    def poly_intersect(self, surf="top", xpos=0.0):
+        if self.poly == None:
+            self.make_poly()
+
+        ymin = None
+        ymax = None
+        for contour in self.poly:
+            # print "contour " + str(contour)
+            p0 = None
+            for p1 in contour:
+                # print " p1 = " + str(p1) + " xpos = " + str(xpos)
+                if p0 != None:
+                    if p0[0] < p1[0]:
+                        a = p0
+                        b = p1
+                    else:
+                        a = p1
+                        b = p0
+                    if a[0] <= xpos and b[0] >= xpos:
+                        # print "found a spanning segment!"
+                        # a & b span xpos
+                        xrange = b[0] - a[0]
+                        yrange = b[1] - a[1]
+                        if xrange > 0.0001:
+                            percent = (xpos - a[0]) / xrange
+                            ypos= a[1] + percent * yrange
+                        else:
+                            ypos = a[1]
+                        if ymin == None or ypos < ymin:
+                            ymin = ypos
+                        if ymax == None or ypos > ymax:
+                            ymax = ypos
+                p0 = p1
+
+            if surf == "top":
+                return ymax
+            else:
+                return ymin
+                    
     def fit(self, maxpts = 30, maxerror = 0.1):
         self.top = list( self.curve_fit(self.top, maxpts, maxerror) )
         self.bottom = list( self.curve_fit(self.bottom, maxpts, maxerror) )
@@ -336,9 +375,6 @@ class Contour:
             print "need to call contour.save_bounds() after part created,"
             print "but before any cutouts are made"
             self.save_bounds()
-        top = False
-        if cutout.surf == "top":
-            top = True
 
         tangent = False
         if cutout.orientation == "tangent":
@@ -350,22 +386,21 @@ class Contour:
 
         # compute position of cutout
         xpos = self.get_xpos(cutout.cutpos, station=pos[0])
-
-        if top:
-            curve = list(self.top)
-        else:
-            curve = list(self.bottom)
-        ypos = self.simple_interp(curve, xpos)
+        ypos = self.poly_intersect(cutout.surf, xpos)
 
         # make, position, and orient the cutout
         angle = 0
         if tangent:
+            if cutout.surf == "top":
+                curve = list(self.top)
+            else:
+                curve = list(self.bottom)
             slopes = spline.derivative1(curve)
             index = spline.binsearch(curve, xpos)
             slope = slopes[index]
             rad = math.atan2(slope,1)
             angle = math.degrees(rad)
-        if not top:
+        if cutout.surf != "top":
             angle += 180
             if angle > 360:
                 angle -= 360
