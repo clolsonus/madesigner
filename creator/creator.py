@@ -17,6 +17,7 @@ from PyQt4 import QtGui, QtCore
 import xml.etree.ElementTree as ET
 
 from overview import Overview
+from wing import Wing
 
 
 class Creator(QtGui.QWidget):
@@ -27,6 +28,7 @@ class Creator(QtGui.QWidget):
         root = ET.Element('design')
         self.xml = ET.ElementTree(root)
         self.default_title = "Model Aircraft Creator"
+        self.wings = []
         self.initUI()
         
     def initUI(self):               
@@ -36,39 +38,71 @@ class Creator(QtGui.QWidget):
         layout = QtGui.QVBoxLayout()
         self.setLayout(layout)
 
-        tabs = QtGui.QTabWidget()
-        layout.addWidget( tabs )
-
-        self.overview = Overview()
-        tabs.addTab( self.overview.widget(), "Overview" );
-
-        bgroup = QtGui.QFrame()
-        layout.addWidget(bgroup)
-        blayout = QtGui.QHBoxLayout()
-        bgroup.setLayout( blayout )
+        # 'File' button bar
+        file_group = QtGui.QFrame()
+        layout.addWidget(file_group)
+        file_layout = QtGui.QHBoxLayout()
+        file_group.setLayout( file_layout )
 
         new = QtGui.QPushButton('New')
         #quit.clicked.connect(QtCore.QCoreApplication.instance().quit)
-        blayout.addWidget(new)
+        file_layout.addWidget(new)
 
         open = QtGui.QPushButton('Open...')
         open.clicked.connect(self.open)
-        blayout.addWidget(open)
+        file_layout.addWidget(open)
 
         save = QtGui.QPushButton('Save')
         save.clicked.connect(self.save)
-        blayout.addWidget(save)
+        file_layout.addWidget(save)
 
         saveas = QtGui.QPushButton('Save As...')
         saveas.clicked.connect(self.saveas)
-        blayout.addWidget(saveas)
+        file_layout.addWidget(saveas)
 
         quit = QtGui.QPushButton('Quit')
         quit.clicked.connect(QtCore.QCoreApplication.instance().quit)
-        blayout.addWidget(quit)
+        file_layout.addWidget(quit)
 
+        # Main work area
+        self.tabs = QtGui.QTabWidget()
+        layout.addWidget( self.tabs )
+
+        self.overview = Overview()
+        self.tabs.addTab( self.overview.get_widget(), "Overview" );
+
+        # 'Command' button bar
+        cmd_group = QtGui.QFrame()
+        layout.addWidget(cmd_group)
+        cmd_layout = QtGui.QHBoxLayout()
+        cmd_group.setLayout( cmd_layout )
+
+        add_wing = QtGui.QPushButton('Add Wing...')
+        add_wing.clicked.connect(self.add_wing)
+        cmd_layout.addWidget(add_wing)
+  
+        #add_fuse = QtGui.QPushButton('Add Fuselage...')
+        #add_fuse.clicked.connect(self.add_fuse)
+        #cmd_layout.addWidget(add_fuse)
+  
+        build = QtGui.QPushButton('Build...')
+        build.clicked.connect(self.build)
+        cmd_layout.addWidget(build)
+  
         self.setGeometry(300, 300, 250, 150)
         self.show()
+
+    def add_wing(self):
+        wing_page = Wing()
+        self.wings.append(wing_page)
+        self.tabs.addTab( wing_page.get_widget(),
+                          "Wing - New" );
+
+    #def add_fuse(self):
+    #    print "add fuse requested"
+
+    def build(self):
+        print "build requested"
 
     def open(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, "Open File", "", "MAdesigner (*.mad)")
@@ -82,14 +116,24 @@ class Creator(QtGui.QWidget):
             print "xml parse error"
             return
 
-        self.setWindowTitle( self.default_title + " - " + os.path.basename(str(self.filename)) )
+        self.setWindowTitle( self.default_title + " - "
+                             + os.path.basename(str(self.filename)) )
 
         root = self.xml.getroot()
         node = root.find('overview')
         self.overview.parse_xml(node)
 
+        for wing in root.findall('wing'):
+            wing_page = Wing()
+            wing_page.parse_xml(wing)
+            self.wings.append(wing_page)
+            self.tabs.addTab( wing_page.get_widget(),
+                              "Wing - " + wing_page.get_name() );
+
     def setFileName(self):
-        return QtGui.QFileDialog.getSaveFileName(self, "Save File", "newdesign.mad", "MAdesigner (*.mad)")
+        return QtGui.QFileDialog.getSaveFileName(self, "Save File",
+                                                 "newdesign.mad",
+                                                 "MAdesigner (*.mad)")
 
     def save(self):
         if self.filename == "":
@@ -100,12 +144,19 @@ class Creator(QtGui.QWidget):
             else:
                 self.filename = filename
 
-        root = self.xml.getroot()
-        node = root.find('overview')
-        if node == None:
-            node = ET.SubElement(root, 'overview')
+        # create a new xml root
+        root = ET.Element('design')
+        self.xml = ET.ElementTree(root)
+
+        # overview
+        node = ET.SubElement(root, 'overview')
         self.overview.gen_xml(node)
-        #ET.dump(self.xml)
+
+        # wings
+        for index, wing in enumerate(self.wings):
+            node = ET.SubElement(root, 'wing')
+            wing.gen_xml(node)
+
         try:
             self.xml.write(self.filename, encoding="us-ascii",
                            xml_declaration=False)

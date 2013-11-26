@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Overview tab
+Wing Panel tab
 
 author: Curtis L. Olson
 website: madesigner.flightgear.org
@@ -14,7 +14,7 @@ from PyQt4 import QtGui, QtCore
 import xml.etree.ElementTree as ET
 
 
-class Overview():
+class Wing():
     def __init__(self):
         self.container = self.make_page()
         self.xml = None
@@ -32,25 +32,29 @@ class Overview():
         self.edit_name = QtGui.QLineEdit()
         self.edit_name.setFixedWidth(250)
         self.edit_name.textChanged.connect(self.onChange)
-        self.edit_desc = QtGui.QTextEdit()
-        self.edit_desc.setFixedWidth(250)
-        self.edit_desc.textChanged.connect(self.onChange)
-        self.edit_author = QtGui.QLineEdit()
-        self.edit_author.setFixedWidth(250)
-        self.edit_author.textChanged.connect(self.onChange)
-        self.edit_email = QtGui.QLineEdit()
-        self.edit_email.setFixedWidth(250)
-        self.edit_email.textChanged.connect(self.onChange)
+        self.edit_name.setText("New")
+        self.edit_airfoil = QtGui.QLineEdit()
+        self.edit_airfoil.setFixedWidth(250)
+        self.edit_airfoil.textChanged.connect(self.onChange)
+        self.edit_length = QtGui.QLineEdit()
+        self.edit_length.setFixedWidth(250)
+        self.edit_length.textChanged.connect(self.onChange)
+        self.edit_chord = QtGui.QLineEdit()
+        self.edit_chord.setFixedWidth(250)
+        self.edit_chord.textChanged.connect(self.onChange)
 
-        layout.addRow( "<b>Design Name:</b>", self.edit_name )
-        layout.addRow( "<b>Description:</b>", self.edit_desc )
-        layout.addRow( "<b>Author:</b>", self.edit_author )
-        layout.addRow( "<b>Email:</b>", self.edit_email )
+        layout.addRow( "<b>Wing Name:</b>", self.edit_name )
+        layout.addRow( "<b>Airfoil(s):</b>", self.edit_airfoil )
+        layout.addRow( "<b>Length:</b>", self.edit_length )
+        layout.addRow( "<b>Chord:</b>", self.edit_chord )
 
         return page
 
     def get_widget(self):
         return self.container
+
+    def get_name(self):
+        return self.edit_name.text()
 
     def get_value(self, node):
         e = self.xml.find(node)
@@ -62,9 +66,9 @@ class Overview():
     def parse_xml(self, node):
         self.xml = node
         self.edit_name.setText(self.get_value('name'))
-        self.edit_desc.setText(self.get_value('description'))
-        self.edit_author.setText(self.get_value('author'))
-        self.edit_email.setText(self.get_value('email'))
+        self.edit_airfoil.setText(self.get_value('airfoil'))
+        self.edit_length.setText(self.get_value('length'))
+        self.edit_chord.setText(self.get_value('chord'))
 
     def update_node(self, node, value):
         e = self.xml.find(node)
@@ -75,7 +79,7 @@ class Overview():
     def gen_xml(self, node):
         self.xml = node
         self.update_node('name', self.edit_name.text())
-        self.update_node('description', self.edit_desc.toPlainText())
-        self.update_node('author', self.edit_author.text())
-        self.update_node('email', self.edit_email.text())
+        self.update_node('airfoil', self.edit_airfoil.text())
+        self.update_node('length', self.edit_length.text())
+        self.update_node('chord', self.edit_chord.text())
 
