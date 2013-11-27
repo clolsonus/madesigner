@@ -16,6 +16,7 @@ import xml.etree.ElementTree as ET
 
 class Wing():
     def __init__(self):
+        self.valid = True
         self.container = self.make_page()
         self.xml = None
 
@@ -23,12 +24,66 @@ class Wing():
         # do nothing right now
         a = 0
 
+    def add_leading_edge(self):
+        print "add leading edge"
+
+    def add_trailing_edge(self):
+        print "add trailing edge"
+
+    def add_spar(self):
+        print "add spar"
+
+    def add_stringer(self):
+        print "add stringer"
+
+    def delete_self(self):
+        print "delete self!"
+        self.container.deleteLater()
+        self.valid = False
+
     def make_page(self):
         # make the full edit widget
         page = QtGui.QFrame()
-        layout = QtGui.QFormLayout()
-        page.setLayout( layout )
+        layout = QtGui.QVBoxLayout()
+        page.setLayout(layout)
 
+        contents = QtGui.QFrame()
+        formlayout = QtGui.QFormLayout()
+        contents.setLayout( formlayout )
+
+        scroll = QtGui.QScrollArea()
+        scroll.setWidget(contents)
+        scroll.setWidgetResizable(True)
+        layout.addWidget(scroll)
+
+        # 'Command' button bar
+        cmd_group = QtGui.QFrame()
+        layout.addWidget(cmd_group)
+        cmd_layout = QtGui.QHBoxLayout()
+        cmd_group.setLayout( cmd_layout )
+
+        add_le = QtGui.QPushButton('+Leading Edge')
+        add_le.clicked.connect(self.add_leading_edge)
+        cmd_layout.addWidget(add_le)
+  
+        add_te = QtGui.QPushButton('+Trailing Edge')
+        add_te.clicked.connect(self.add_trailing_edge)
+        cmd_layout.addWidget(add_te)
+  
+        add_spar = QtGui.QPushButton('+Spar')
+        add_spar.clicked.connect(self.add_spar)
+        cmd_layout.addWidget(add_spar)
+  
+        add_stringer = QtGui.QPushButton('+Stringer')
+        add_stringer.clicked.connect(self.add_stringer)
+        cmd_layout.addWidget(add_stringer)
+  
+        delete = QtGui.QPushButton('Delete Wing')
+        delete.clicked.connect(self.delete_self)
+        cmd_layout.addWidget(delete)
+  
+
+        # form content
         self.edit_name = QtGui.QLineEdit()
         self.edit_name.setFixedWidth(250)
         self.edit_name.textChanged.connect(self.onChange)
@@ -42,11 +97,27 @@ class Wing():
         self.edit_chord = QtGui.QLineEdit()
         self.edit_chord.setFixedWidth(250)
         self.edit_chord.textChanged.connect(self.onChange)
+        self.edit_twist = QtGui.QLineEdit()
+        self.edit_twist.setFixedWidth(250)
+        self.edit_twist.textChanged.connect(self.onChange)
+        self.edit_sweep = QtGui.QLineEdit()
+        self.edit_sweep.setFixedWidth(250)
+        self.edit_sweep.textChanged.connect(self.onChange)
+        self.edit_dihedral = QtGui.QLineEdit()
+        self.edit_dihedral.setFixedWidth(250)
+        self.edit_dihedral.textChanged.connect(self.onChange)
+        self.edit_stations = QtGui.QLineEdit()
+        self.edit_stations.setFixedWidth(250)
+        self.edit_stations.textChanged.connect(self.onChange)
 
-        layout.addRow( "<b>Wing Name:</b>", self.edit_name )
-        layout.addRow( "<b>Airfoil(s):</b>", self.edit_airfoil )
-        layout.addRow( "<b>Length:</b>", self.edit_length )
-        layout.addRow( "<b>Chord:</b>", self.edit_chord )
+        formlayout.addRow( "<b>Wing Name:</b>", self.edit_name )
+        formlayout.addRow( "<b>Airfoil(s):</b>", self.edit_airfoil )
+        formlayout.addRow( "<b>Length:</b>", self.edit_length )
+        formlayout.addRow( "<b>Chord:</b>", self.edit_chord )
+        formlayout.addRow( "<b>Twist/Washout (deg):</b>", self.edit_twist )
+        formlayout.addRow( "<b>Sweep (deg):</b>", self.edit_sweep )
+        formlayout.addRow( "<b>Dihedral (deg):</b>", self.edit_dihedral )
+        formlayout.addRow( "<b>Stations:</b>", self.edit_stations )
 
         return page
 
@@ -69,6 +140,10 @@ class Wing():
         self.edit_airfoil.setText(self.get_value('airfoil'))
         self.edit_length.setText(self.get_value('length'))
         self.edit_chord.setText(self.get_value('chord'))
+        self.edit_twist.setText(self.get_value('twist'))
+        self.edit_sweep.setText(self.get_value('sweep'))
+        self.edit_dihedral.setText(self.get_value('dihedral'))
+        self.edit_stations.setText(self.get_value('stations'))
 
     def update_node(self, node, value):
         e = self.xml.find(node)
@@ -82,4 +157,8 @@ class Wing():
         self.update_node('airfoil', self.edit_airfoil.text())
         self.update_node('length', self.edit_length.text())
         self.update_node('chord', self.edit_chord.text())
+        self.update_node('twist', self.edit_twist.text())
+        self.update_node('sweep', self.edit_sweep.text())
+        self.update_node('dihedral', self.edit_dihedral.text())
+        self.update_node('stations', self.edit_stations.text())
 

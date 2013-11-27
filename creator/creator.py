@@ -154,8 +154,9 @@ class Creator(QtGui.QWidget):
 
         # wings
         for index, wing in enumerate(self.wings):
-            node = ET.SubElement(root, 'wing')
-            wing.gen_xml(node)
+            if wing.valid:
+                node = ET.SubElement(root, 'wing')
+                wing.gen_xml(node)
 
         try:
             self.xml.write(self.filename, encoding="us-ascii",
