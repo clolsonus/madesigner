@@ -12,6 +12,7 @@ started: November 2013
 import sys
 from PyQt4 import QtGui, QtCore
 import xml.etree.ElementTree as ET
+from leading_edge import LeadingEdge
 
 
 class Wing():
@@ -19,13 +20,35 @@ class Wing():
         self.valid = True
         self.container = self.make_page()
         self.xml = None
+        self.leading_edges = []
+        self.trailing_edges = []
+        self.spars = []
+        self.stringers = []
+        self.sheets = []
+        self.simple_holes = []
+        self.shaped_holes = []
+        self.build_tabs = []
+        self.flaps = []
 
     def onChange(self):
         # do nothing right now
         a = 0
 
-    def add_leading_edge(self):
+    def rebuildStations(self):
+        # rebuild stations when station list has changed
+        for le in self.leading_edges:
+            if le.valid:
+                le.rebuild_stations(self.edit_stations.text())
+
+    def add_leading_edge(self, xml_node=None):
         print "add leading edge"
+        leading_edge = LeadingEdge()
+        leading_edge.rebuild_stations(self.edit_stations.text())
+        if xml_node != None:
+            leading_edge.parse_xml(xml_node)
+        self.leading_edges.append(leading_edge)
+        self.layout_le.addWidget( leading_edge.get_widget() )
+
 
     def add_trailing_edge(self):
         print "add trailing edge"
@@ -58,27 +81,77 @@ class Wing():
 
     def make_page(self):
         # make the full edit widget
+        toppage = QtGui.QFrame()
+        toplayout = QtGui.QVBoxLayout()
+        toppage.setLayout(toplayout)
+
         page = QtGui.QFrame()
         layout = QtGui.QVBoxLayout()
         page.setLayout(layout)
 
-        contents = QtGui.QFrame()
+        maincontents = QtGui.QFrame()
         formlayout = QtGui.QFormLayout()
-        contents.setLayout( formlayout )
+        maincontents.setLayout( formlayout )
+        layout.addWidget(maincontents)
 
         scroll = QtGui.QScrollArea()
-        scroll.setWidget(contents)
+        scroll.setWidget(page)
         scroll.setWidgetResizable(True)
-        layout.addWidget(scroll)
+        #layout.addWidget(scroll)
+        toplayout.addWidget(scroll)
+
+        self.group_flaps = QtGui.QGroupBox("Control Surfaces")
+        layout.addWidget(self.group_flaps)
+
+        frame = QtGui.QGroupBox("Leading Edges")
+        self.layout_le = QtGui.QVBoxLayout()
+        frame.setLayout(self.layout_le)
+        layout.addWidget(frame)
+
+        frame = QtGui.QGroupBox("Trailing Edges")
+        self.layout_te = QtGui.QVBoxLayout()
+        frame.setLayout(self.layout_te)
+        layout.addWidget(frame)
+
+        frame = QtGui.QGroupBox("Spars")
+        self.layout_spars = QtGui.QVBoxLayout()
+        frame.setLayout(self.layout_spars)
+        layout.addWidget(frame)
+
+        frame = QtGui.QGroupBox("Stringers")
+        self.layout_stringers = QtGui.QVBoxLayout()
+        frame.setLayout(self.layout_stringers)
+        layout.addWidget(frame)
+
+        frame = QtGui.QGroupBox("Sheeting")
+        self.layout_sheeting = QtGui.QVBoxLayout()
+        frame.setLayout(self.layout_sheeting)
+        layout.addWidget(frame)
+
+        frame = QtGui.QGroupBox("Simple Holes")
+        self.layout_simple_holes = QtGui.QVBoxLayout()
+        frame.setLayout(self.layout_simple_holes)
+        layout.addWidget(frame)
+
+        frame = QtGui.QGroupBox("Shaped Holes")
+        self.layout_shaped_holes = QtGui.QVBoxLayout()
+        frame.setLayout(self.layout_shaped_holes)
+        layout.addWidget(frame)
+
+        frame = QtGui.QGroupBox("Build Tabs")
+        self.layout_build_tabs = QtGui.QVBoxLayout()
+        frame.setLayout(self.layout_build_tabs)
+        layout.addWidget(frame)
 
         # 'Command' button bar
         cmd_group = QtGui.QFrame()
-        layout.addWidget(cmd_group)
+        toplayout.addWidget(cmd_group)
         cmd_layout = QtGui.QHBoxLayout()
         cmd_group.setLayout( cmd_layout )
 
-        add_part = QtGui.QPushButton("Add Structure ...")
+        add_feature = QtGui.QPushButton("Add Feature ...")
         menu = QtGui.QMenu()
+        menu.addAction("Add Control Surface", self.add_flap)
         menu.addAction("Leading Edge", self.add_leading_edge)
         menu.addAction("Trailing Edge", self.add_trailing_edge)
         menu.addAction("Spar", self.add_spar)
@@ -87,19 +160,12 @@ class Wing():
         menu.addAction("Lighting/Spar Hole", self.add_simple_hole)
         menu.addAction("Shaped Hole", self.add_shaped_hole)
         menu.addAction("Build Tab", self.add_build_tab)
-        menu.addAction("Add Control Surface", self.add_flap)
-        add_part.setMenu(menu)
-        cmd_layout.addWidget(add_part)
-
-        #add_le.clicked.connect(self.add_leading_edge)
-        #add_te.clicked.connect(self.add_trailing_edge)
-        #add_spar.clicked.connect(self.add_spar)
-        #add_stringer.clicked.connect(self.add_stringer)
+        add_feature.setMenu(menu)
+        cmd_layout.addWidget(add_feature)
 
         delete = QtGui.QPushButton('Delete Wing')
         delete.clicked.connect(self.delete_self)
         cmd_layout.addWidget(delete)
-  
 
         # form content
         self.edit_name = QtGui.QLineEdit()
@@ -126,7 +192,7 @@ class Wing():
         self.edit_dihedral.textChanged.connect(self.onChange)
         self.edit_stations = QtGui.QLineEdit()
         self.edit_stations.setFixedWidth(250)
-        self.edit_stations.textChanged.connect(self.onChange)
+        self.edit_stations.textChanged.connect(self.rebuildStations)
 
         formlayout.addRow( "<b>Wing Name:</b>", self.edit_name )
         formlayout.addRow( "<b>Airfoil(s):</b>", self.edit_airfoil )
@@ -137,7 +203,7 @@ class Wing():
         formlayout.addRow( "<b>Dihedral (deg):</b>", self.edit_dihedral )
         formlayout.addRow( "<b>Stations:</b>", self.edit_stations )
 
-        return page
+        return toppage
 
     def get_widget(self):
         return self.container
@@ -163,6 +229,9 @@ class Wing():
         self.edit_dihedral.setText(self.get_value('dihedral'))
         self.edit_stations.setText(self.get_value('stations'))
 
+        for le_node in node.findall('leading-edge'):
+            self.add_leading_edge(le_node)
+
     def update_node(self, node, value):
         e = self.xml.find(node)
         if e == None:
@@ -179,4 +248,10 @@ class Wing():
         self.update_node('sweep', self.edit_sweep.text())
         self.update_node('dihedral', self.edit_dihedral.text())
         self.update_node('stations', self.edit_stations.text())
+
+        for le in self.leading_edges:
+            if le.valid:
+                subnode = ET.SubElement(node, 'leading-edge')
+                le.gen_xml(subnode)
+
 

@@ -88,14 +88,13 @@ class Creator(QtGui.QWidget):
         build.clicked.connect(self.build)
         cmd_layout.addWidget(build)
   
-        self.setGeometry(300, 300, 250, 150)
+        self.setGeometry(300, 300, 600, 480)
         self.show()
 
     def add_wing(self):
-        wing_page = Wing()
-        self.wings.append(wing_page)
-        self.tabs.addTab( wing_page.get_widget(),
-                          "Wing - New" );
+        wing = Wing()
+        self.wings.append(wing)
+        self.tabs.addTab( wing.get_widget(), "Wing - New" )
 
     #def add_fuse(self):
     #    print "add fuse requested"
@@ -125,12 +124,11 @@ class Creator(QtGui.QWidget):
         node = root.find('overview')
         self.overview.parse_xml(node)
 
-        for wing in root.findall('wing'):
-            wing_page = Wing()
-            wing_page.parse_xml(wing)
-            self.wings.append(wing_page)
-            self.tabs.addTab( wing_page.get_widget(),
-                              "Wing - " + wing_page.get_name() );
+        for wing_node in root.findall('wing'):
+            wing = Wing()
+            wing.parse_xml(wing_node)
+            self.wings.append(wing)
+            self.tabs.addTab( wing.get_widget(), "Wing - " + wing.get_name() )
 
     def open(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, "Open File", "", "MAdesigner (*.mad)")
@@ -161,7 +159,7 @@ class Creator(QtGui.QWidget):
         self.overview.gen_xml(node)
 
         # wings
-        for index, wing in enumerate(self.wings):
+        for wing in self.wings:
             if wing.valid:
                 node = ET.SubElement(root, 'wing')
                 wing.gen_xml(node)
