@@ -36,6 +36,21 @@ class Wing():
     def add_stringer(self):
         print "add stringer"
 
+    def add_sheeting(self):
+        print "add sheeting"
+
+    def add_simple_hole(self):
+        print "add simple hole"
+
+    def add_shaped_hole(self):
+        print "add simple hole"
+
+    def add_build_tab(self):
+        print "add build tab"
+
+    def add_flap(self):
+        print "add flap"
+
     def delete_self(self):
         print "delete self!"
         self.container.deleteLater()
@@ -62,22 +77,25 @@ class Wing():
         cmd_layout = QtGui.QHBoxLayout()
         cmd_group.setLayout( cmd_layout )
 
-        add_le = QtGui.QPushButton('+Leading Edge')
-        add_le.clicked.connect(self.add_leading_edge)
-        cmd_layout.addWidget(add_le)
-  
-        add_te = QtGui.QPushButton('+Trailing Edge')
-        add_te.clicked.connect(self.add_trailing_edge)
-        cmd_layout.addWidget(add_te)
-  
-        add_spar = QtGui.QPushButton('+Spar')
-        add_spar.clicked.connect(self.add_spar)
-        cmd_layout.addWidget(add_spar)
-  
-        add_stringer = QtGui.QPushButton('+Stringer')
-        add_stringer.clicked.connect(self.add_stringer)
-        cmd_layout.addWidget(add_stringer)
-  
+        add_part = QtGui.QPushButton("Add Structure ...")
+        menu = QtGui.QMenu()
+        menu.addAction("Leading Edge", self.add_leading_edge)
+        menu.addAction("Trailing Edge", self.add_trailing_edge)
+        menu.addAction("Spar", self.add_spar)
+        menu.addAction("Stringer", self.add_stringer)
+        menu.addAction("Sheeting", self.add_sheeting)
+        menu.addAction("Lighting/Spar Hole", self.add_simple_hole)
+        menu.addAction("Shaped Hole", self.add_shaped_hole)
+        menu.addAction("Build Tab", self.add_build_tab)
+        menu.addAction("Add Control Surface", self.add_flap)
+        add_part.setMenu(menu)
+        cmd_layout.addWidget(add_part)
+
+        #add_le.clicked.connect(self.add_leading_edge)
+        #add_te.clicked.connect(self.add_trailing_edge)
+        #add_spar.clicked.connect(self.add_spar)
+        #add_stringer.clicked.connect(self.add_stringer)
+
         delete = QtGui.QPushButton('Delete Wing')
         delete.clicked.connect(self.delete_self)
         cmd_layout.addWidget(delete)
