@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Leading Edge
+Trailing Edge
 
 author: Curtis L. Olson
 website: madesigner.flightgear.org
@@ -14,7 +14,8 @@ from PyQt4 import QtGui, QtCore
 import xml.etree.ElementTree as ET
 from combobox_nowheel import QComboBoxNoWheel
 
-class LeadingEdge():
+
+class TrailingEdge():
     def __init__(self):
         self.valid = True
         self.container = self.make_page()
@@ -55,12 +56,17 @@ class LeadingEdge():
         layout = QtGui.QHBoxLayout()
         page.setLayout( layout )
 
-        layout.addWidget( QtGui.QLabel("<b>Size:</b> ") )
+        layout.addWidget( QtGui.QLabel("<b>W x H:</b> ") )
 
-        self.edit_size = QtGui.QLineEdit()
-        self.edit_size.setFixedWidth(50)
-        self.edit_size.textChanged.connect(self.onChange)
-        layout.addWidget( self.edit_size )
+        self.edit_width = QtGui.QLineEdit()
+        self.edit_width.setFixedWidth(50)
+        self.edit_width.textChanged.connect(self.onChange)
+        layout.addWidget( self.edit_width )
+
+        self.edit_height = QtGui.QLineEdit()
+        self.edit_height.setFixedWidth(50)
+        self.edit_height.textChanged.connect(self.onChange)
+        layout.addWidget( self.edit_height )
 
         self.edit_start = QComboBoxNoWheel()
         self.edit_start.addItem("-")
@@ -94,7 +100,8 @@ class LeadingEdge():
 
     def parse_xml(self, node):
         self.xml = node
-        self.edit_size.setText(self.get_value('size'))
+        self.edit_width.setText(self.get_value('width'))
+        self.edit_height.setText(self.get_value('height'))
         index = self.edit_start.findText(self.get_value('start-station'))
         if index != None:
             self.edit_start.setCurrentIndex(index)
@@ -110,6 +117,7 @@ class LeadingEdge():
         
     def gen_xml(self, node):
         self.xml = node
-        self.update_node('size', self.edit_size.text())
+        self.update_node('width', self.edit_width.text())
+        self.update_node('height', self.edit_height.text())
         self.update_node('start-station', self.edit_start.currentText())
         self.update_node('end-station', self.edit_end.currentText())

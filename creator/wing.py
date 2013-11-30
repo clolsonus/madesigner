@@ -13,6 +13,7 @@ import sys
 from PyQt4 import QtGui, QtCore
 import xml.etree.ElementTree as ET
 from leading_edge import LeadingEdge
+from trailing_edge import TrailingEdge
 
 
 class Wing():
@@ -39,9 +40,11 @@ class Wing():
         for le in self.leading_edges:
             if le.valid:
                 le.rebuild_stations(self.edit_stations.text())
+        for te in self.trailing_edges:
+            if te.valid:
+                te.rebuild_stations(self.edit_stations.text())
 
     def add_leading_edge(self, xml_node=None):
-        print "add leading edge"
         leading_edge = LeadingEdge()
         leading_edge.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
@@ -50,28 +53,34 @@ class Wing():
         self.layout_le.addWidget( leading_edge.get_widget() )
 
 
-    def add_trailing_edge(self):
+    def add_trailing_edge(self, xml_node=None):
         print "add trailing edge"
+        trailing_edge = TrailingEdge()
+        trailing_edge.rebuild_stations(self.edit_stations.text())
+        if xml_node != None:
+            trailing_edge.parse_xml(xml_node)
+        self.trailing_edges.append(trailing_edge)
+        self.layout_te.addWidget( trailing_edge.get_widget() )
 
-    def add_spar(self):
+    def add_spar(self, xml_node=None):
         print "add spar"
 
-    def add_stringer(self):
+    def add_stringer(self, xml_node=None):
         print "add stringer"
 
-    def add_sheeting(self):
+    def add_sheeting(self, xml_node=None):
         print "add sheeting"
 
-    def add_simple_hole(self):
+    def add_simple_hole(self, xml_node=None):
         print "add simple hole"
 
-    def add_shaped_hole(self):
+    def add_shaped_hole(self, xml_node=None):
         print "add simple hole"
 
-    def add_build_tab(self):
+    def add_build_tab(self, xml_node=None):
         print "add build tab"
 
-    def add_flap(self):
+    def add_flap(self, xml_node=None):
         print "add flap"
 
     def delete_self(self):
@@ -231,6 +240,8 @@ class Wing():
 
         for le_node in node.findall('leading-edge'):
             self.add_leading_edge(le_node)
+        for te_node in node.findall('trailing-edge'):
+            self.add_trailing_edge(te_node)
 
     def update_node(self, node, value):
         e = self.xml.find(node)
@@ -253,5 +264,9 @@ class Wing():
             if le.valid:
                 subnode = ET.SubElement(node, 'leading-edge')
                 le.gen_xml(subnode)
+        for te in self.trailing_edges:
+            if te.valid:
+                subnode = ET.SubElement(node, 'trailing-edge')
+                te.gen_xml(subnode)
 
 
