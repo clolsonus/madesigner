@@ -19,18 +19,17 @@ import xml.etree.ElementTree as ET
 from overview import Overview
 from wing import Wing
 
-
 class Creator(QtGui.QWidget):
     
-    def __init__(self):
+    def __init__(self, initfile):
         super(Creator, self).__init__()
-        self.filename = ""
         root = ET.Element('design')
         self.xml = ET.ElementTree(root)
         self.default_title = "Model Aircraft Creator"
         self.wings = []
         self.initUI()
-        
+        self.load(initfile)
+
     def initUI(self):               
 
         self.setWindowTitle( self.default_title )
@@ -104,16 +103,16 @@ class Creator(QtGui.QWidget):
     def build(self):
         print "build requested"
 
-    def open(self):
-        filename = QtGui.QFileDialog.getOpenFileName(self, "Open File", "", "MAdesigner (*.mad)")
-        if ( filename != "" ):
-            self.filename = filename
-        else:
+    def load(self, filename):
+        self.filename = filename
+        if not os.path.exists(filename):
+            print "new empty design: " + filename
             return
+
         try:
             self.xml = ET.parse(filename)
         except:
-            print "xml parse error"
+            print filename + ": xml parse error"
             return
 
         self.setWindowTitle( self.default_title + " - "
@@ -129,6 +128,12 @@ class Creator(QtGui.QWidget):
             self.wings.append(wing_page)
             self.tabs.addTab( wing_page.get_widget(),
                               "Wing - " + wing_page.get_name() );
+
+    def open(self):
+        filename = QtGui.QFileDialog.getOpenFileName(self, "Open File", "", "MAdesigner (*.mad)")
+        if ( filename == "" ):
+            return
+        self.load(filename)
 
     def setFileName(self):
         return QtGui.QFileDialog.getSaveFileName(self, "Save File",
@@ -178,9 +183,18 @@ class Creator(QtGui.QWidget):
 
         self.save()
 
+def usage():
+    print "Usage: " + sys.argv[0] + " [design.mad]"
+
 def main():
     app = QtGui.QApplication(sys.argv)
-    ex = Creator()
+    initfile = ""
+    if len(sys.argv) > 2:
+        usage()
+        return
+    elif len(sys.argv) == 2:
+        initfile = sys.argv[1]
+    ex = Creator(initfile)
     sys.exit(app.exec_())
 
 
