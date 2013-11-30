@@ -105,18 +105,21 @@ class Creator(QtGui.QWidget):
 
     def load(self, filename):
         self.filename = filename
+
+        if filename != "":
+            self.setWindowTitle( self.default_title + " - "
+                                 + os.path.basename(str(self.filename)) )
+
         if not os.path.exists(filename):
-            print "new empty design: " + filename
+            #print "new empty design: " + filename
             return
 
         try:
             self.xml = ET.parse(filename)
         except:
-            print filename + ": xml parse error"
+            error = QtGui.QErrorMessage(self)
+            error.showMessage( filename + ": xml parse error:\n" + str(sys.exc_info()[1]) )
             return
-
-        self.setWindowTitle( self.default_title + " - "
-                             + os.path.basename(str(self.filename)) )
 
         root = self.xml.getroot()
         node = root.find('overview')
