@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Trailing Edge
+Spar
 
 author: Curtis L. Olson
 website: madesigner.flightgear.org
@@ -15,7 +15,7 @@ import xml.etree.ElementTree as ET
 from combobox_nowheel import QComboBoxNoWheel
 
 
-class TrailingEdge():
+class Spar():
     def __init__(self):
         self.valid = True
         self.container = self.make_page()
@@ -68,10 +68,15 @@ class TrailingEdge():
         self.edit_height.textChanged.connect(self.onChange)
         layout.addWidget( self.edit_height )
 
-        self.edit_shape = QComboBoxNoWheel()
-        self.edit_shape.addItem("Flat")
-        self.edit_shape.addItem("Symmetrical")
-        layout.addWidget(self.edit_shape)
+        self.edit_surface = QComboBoxNoWheel()
+        self.edit_surface.addItem("Top")
+        self.edit_surface.addItem("Bottom")
+        layout.addWidget(self.edit_surface)
+
+        self.edit_orientation = QComboBoxNoWheel()
+        self.edit_orientation.addItem("Vertical")
+        self.edit_orientation.addItem("Tangent")
+        layout.addWidget(self.edit_orientation)
 
         self.edit_start = QComboBoxNoWheel()
         self.edit_start.addItem("-")
@@ -107,10 +112,14 @@ class TrailingEdge():
         self.xml = node
         self.edit_width.setText(self.get_value('width'))
         self.edit_height.setText(self.get_value('height'))
-        index = self.edit_shape.findText(self.get_value('shape'))
+        index = self.edit_surface.findText(self.get_value('surface'))
         if index == None:
             index = 1
-        self.edit_shape.setCurrentIndex(index)
+        self.edit_surface.setCurrentIndex(index)
+        index = self.edit_orientation.findText(self.get_value('orientation'))
+        if index == None:
+            index = 1
+        self.edit_orientation.setCurrentIndex(index)
         index = self.edit_start.findText(self.get_value('start-station'))
         if index != None:
             self.edit_start.setCurrentIndex(index)
@@ -128,6 +137,7 @@ class TrailingEdge():
         self.xml = node
         self.update_node('width', self.edit_width.text())
         self.update_node('height', self.edit_height.text())
-        self.update_node('shape', self.edit_shape.currentText())
+        self.update_node('surface', self.edit_surface.currentText())
+        self.update_node('orientation', self.edit_orientation.currentText())
         self.update_node('start-station', self.edit_start.currentText())
         self.update_node('end-station', self.edit_end.currentText())
