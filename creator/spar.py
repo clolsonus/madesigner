@@ -51,51 +51,78 @@ class Spar():
         self.valid = False
 
     def make_page(self):
-        # make the edit line
         page = QtGui.QFrame()
-        layout = QtGui.QHBoxLayout()
+        layout = QtGui.QVBoxLayout()
         page.setLayout( layout )
 
-        layout.addWidget( QtGui.QLabel("<b>W x H:</b> ") )
+        line1 = QtGui.QFrame()
+        layout1 = QtGui.QHBoxLayout()
+        line1.setLayout( layout1 )
+        layout.addWidget( line1 )
+
+        line2 = QtGui.QFrame()
+        layout2 = QtGui.QHBoxLayout()
+        line2.setLayout( layout2 )
+        layout.addWidget( line2 )
+
+        layout1.addWidget( QtGui.QLabel("<b>W x H:</b> ") )
 
         self.edit_width = QtGui.QLineEdit()
         self.edit_width.setFixedWidth(50)
         self.edit_width.textChanged.connect(self.onChange)
-        layout.addWidget( self.edit_width )
+        layout1.addWidget( self.edit_width )
 
         self.edit_height = QtGui.QLineEdit()
         self.edit_height.setFixedWidth(50)
         self.edit_height.textChanged.connect(self.onChange)
-        layout.addWidget( self.edit_height )
-
-        self.edit_surface = QComboBoxNoWheel()
-        self.edit_surface.addItem("Top")
-        self.edit_surface.addItem("Bottom")
-        layout.addWidget(self.edit_surface)
+        layout1.addWidget( self.edit_height )
 
         self.edit_orientation = QComboBoxNoWheel()
         self.edit_orientation.addItem("Vertical")
         self.edit_orientation.addItem("Tangent")
-        layout.addWidget(self.edit_orientation)
+        layout1.addWidget(self.edit_orientation)
 
         self.edit_start = QComboBoxNoWheel()
         self.edit_start.addItem("-")
         self.edit_start.addItem("1")
         self.edit_start.addItem("2")
         self.edit_start.addItem("3")
-        layout.addWidget(self.edit_start)
+        layout1.addWidget(self.edit_start)
 
         self.edit_end = QComboBoxNoWheel()
         self.edit_end.addItem("-")
         self.edit_end.addItem("1")
         self.edit_end.addItem("2")
         self.edit_end.addItem("3")
-        layout.addWidget(self.edit_end)
+        layout1.addWidget(self.edit_end)
 
-        delete = QtGui.QPushButton('Delete ')
+        delete = QtGui.QPushButton('Delete')
         delete.clicked.connect(self.delete_self)
-        layout.addWidget(delete)
+        layout1.addWidget(delete)
   
+        layout1.addStretch(1)
+
+        layout2.addWidget( QtGui.QLabel("<b>Pos:</b> ") )
+
+        self.edit_posref = QComboBoxNoWheel()
+        self.edit_posref.addItem("Percent Chord")
+        self.edit_posref.addItem("Rel Front")
+        self.edit_posref.addItem("Rel Rear")
+        self.edit_posref.addItem("Abs Pos")
+        layout2.addWidget(self.edit_posref)
+
+        self.edit_pos = QtGui.QLineEdit()
+        self.edit_pos.setFixedWidth(50)
+        self.edit_pos.textChanged.connect(self.onChange)
+        layout2.addWidget( self.edit_pos )
+
+        self.edit_surface = QComboBoxNoWheel()
+        self.edit_surface.addItem("Top")
+        self.edit_surface.addItem("Bottom")
+        layout2.addWidget(self.edit_surface)
+
+        layout2.addStretch(1)
+
         return page
 
     def get_widget(self):
@@ -112,6 +139,11 @@ class Spar():
         self.xml = node
         self.edit_width.setText(self.get_value('width'))
         self.edit_height.setText(self.get_value('height'))
+        index = self.edit_posref.findText(self.get_value('position-ref'))
+        if index == None:
+            index = 1
+        self.edit_posref.setCurrentIndex(index)
+        self.edit_pos.setText(self.get_value('position'))
         index = self.edit_surface.findText(self.get_value('surface'))
         if index == None:
             index = 1
@@ -137,6 +169,8 @@ class Spar():
         self.xml = node
         self.update_node('width', self.edit_width.text())
         self.update_node('height', self.edit_height.text())
+        self.update_node('position-ref', self.edit_posref.currentText())
+        self.update_node('position', self.edit_pos.text())
         self.update_node('surface', self.edit_surface.currentText())
         self.update_node('orientation', self.edit_orientation.currentText())
         self.update_node('start-station', self.edit_start.currentText())

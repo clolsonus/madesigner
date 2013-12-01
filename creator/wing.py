@@ -47,6 +47,9 @@ class Wing():
         for spar in self.spars:
             if spar.valid:
                 spar.rebuild_stations(self.edit_stations.text())
+        for stringer in self.stringers:
+            if stringer.valid:
+                stringer.rebuild_stations(self.edit_stations.text())
 
     def add_leading_edge(self, xml_node=None):
         leading_edge = LeadingEdge()
@@ -74,7 +77,12 @@ class Wing():
         self.layout_spars.addWidget( spar.get_widget() )
 
     def add_stringer(self, xml_node=None):
-        print "add stringer"
+        stringer = Spar()
+        stringer.rebuild_stations(self.edit_stations.text())
+        if xml_node != None:
+            stringer.parse_xml(xml_node)
+        self.stringers.append(stringer)
+        self.layout_stringers.addWidget( stringer.get_widget() )
 
     def add_sheeting(self, xml_node=None):
         print "add sheeting"
@@ -252,6 +260,8 @@ class Wing():
             self.add_trailing_edge(te_node)
         for spar_node in node.findall('spar'):
             self.add_spar(spar_node)
+        for stringer_node in node.findall('stringer'):
+            self.add_stringer(stringer_node)
 
     def update_node(self, node, value):
         e = self.xml.find(node)
@@ -282,5 +292,9 @@ class Wing():
             if spar.valid:
                 subnode = ET.SubElement(node, 'spar')
                 spar.gen_xml(subnode)
+        for stringer in self.stringers:
+            if stringer.valid:
+                subnode = ET.SubElement(node, 'stringer')
+                stringer.gen_xml(subnode)
 
 

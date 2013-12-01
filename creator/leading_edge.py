@@ -79,7 +79,9 @@ class LeadingEdge():
         delete = QtGui.QPushButton('Delete ')
         delete.clicked.connect(self.delete_self)
         layout.addWidget(delete)
-  
+
+        layout.addStretch(1)
+
         return page
 
     def get_widget(self):
