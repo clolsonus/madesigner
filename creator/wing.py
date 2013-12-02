@@ -16,6 +16,7 @@ from leading_edge import LeadingEdge
 from trailing_edge import TrailingEdge
 from spar import Spar
 from sheet import Sheet
+from simple_hole import SimpleHole
 
 
 class Wing():
@@ -54,6 +55,9 @@ class Wing():
         for sheet in self.sheeting:
             if sheet.valid:
                 sheet.rebuild_stations(self.edit_stations.text())
+        for hole in self.simple_holes:
+            if hole.valid:
+                hole.rebuild_stations(self.edit_stations.text())
 
     def add_leading_edge(self, xml_node=None):
         leading_edge = LeadingEdge()
@@ -97,7 +101,12 @@ class Wing():
         self.layout_sheeting.addWidget( sheet.get_widget() )
 
     def add_simple_hole(self, xml_node=None):
-        print "add simple hole"
+        hole = SimpleHole()
+        hole.rebuild_stations(self.edit_stations.text())
+        if xml_node != None:
+            hole.parse_xml(xml_node)
+        self.simple_holes.append(hole)
+        self.layout_simple_holes.addWidget( hole.get_widget() )
 
     def add_shaped_hole(self, xml_node=None):
         print "add simple hole"
@@ -273,6 +282,8 @@ class Wing():
             self.add_stringer(stringer_node)
         for sheet_node in node.findall('sheet'):
             self.add_sheet(sheet_node)
+        for hole_node in node.findall('simple-hole'):
+            self.add_simple_hole(hole_node)
 
     def update_node(self, node, value):
         e = self.xml.find(node)
@@ -311,5 +322,9 @@ class Wing():
             if sheet.valid:
                 subnode = ET.SubElement(node, 'sheet')
                 sheet.gen_xml(subnode)
+        for hole in self.simple_holes:
+            if hole.valid:
+                subnode = ET.SubElement(node, 'simple-hole')
+                hole.gen_xml(subnode)
 
 
