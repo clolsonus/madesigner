@@ -15,7 +15,7 @@ import xml.etree.ElementTree as ET
 from combobox_nowheel import QComboBoxNoWheel
 
 
-class Spar():
+class BuildTab():
     def __init__(self):
         self.valid = True
         self.container = self.make_page()
@@ -65,22 +65,19 @@ class Spar():
         line2.setLayout( layout2 )
         layout.addWidget( line2 )
 
-        layout1.addWidget( QtGui.QLabel("<b>W x H:</b> ") )
+        layout1.addWidget( QtGui.QLabel("<b>Width:</b> ") )
 
         self.edit_width = QtGui.QLineEdit()
         self.edit_width.setFixedWidth(50)
         self.edit_width.textChanged.connect(self.onChange)
         layout1.addWidget( self.edit_width )
 
-        self.edit_height = QtGui.QLineEdit()
-        self.edit_height.setFixedWidth(50)
-        self.edit_height.textChanged.connect(self.onChange)
-        layout1.addWidget( self.edit_height )
+        layout1.addWidget( QtGui.QLabel("<b>Y Pad:</b> ") )
 
-        self.edit_orientation = QComboBoxNoWheel()
-        self.edit_orientation.addItem("Vertical")
-        self.edit_orientation.addItem("Tangent")
-        layout1.addWidget(self.edit_orientation)
+        self.edit_ypad = QtGui.QLineEdit()
+        self.edit_ypad.setFixedWidth(50)
+        self.edit_ypad.textChanged.connect(self.onChange)
+        layout1.addWidget( self.edit_ypad )
 
         self.edit_start = QComboBoxNoWheel()
         self.edit_start.addItem("-")
@@ -138,7 +135,7 @@ class Spar():
     def parse_xml(self, node):
         self.xml = node
         self.edit_width.setText(self.get_value('width'))
-        self.edit_height.setText(self.get_value('height'))
+        self.edit_ypad.setText(self.get_value('ypad'))
         index = self.edit_posref.findText(self.get_value('position-ref'))
         if index == None:
             index = 1
@@ -148,10 +145,6 @@ class Spar():
         if index == None:
             index = 1
         self.edit_surface.setCurrentIndex(index)
-        index = self.edit_orientation.findText(self.get_value('orientation'))
-        if index == None:
-            index = 1
-        self.edit_orientation.setCurrentIndex(index)
         index = self.edit_start.findText(self.get_value('start-station'))
         if index != None:
             self.edit_start.setCurrentIndex(index)
@@ -168,10 +161,9 @@ class Spar():
     def gen_xml(self, node):
         self.xml = node
         self.update_node('width', self.edit_width.text())
-        self.update_node('height', self.edit_height.text())
+        self.update_node('ypad', self.edit_ypad.text())
         self.update_node('position-ref', self.edit_posref.currentText())
         self.update_node('position', self.edit_pos.text())
         self.update_node('surface', self.edit_surface.currentText())
-        self.update_node('orientation', self.edit_orientation.currentText())
         self.update_node('start-station', self.edit_start.currentText())
         self.update_node('end-station', self.edit_end.currentText())

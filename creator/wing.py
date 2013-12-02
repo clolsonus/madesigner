@@ -17,6 +17,8 @@ from trailing_edge import TrailingEdge
 from spar import Spar
 from sheet import Sheet
 from simple_hole import SimpleHole
+from shaped_hole import ShapedHole
+from build_tab import BuildTab
 
 
 class Wing():
@@ -58,6 +60,12 @@ class Wing():
         for hole in self.simple_holes:
             if hole.valid:
                 hole.rebuild_stations(self.edit_stations.text())
+        for hole in self.shaped_holes:
+            if hole.valid:
+                hole.rebuild_stations(self.edit_stations.text())
+        for tab in self.build_tabs:
+            if tab.valid:
+                tab.rebuild_stations(self.edit_stations.text())
 
     def add_leading_edge(self, xml_node=None):
         leading_edge = LeadingEdge()
@@ -109,10 +117,20 @@ class Wing():
         self.layout_simple_holes.addWidget( hole.get_widget() )
 
     def add_shaped_hole(self, xml_node=None):
-        print "add simple hole"
+        hole = ShapedHole()
+        hole.rebuild_stations(self.edit_stations.text())
+        if xml_node != None:
+            hole.parse_xml(xml_node)
+        self.shaped_holes.append(hole)
+        self.layout_shaped_holes.addWidget( hole.get_widget() )
 
     def add_build_tab(self, xml_node=None):
-        print "add build tab"
+        tab = BuildTab()
+        tab.rebuild_stations(self.edit_stations.text())
+        if xml_node != None:
+            tab.parse_xml(xml_node)
+        self.build_tabs.append(tab)
+        self.layout_build_tabs.addWidget( tab.get_widget() )
 
     def add_flap(self, xml_node=None):
         print "add flap"
@@ -284,6 +302,10 @@ class Wing():
             self.add_sheet(sheet_node)
         for hole_node in node.findall('simple-hole'):
             self.add_simple_hole(hole_node)
+        for hole_node in node.findall('shaped-hole'):
+            self.add_shaped_hole(hole_node)
+        for tab_node in node.findall('build-tab'):
+            self.add_build_tab(tab_node)
 
     def update_node(self, node, value):
         e = self.xml.find(node)
@@ -326,5 +348,13 @@ class Wing():
             if hole.valid:
                 subnode = ET.SubElement(node, 'simple-hole')
                 hole.gen_xml(subnode)
+        for hole in self.shaped_holes:
+            if hole.valid:
+                subnode = ET.SubElement(node, 'shaped-hole')
+                hole.gen_xml(subnode)
+        for tab in self.build_tabs:
+            if tab.valid:
+                subnode = ET.SubElement(node, 'build-tab')
+                tab.gen_xml(subnode)
 
 

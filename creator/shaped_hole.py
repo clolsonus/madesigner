@@ -15,7 +15,7 @@ import xml.etree.ElementTree as ET
 from combobox_nowheel import QComboBoxNoWheel
 
 
-class Spar():
+class ShapedHole():
     def __init__(self):
         self.valid = True
         self.container = self.make_page()
@@ -65,22 +65,19 @@ class Spar():
         line2.setLayout( layout2 )
         layout.addWidget( line2 )
 
-        layout1.addWidget( QtGui.QLabel("<b>W x H:</b> ") )
+        layout1.addWidget( QtGui.QLabel("<b>Mat. W:</b> ") )
 
         self.edit_width = QtGui.QLineEdit()
         self.edit_width.setFixedWidth(50)
         self.edit_width.textChanged.connect(self.onChange)
         layout1.addWidget( self.edit_width )
 
-        self.edit_height = QtGui.QLineEdit()
-        self.edit_height.setFixedWidth(50)
-        self.edit_height.textChanged.connect(self.onChange)
-        layout1.addWidget( self.edit_height )
+        layout1.addWidget( QtGui.QLabel("<b>Corner Rad:</b> ") )
 
-        self.edit_orientation = QComboBoxNoWheel()
-        self.edit_orientation.addItem("Vertical")
-        self.edit_orientation.addItem("Tangent")
-        layout1.addWidget(self.edit_orientation)
+        self.edit_radius = QtGui.QLineEdit()
+        self.edit_radius.setFixedWidth(50)
+        self.edit_radius.textChanged.connect(self.onChange)
+        layout1.addWidget( self.edit_radius )
 
         self.edit_start = QComboBoxNoWheel()
         self.edit_start.addItem("-")
@@ -102,24 +99,33 @@ class Spar():
   
         layout1.addStretch(1)
 
-        layout2.addWidget( QtGui.QLabel("<b>Pos:</b> ") )
+        layout2.addWidget( QtGui.QLabel("<b>Start Pos:</b> ") )
 
-        self.edit_posref = QComboBoxNoWheel()
-        self.edit_posref.addItem("Chord %")
-        self.edit_posref.addItem("Rel Front")
-        self.edit_posref.addItem("Rel Rear")
-        self.edit_posref.addItem("Abs Pos")
-        layout2.addWidget(self.edit_posref)
+        self.edit_pos1ref = QComboBoxNoWheel()
+        self.edit_pos1ref.addItem("Chord %")
+        self.edit_pos1ref.addItem("Rel Front")
+        self.edit_pos1ref.addItem("Rel Rear")
+        self.edit_pos1ref.addItem("Abs Pos")
+        layout2.addWidget(self.edit_pos1ref)
 
-        self.edit_pos = QtGui.QLineEdit()
-        self.edit_pos.setFixedWidth(50)
-        self.edit_pos.textChanged.connect(self.onChange)
-        layout2.addWidget( self.edit_pos )
+        self.edit_pos1 = QtGui.QLineEdit()
+        self.edit_pos1.setFixedWidth(50)
+        self.edit_pos1.textChanged.connect(self.onChange)
+        layout2.addWidget( self.edit_pos1 )
 
-        self.edit_surface = QComboBoxNoWheel()
-        self.edit_surface.addItem("Top")
-        self.edit_surface.addItem("Bottom")
-        layout2.addWidget(self.edit_surface)
+        layout2.addWidget( QtGui.QLabel("<b>End Pos:</b> ") )
+
+        self.edit_pos2ref = QComboBoxNoWheel()
+        self.edit_pos2ref.addItem("Chord %")
+        self.edit_pos2ref.addItem("Rel Front")
+        self.edit_pos2ref.addItem("Rel Rear")
+        self.edit_pos2ref.addItem("Abs Pos")
+        layout2.addWidget(self.edit_pos2ref)
+
+        self.edit_pos2 = QtGui.QLineEdit()
+        self.edit_pos2.setFixedWidth(50)
+        self.edit_pos2.textChanged.connect(self.onChange)
+        layout2.addWidget( self.edit_pos2 )
 
         layout2.addStretch(1)
 
@@ -137,21 +143,18 @@ class Spar():
 
     def parse_xml(self, node):
         self.xml = node
-        self.edit_width.setText(self.get_value('width'))
-        self.edit_height.setText(self.get_value('height'))
-        index = self.edit_posref.findText(self.get_value('position-ref'))
+        self.edit_width.setText(self.get_value('material-width'))
+        self.edit_radius.setText(self.get_value('corner-radius'))
+        index = self.edit_pos1ref.findText(self.get_value('position1-ref'))
         if index == None:
             index = 1
-        self.edit_posref.setCurrentIndex(index)
-        self.edit_pos.setText(self.get_value('position'))
-        index = self.edit_surface.findText(self.get_value('surface'))
+        self.edit_pos1ref.setCurrentIndex(index)
+        self.edit_pos1.setText(self.get_value('position1'))
+        index = self.edit_pos2ref.findText(self.get_value('position2-ref'))
         if index == None:
             index = 1
-        self.edit_surface.setCurrentIndex(index)
-        index = self.edit_orientation.findText(self.get_value('orientation'))
-        if index == None:
-            index = 1
-        self.edit_orientation.setCurrentIndex(index)
+        self.edit_pos2ref.setCurrentIndex(index)
+        self.edit_pos2.setText(self.get_value('position2'))
         index = self.edit_start.findText(self.get_value('start-station'))
         if index != None:
             self.edit_start.setCurrentIndex(index)
@@ -167,11 +170,11 @@ class Spar():
         
     def gen_xml(self, node):
         self.xml = node
-        self.update_node('width', self.edit_width.text())
-        self.update_node('height', self.edit_height.text())
-        self.update_node('position-ref', self.edit_posref.currentText())
-        self.update_node('position', self.edit_pos.text())
-        self.update_node('surface', self.edit_surface.currentText())
-        self.update_node('orientation', self.edit_orientation.currentText())
+        self.update_node('material-width', self.edit_width.text())
+        self.update_node('corner-radius', self.edit_radius.text())
+        self.update_node('position1-ref', self.edit_pos1ref.currentText())
+        self.update_node('position1', self.edit_pos1.text())
+        self.update_node('position2-ref', self.edit_pos2ref.currentText())
+        self.update_node('position2', self.edit_pos2.text())
         self.update_node('start-station', self.edit_start.currentText())
         self.update_node('end-station', self.edit_end.currentText())

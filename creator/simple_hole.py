@@ -95,7 +95,7 @@ class SimpleHole():
         layout2.addWidget( QtGui.QLabel("<b>Pos:</b> ") )
 
         self.edit_posref = QComboBoxNoWheel()
-        self.edit_posref.addItem("Percent Chord")
+        self.edit_posref.addItem("Chord %")
         self.edit_posref.addItem("Rel Front")
         self.edit_posref.addItem("Rel Rear")
         self.edit_posref.addItem("Abs Pos")

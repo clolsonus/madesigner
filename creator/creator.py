@@ -88,7 +88,7 @@ class Creator(QtGui.QWidget):
         build.clicked.connect(self.build)
         cmd_layout.addWidget(build)
   
-        self.setGeometry(300, 300, 600, 480)
+        self.resize(800, 900)
         self.show()
 
     def add_wing(self):
