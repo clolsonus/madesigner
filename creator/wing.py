@@ -15,6 +15,7 @@ import xml.etree.ElementTree as ET
 from leading_edge import LeadingEdge
 from trailing_edge import TrailingEdge
 from spar import Spar
+from sheet import Sheet
 
 
 class Wing():
@@ -26,7 +27,7 @@ class Wing():
         self.trailing_edges = []
         self.spars = []
         self.stringers = []
-        self.sheets = []
+        self.sheeting = []
         self.simple_holes = []
         self.shaped_holes = []
         self.build_tabs = []
@@ -50,6 +51,9 @@ class Wing():
         for stringer in self.stringers:
             if stringer.valid:
                 stringer.rebuild_stations(self.edit_stations.text())
+        for sheet in self.sheeting:
+            if sheet.valid:
+                sheet.rebuild_stations(self.edit_stations.text())
 
     def add_leading_edge(self, xml_node=None):
         leading_edge = LeadingEdge()
@@ -84,8 +88,13 @@ class Wing():
         self.stringers.append(stringer)
         self.layout_stringers.addWidget( stringer.get_widget() )
 
-    def add_sheeting(self, xml_node=None):
-        print "add sheeting"
+    def add_sheet(self, xml_node=None):
+        sheet = Sheet()
+        sheet.rebuild_stations(self.edit_stations.text())
+        if xml_node != None:
+            sheet.parse_xml(xml_node)
+        self.sheeting.append(sheet)
+        self.layout_sheeting.addWidget( sheet.get_widget() )
 
     def add_simple_hole(self, xml_node=None):
         print "add simple hole"
@@ -181,7 +190,7 @@ class Wing():
         menu.addAction("Trailing Edge", self.add_trailing_edge)
         menu.addAction("Spar", self.add_spar)
         menu.addAction("Stringer", self.add_stringer)
-        menu.addAction("Sheeting", self.add_sheeting)
+        menu.addAction("Sheeting", self.add_sheet)
         menu.addAction("Lighting/Spar Hole", self.add_simple_hole)
         menu.addAction("Shaped Hole", self.add_shaped_hole)
         menu.addAction("Build Tab", self.add_build_tab)
@@ -262,6 +271,8 @@ class Wing():
             self.add_spar(spar_node)
         for stringer_node in node.findall('stringer'):
             self.add_stringer(stringer_node)
+        for sheet_node in node.findall('sheet'):
+            self.add_sheet(sheet_node)
 
     def update_node(self, node, value):
         e = self.xml.find(node)
@@ -296,5 +307,9 @@ class Wing():
             if stringer.valid:
                 subnode = ET.SubElement(node, 'stringer')
                 stringer.gen_xml(subnode)
+        for sheet in self.sheeting:
+            if sheet.valid:
+                subnode = ET.SubElement(node, 'sheet')
+                sheet.gen_xml(subnode)
 
 
