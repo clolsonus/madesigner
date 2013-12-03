@@ -106,6 +106,110 @@ class Builder():
             end = float(endstr)
         wing.add_spar(surf=surface, orientation=orientation, percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ysize=height, start_station=start, end_station=end, part="wing")
 
+    def parse_sheet(self, wing, node):
+        depth = float(get_value(node, 'depth'))
+        xstart = float(get_value(node, 'xstart'))
+        xmode = get_value(node, 'xmode')
+        dist = float(get_value(node, 'xend'))
+        xend = None
+        xdist = None
+        if xmode == "Sheet Width":
+            xdist = dist
+        elif xmode == "End Position":
+            xend = dist
+        surface = get_value(node, 'surface').lower()
+        junk, startstr = get_value(node, 'start-station').split()
+        junk, endstr = get_value(node, 'end-station').split()
+        if startstr == "Inner" or startstr == "":
+            start = None
+        else:
+            start = float(startstr)
+        if endstr == "Outer" or endstr == "":
+            end = None
+        else:
+            end = float(endstr)
+        print str(surface) + " " + str(xstart) + " " + str(xend) + " " + str(xdist) + " " + str(depth) + " " + str(start) + " " + str(end)
+        wing.add_sheeting(surf=surface, xstart=xstart, xend=xend, xdist=xdist, ysize=depth, start_station=start, end_station=end, part="wing")
+
+    def parse_simple_hole(self, wing, node):
+        radius = float(get_value(node, 'radius'))
+        position_ref = get_value(node, 'position-ref')
+        position_val = float(get_value(node, 'position'))
+        percent = None
+        front = None
+        rear = None
+        xpos = None
+        if position_ref == "Chord %":
+            percent = position_val
+        elif position_ref == "Rel Front":
+            front = position_val
+        elif position_ref == "Rel Rear":
+            rear = position_val
+        elif position_ref == "Abs Pos":
+            xpos = position_val
+        junk, startstr = get_value(node, 'start-station').split()
+        junk, endstr = get_value(node, 'end-station').split()
+        if startstr == "Inner" or startstr == "":
+            start = None
+        else:
+            start = float(startstr)
+        if endstr == "Outer" or endstr == "":
+            end = None
+        else:
+            end = float(endstr)
+
+        pos=contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
+        wing.add_simple_hole(radius=radius, pos1=pos, start_station=start, end_station=end, part="wing")
+
+    def parse_shaped_hole(self, wing, node):
+        width = float(get_value(node, 'material-width'))
+        radius = float(get_value(node, 'corner-radius'))
+
+        position1_ref = get_value(node, 'position1-ref')
+        position1_val = float(get_value(node, 'position1'))
+        percent = None
+        front = None
+        rear = None
+        xpos = None
+        if position1_ref == "Chord %":
+            percent = position1_val
+        elif position1_ref == "Rel Front":
+            front = position1_val
+        elif position1_ref == "Rel Rear":
+            rear = position1_val
+        elif position1_ref == "Abs Pos":
+            xpos = position1_val
+        pos1=contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
+
+        position2_ref = get_value(node, 'position2-ref')
+        position2_val = float(get_value(node, 'position2'))
+        percent = None
+        front = None
+        rear = None
+        xpos = None
+        if position2_ref == "Chord %":
+            percent = position2_val
+        elif position2_ref == "Rel Front":
+            front = position2_val
+        elif position2_ref == "Rel Rear":
+            rear = position2_val
+        elif position2_ref == "Abs Pos":
+            xpos = position2_val
+        pos2=contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
+
+        junk, startstr = get_value(node, 'start-station').split()
+        junk, endstr = get_value(node, 'end-station').split()
+        if startstr == "Inner" or startstr == "":
+            start = None
+        else:
+            start = float(startstr)
+        if endstr == "Outer" or endstr == "":
+            end = None
+        else:
+            end = float(endstr)
+
+        wing.add_shaped_hole(pos1=pos1, pos2=pos2, material_width=width, radius=radius, start_station=start, end_station=end, part="wing")
+
     def parse_wing(self, node):
         wing = Wing(get_value(node, 'name'))
         wing.units = self.units
@@ -123,14 +227,14 @@ class Builder():
             self.parse_trailing_edge(wing, te_node)
         for spar_node in node.findall('spar'):
             self.parse_spar(wing, spar_node)
-        #for stringer_node in node.findall('stringer'):
-        #    self.parse_stringer(wing, stringer_node)
-        #for sheet_node in node.findall('sheet'):
-        #    self.parse_sheet(wing, sheet_node)
-        #for hole_node in node.findall('simple-hole'):
-        #    self.parse_simple_hole(wing, hole_node)
-        #for hole_node in node.findall('shaped-hole'):
-        #    self.parse_shaped_hole(wing, hole_node)
+        for stringer_node in node.findall('stringer'):
+            self.parse_spar(wing, stringer_node)
+        for sheet_node in node.findall('sheet'):
+            self.parse_sheet(wing, sheet_node)
+        for hole_node in node.findall('simple-hole'):
+            self.parse_simple_hole(wing, hole_node)
+        for hole_node in node.findall('shaped-hole'):
+            self.parse_shaped_hole(wing, hole_node)
         #for tab_node in node.findall('build-tab'):
         #    self.parse_build_tab(wing, tab_node)
 
