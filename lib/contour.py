@@ -553,6 +553,7 @@ class Contour:
             curve = list(self.top)
         else:
             curve = list(self.bottom)
+        #print str(curve)
 
         n = len(curve)
         slopes = spline.derivative1(curve)
@@ -609,6 +610,8 @@ class Contour:
 
     def cutout_sweep(self, surf="top", xstart=0.0, \
                          xend=None, xdist=None, ysize=0.0, pos=None, nudge=0.0):
+        #print "ysize = " + str(ysize)
+        #print "xstart = " + str(xstart) + " xend = " + str(xend) + " xdist = " + str(xdist)
         if self.poly == None:
             self.make_poly()
         flush = self.project_contour(surf=surf, xstart=xstart, \
@@ -623,6 +626,7 @@ class Contour:
         surf1.reverse()
         shape = surf1 + surf2
         mask = Polygon.Polygon(shape)
+        #print str(mask)
         self.poly = self.poly - mask
 
         # generate 3d points as top surface and bottom surface
@@ -727,9 +731,9 @@ class Contour:
                 mask = self.reduce_degeneracy(mask)
 
         mask = Polygon.Utils.convexHull(mask)
-        for p in mask:
-            print "contour..."
-            print p
+        #for p in mask:
+        #    print "contour..."
+        #    print p
 
         self.poly = self.poly - mask
 
