@@ -194,48 +194,67 @@ class AC3D:
 
         self.f.write("kids 0\n")
 
+    def myint(self, x ):
+        if x > 0:
+            return int(x + 0.5)
+        else:
+            return int(x - 0.5)
+
     def make_sheet_help1(self, vertices, top_points, invert_order):
         # make surface polys
         tmp = 0
         i = 1
+        #print "help1 *new* " + str(len(top_points)) + " " + str(top_points)
         while i < len(top_points):
             c0 = top_points[i-1]
             c1 = top_points[i]
-            j = 1
-            k = 1
-            while j < len(c0) or k < len(c1):
-                p0 = c0[j-1]
-                if j < len(c0):
+            ratio = float( len(c0) / len(c1) )
+            #print "len(c0)=" + str(len(c0)) + " len(c1)=" + str(len(c1))
+            #print "ratio=" + str(ratio)
+            j_inc = 1.0
+            k_inc = 1.0
+            if ratio > 1.0:
+                k_inc = 1.0 / ratio
+            elif ratio < 1.0:
+                j_inc = ratio
+            j_real = j_inc
+            k_real = k_inc
+            j = self.myint(j_real)
+            k = self.myint(k_real)
+            j_prev = 0
+            k_prev = 0
+            while j < len(c0) and k < len(c1):
+                #print "i=" + str(i) + " j=" + str(j) + " k=" + str(k)
+                p0 = c0[j_prev]
+                if j > j_prev:
                     p1 = c0[j]
                 else:
                     p1 = None
-                p2 = c1[k-1]
-                if k < len(c1):
+                p2 = c1[k_prev]
+                if k > k_prev:
                     p3 = c1[k]
                 else:
                     p3 = None
-                if p1[0] < p3[0]:
-                    p3 = None
-                elif p1[0] > p3[0]:
-                    p1 = None
                 vlist = []
                 if p3 == None:
                     vlist.append( vertices.add_point(p0) )
                     vlist.append( vertices.add_point(p2) )
                     vlist.append( vertices.add_point(p1) )
-                    j += 1
                 elif p1 == None:
                     vlist.append( vertices.add_point(p0) )
                     vlist.append( vertices.add_point(p2) )
                     vlist.append( vertices.add_point(p3) )
-                    k += 1
                 else:
                     vlist.append( vertices.add_point(p0) )
                     vlist.append( vertices.add_point(p1) )
                     vlist.append( vertices.add_point(p3) )
                     vlist.append( vertices.add_point(p2) )
-                    j += 1
-                    k += 1
+                j_prev = j
+                k_prev =k
+                j_real += j_inc
+                k_real += k_inc
+                j = self.myint(j_real)
+                k = self.myint(k_real)
                 self.f.write("SURF 0x10\n")
                 self.f.write("mat 1\n")
                 self.f.write("refs " + str(len(vlist)) + "\n")
@@ -357,6 +376,10 @@ class AC3D:
     def make_sheet(self, name, top_points, bot_points, invert_order):
         surfs = 0
         vertices = VertexDB()
+
+        print "make sheet"
+        print "top points = " + str(len(top_points))
+        print "bottom points = " + str(len(bot_points))
 
         # pass 1 assemble unique vertex list and count surfs
         i = 0
