@@ -105,6 +105,21 @@ class Flap:
         self.side = "right"
 
 
+class BuildTab:
+    def __init__(self, surf="bottom", pos=None, xsize=0.5, ypad=0.0, \
+                 start_station=None, end_station=None, \
+                 part=""):
+        self.surf = surf
+        self.pos = pos
+        self.xsize = xsize
+        self.ypad = ypad
+        self.start_station = start_station
+        self.end_station = end_station
+        self.part = part        # wing or flap
+        self.side = "right"
+        self.points = []
+
+
 class Rib:
     def __init__(self):
         self.thickness = 0.0625
@@ -185,6 +200,7 @@ class Wing:
         self.spars = []
         self.flaps = []
         self.holes = []
+	self.build_tabs = []
 
         # generated parts
         self.right_ribs = []
@@ -452,6 +468,26 @@ class Wing:
             # blended airfoils and get the start/end points of the
             # bottom flap front stringer correct.
 
+    def add_build_tab(self, surf="top", \
+                          percent=None, front=None, rear=None, xpos=None, \
+                          xsize=0.0, ypad=0.0, \
+                          start_station=None, end_station=None, mirror=True, \
+                          part=""):
+        cutpos = contour.Cutpos( percent, front, rear, xpos )
+        if start_station == None:
+            start_station = self.stations[0]
+        if end_station == None:
+            end_station = self.stations[len(self.stations)-1]
+        tab = BuildTab( surf, cutpos, xsize, ypad, \
+                        start_station, end_station, part )
+        tab.side = "right"
+        self.build_tabs.append( tab )
+        if mirror:
+            tab = BuildTab( surf, cutpos, xsize, ypad,
+                            -start_station, -end_station, part )
+            tab.side = "left"
+            self.build_tabs.append( tab )
+
     # return the tip position of the wing panel after dihedral rotation
     def get_tip_pos(self):
         rad = math.radians(self.dihedral)
@@ -548,7 +584,7 @@ class Wing:
                         ypos = (ty + by) * 0.5
                         rib.contour.cut_hole( xpos, ypos, hole.radius )
                     elif hole.type == "shaped":
-                        print "make shaped hole"
+                        #print "make shaped hole"
                         rib.contour.carve_shaped_hole( pos1=hole.pos1,\
                                           pos2=hole.pos2, \
                                           material_width=hole.material_width, \
@@ -565,6 +601,12 @@ class Wing:
                     shape = rib.contour.cutout_stringer(spar.cutout, rib.pos, rib.nudge)
                     if len(shape):
                         spar.points.append( shape )
+
+        # add build tabs last (after twist of course)
+        for tab in self.build_tabs:
+            if self.match_station(tab.start_station, tab.end_station, lat_dist):
+                if rib.part == tab.part and rib.side == tab.side:
+                    shape = rib.contour.add_build_tab(tab.surf, tab.pos, tab.xsize, tab.ypad)
 
     def build(self):
         if len(self.stations) < 2:
