@@ -92,11 +92,12 @@ class Contour:
 
         ymin = None
         ymax = None
-        for contour in self.poly:
-            # print "contour " + str(contour)
+        #print "poly contours = " + str(len(self.poly))
+        for index, contour in enumerate(self.poly):
+            #print "contour " + str(index) + " = " + str(contour)
             p0 = None
             for p1 in contour:
-                # print " p1 = " + str(p1) + " xpos = " + str(xpos)
+                #print " p1 = " + str(p1) + " xpos = " + str(xpos)
                 if p0 != None:
                     if p0[0] < p1[0]:
                         a = p0
@@ -105,7 +106,7 @@ class Contour:
                         a = p1
                         b = p0
                     if a[0] <= xpos and b[0] >= xpos:
-                        # print "found a spanning segment!"
+                        #print "found a spanning segment!"
                         # a & b span xpos
                         xrange = b[0] - a[0]
                         yrange = b[1] - a[1]
@@ -120,10 +121,10 @@ class Contour:
                             ymax = ypos
                 p0 = p1
 
-            if surf == "top":
-                return ymax
-            else:
-                return ymin
+        if surf == "top":
+            return ymax
+        else:
+            return ymin
                     
     def fit(self, maxpts = 30, maxerror = 0.1):
         self.top = list( self.curve_fit(self.top, maxpts, maxerror) )
@@ -280,6 +281,16 @@ class Contour:
             xpos += long_dist
         return xpos
 
+    def get_slope(self, surf="top", xpos=0.0):
+        if surf == "top":
+            curve = list(self.top)
+        else:
+            curve = list(self.bottom)
+        slopes = spline.derivative1(curve)
+        index = spline.binsearch(curve, xpos)
+        slope = slopes[index]
+        return slope
+
     # given a line (point + slope) return the "xpos" of the
     # intersection with the contour (does not handle the special case
     # of a vertical slope in either line)
@@ -391,13 +402,7 @@ class Contour:
         # make, position, and orient the cutout
         angle = 0
         if tangent:
-            if cutout.surf == "top":
-                curve = list(self.top)
-            else:
-                curve = list(self.bottom)
-            slopes = spline.derivative1(curve)
-            index = spline.binsearch(curve, xpos)
-            slope = slopes[index]
+            slope = self.get_slope(cutout.surf, xpos)
             rad = math.atan2(slope,1)
             angle = math.degrees(rad)
         if cutout.surf != "top":
@@ -412,6 +417,11 @@ class Contour:
         r1 = self.rotate_point( (-xhalf, -cutout.ysize), angle )
         r2 = self.rotate_point( (xhalf, -cutout.ysize), angle )
         r3 = self.rotate_point( (xhalf, yhalf), angle )
+        #print "xpos = " + str(xpos) + " ypos = " + str(ypos)
+        #print "surf = " + cutout.surf
+	#if ypos == None:
+        #    self.display()
+	#    ypos = 0.0
         p0 = ( r0[0] + xpos, r0[1] + ypos )
         p1 = ( r1[0] + xpos, r1[1] + ypos )
         p2 = ( r2[0] + xpos, r2[1] + ypos )
