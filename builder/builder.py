@@ -210,6 +210,36 @@ class Builder():
 
         wing.add_shaped_hole(pos1=pos1, pos2=pos2, material_width=width, radius=radius, start_station=start, end_station=end, part="wing")
 
+    def parse_build_tab(self, wing, node):
+        width = float(get_value(node, 'width'))
+        ypad = float(get_value(node, 'ypad'))
+        position_ref = get_value(node, 'position-ref')
+        position_val = float(get_value(node, 'position'))
+        percent = None
+        front = None
+        rear = None
+        xpos = None
+        if position_ref == "Chord %":
+            percent = position_val
+        elif position_ref == "Rel Front":
+            front = position_val
+        elif position_ref == "Rel Rear":
+            rear = position_val
+        elif position_ref == "Abs Pos":
+            xpos = position_val
+        surface = get_value(node, 'surface').lower()
+        junk, startstr = get_value(node, 'start-station').split()
+        junk, endstr = get_value(node, 'end-station').split()
+        if startstr == "Inner" or startstr == "":
+            start = None
+        else:
+            start = float(startstr)
+        if endstr == "Outer" or endstr == "":
+            end = None
+        else:
+            end = float(endstr)
+        wing.add_build_tab(surf=surface, percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ypad=ypad, start_station=start, end_station=end, part="wing")
+
     def parse_wing(self, node):
         wing = Wing(get_value(node, 'name'))
         wing.units = self.units
@@ -235,8 +265,8 @@ class Builder():
             self.parse_simple_hole(wing, hole_node)
         for hole_node in node.findall('shaped-hole'):
             self.parse_shaped_hole(wing, hole_node)
-        #for tab_node in node.findall('build-tab'):
-        #    self.parse_build_tab(wing, tab_node)
+        for tab_node in node.findall('build-tab'):
+            self.parse_build_tab(wing, tab_node)
 
         wing.build()
         wing.layout_parts_sheets( 24, 8 )
