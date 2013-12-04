@@ -12,6 +12,7 @@ started: November 2013
 import sys
 from PyQt4 import QtGui, QtCore
 import xml.etree.ElementTree as ET
+from combobox_nowheel import QComboBoxNoWheel
 
 
 class Overview():
@@ -41,11 +42,17 @@ class Overview():
         self.edit_email = QtGui.QLineEdit()
         self.edit_email.setFixedWidth(250)
         self.edit_email.textChanged.connect(self.onChange)
+        self.edit_units = QComboBoxNoWheel()
+        self.edit_units.setFixedWidth(250)
+        self.edit_units.addItem("in")
+        self.edit_units.addItem("cm")
+        self.edit_units.addItem("mm")
 
         layout.addRow( "<b>Design Name:</b>", self.edit_name )
         layout.addRow( "<b>Description:</b>", self.edit_desc )
         layout.addRow( "<b>Author:</b>", self.edit_author )
         layout.addRow( "<b>Email:</b>", self.edit_email )
+        layout.addRow( "<b>Units:</b>", self.edit_units )
 
         return page
 
@@ -65,6 +72,10 @@ class Overview():
         self.edit_desc.setText(self.get_value('description'))
         self.edit_author.setText(self.get_value('author'))
         self.edit_email.setText(self.get_value('email'))
+        index = self.edit_units.findText(self.get_value('units'))
+        if index == None:
+            index = 1
+        self.edit_units.setCurrentIndex(index)
 
     def update_node(self, node, value):
         e = self.xml.find(node)
@@ -78,4 +89,4 @@ class Overview():
         self.update_node('description', self.edit_desc.toPlainText())
         self.update_node('author', self.edit_author.text())
         self.update_node('email', self.edit_email.text())
-
+        self.update_node('units', self.edit_units.currentText())
