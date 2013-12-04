@@ -95,7 +95,7 @@ class Contour:
         #print "poly contours = " + str(len(self.poly))
         for index, contour in enumerate(self.poly):
             #print "contour " + str(index) + " = " + str(contour)
-            p0 = None
+            p0 = contour[len(contour)-1]
             for p1 in contour:
                 #print " p1 = " + str(p1) + " xpos = " + str(xpos)
                 if p0 != None:
