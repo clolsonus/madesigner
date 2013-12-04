@@ -24,6 +24,22 @@ import layout
 import spline
 
 
+# rotate a point about (0, 0)
+def rotate_point( pt, xdist, angle ):
+    rad = math.radians(angle)
+    newx = (pt[0]-xdist) * math.cos(rad) - pt[2] * math.sin(rad) + xdist
+    newy = pt[1]
+    newz = pt[2] * math.cos(rad) + (pt[0]-xdist) * math.sin(rad)
+    return (newx, newy, newz)
+
+def rotate( points, xdist, angle ):
+    newpoints = []
+    for pt in points:
+        print str(pt)
+        newpoints.append( rotate_point(pt, xdist, angle) )
+    return newpoints
+
+
 class TrailingEdge:
     def __init__(self, width=0.0, height=0.0, shape="", \
                      start_station=None, end_station=None, part=""):
@@ -35,6 +51,9 @@ class TrailingEdge:
         self.part = part        # wing or flap
         self.side = "right"
         self.points = []
+
+    def rotate(self, angle):
+        self.points = rotate(self.points, angle)
 
 
 class LeadingEdge:
@@ -543,7 +562,8 @@ class Wing:
                 if rib.has_te and rib.part == te.part and rib.side == te.side:
                     shape = rib.contour.cutout_trailing_edge( width=te.width, height=te.height, shape =te.shape, force_fit=True, pos=rib.pos, nudge=rib.nudge)
                     if len(shape):
-                        te.points.append(shape)
+                        rot_shape = rotate(shape, rib.pos[1], rib.twist)
+                        te.points.append(rot_shape)
 
         # leading edge cutout
         for le in self.leading_edges:
@@ -551,7 +571,8 @@ class Wing:
                 if rib.part == le.part and rib.side == le.side:
                     shape = rib.contour.cutout_leading_edge_diamond( le.size, rib.pos, rib.nudge )
                     if len(shape):
-                        le.points.append(shape)
+                        rot_shape = rotate(shape, rib.pos[1], rib.twist)
+                        le.points.append(rot_shape)
                 else:
                     print "no match: " + rib.part + " != " + le.part + " or " + rib.side + " != " + le.side + " (has_le= " + str(rib.has_le) + ")"
 
@@ -561,8 +582,10 @@ class Wing:
                 if rib.part == sheet.part and rib.side == sheet.side:
                     shape = rib.contour.cutout_sweep(surf=sheet.surf, xstart=sheet.xstart, xend=sheet.xend, xdist=sheet.xdist, ysize=sheet.ysize, pos=rib.pos, nudge=rib.nudge)
                     if len(shape) > 1:
-                        sheet.top_points.append(shape[0])
-                        sheet.bot_points.append(shape[1])
+                        rot_shape_top = rotate(shape[0], rib.pos[1], rib.twist)
+                        rot_shape_bot = rotate(shape[1], rib.pos[1], rib.twist)
+                        sheet.top_points.append(rot_shape_top)
+                        sheet.bot_points.append(rot_shape_bot)
 
         # cutout stringers (before twist)
         for stringer in self.stringers:
@@ -570,7 +593,8 @@ class Wing:
                 if rib.part == stringer.part and rib.side == stringer.side:
                     shape = rib.contour.cutout_stringer(stringer.cutout, rib.pos, rib.nudge)
                     if len(shape):
-                        stringer.points.append(shape)
+                        rot_shape = rotate(shape, rib.pos[1], rib.twist)
+                        stringer.points.append(rot_shape)
 
         # hole cutouts
         for hole in self.holes:
