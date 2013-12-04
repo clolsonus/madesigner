@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-MAcreator 
+MA creator 
 
 This program hopefully does something eventually ...
 
