@@ -278,7 +278,7 @@ class Builder():
         airfoil_tip = get_value(node, 'airfoil-tip')
         if airfoil_tip == "":
             airfoil_tip = None
-        wing.load_airfoils( airfoil_root, airfoil_tip )
+        wing.load_airfoils( airfoil_root, airfoil_tip, 50 )
         wing.span = float(get_value(node, 'span'))
         station_list = map( float, str(get_value(node, 'stations')).split())
         wing.set_stations( station_list )
