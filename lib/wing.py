@@ -35,7 +35,7 @@ def rotate_point( pt, xdist, angle ):
 def rotate( points, xdist, angle ):
     newpoints = []
     for pt in points:
-        print str(pt)
+        #print str(pt)
         newpoints.append( rotate_point(pt, xdist, angle) )
     return newpoints
 
@@ -51,9 +51,6 @@ class TrailingEdge:
         self.part = part        # wing or flap
         self.side = "right"
         self.points = []
-
-    def rotate(self, angle):
-        self.points = rotate(self.points, angle)
 
 
 class LeadingEdge:
@@ -905,8 +902,11 @@ class Wing:
         side2.reverse()
         shape = side1 + side2
 
-        if len(shape) < 4:
-            print "wing: made a bad shape!"
+        if len(shape) == 0:
+            print "wing: made an empty stringer shape"
+        elif len(shape) < 4:
+            print "wing: made a (bad) stringer shape with only " \
+                + str(len(shape)) + " points!"
 
         return shape
 
