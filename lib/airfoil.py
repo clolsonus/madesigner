@@ -343,10 +343,10 @@ class Airfoil(Contour):
         contour = Polygon.Polygon( (p1, p2, p3) )
 
         # make an oversize mask
-        p1 = (xtail, ytail+h2)
+        p1 = (xtail+width, ytail+h2)
         p2 = (xtail-width, ytail+height*2)
         p3 = (xtail-width, ytail-height*2)
-        p4 = (xtail, ytail-h2)
+        p4 = (xtail+width, ytail-h2)
         mask = Polygon.Polygon( (p1, p2, p3, p4) )
 
         if shape == "flat":
