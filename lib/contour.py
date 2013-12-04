@@ -192,20 +192,29 @@ class Contour:
 
     def rotate(self, angle):
         newtop = []
-        newbottom = []
-        newlabels = []
         for pt in self.top:
             newtop.append( self.rotate_point(pt, angle) )
+        self.top = list(newtop)
+
+        newbottom = []
         for pt in self.bottom:
             newbottom.append( self.rotate_point(pt, angle) )
+        self.bottom = list(newbottom)
+
+        newlabels = []
         for label in self.labels:
             newpt = self.rotate_point( (label[0], label[1]), angle)
             newlabels.append( (newpt[0], newpt[1], label[2], label[3] + angle, label[4]) )
+        self.labels = list(newlabels)
+
+        if len(self.saved_bounds) > 0:
+            newbounds = []
+            for pt in self.saved_bounds:
+                newbounds.append( self.rotate_point(pt, angle) )
+            self.saved_bounds = list(newbounds)
+
         if self.poly != None:
             self.poly.rotate(math.radians(angle), 0.0, 0.0)
-        self.top = list(newtop)
-        self.bottom = list(newbottom)
-        self.labels = list(newlabels)
 
     def scale(self, hsize, vsize):
         newtop = []
