@@ -75,6 +75,37 @@ class Builder():
             end = float(endstr)
         wing.add_trailing_edge(width=width, height=height, shape=shape, start_station=start, end_station=end, part="wing")
 
+    def parse_stringer(self, wing, node):
+        width = float(get_value(node, 'width'))
+        height = float(get_value(node, 'height'))
+        position_ref = get_value(node, 'position-ref')
+        position_val = float(get_value(node, 'position'))
+        percent = None
+        front = None
+        rear = None
+        xpos = None
+        if position_ref == "Chord %":
+            percent = position_val
+        elif position_ref == "Rel Front":
+            front = position_val
+        elif position_ref == "Rel Rear":
+            rear = position_val
+        elif position_ref == "Abs Pos":
+            xpos = position_val
+        surface = get_value(node, 'surface').lower()
+        orientation = get_value(node, 'orientation').lower()
+        junk, startstr = get_value(node, 'start-station').split()
+        junk, endstr = get_value(node, 'end-station').split()
+        if startstr == "Inner" or startstr == "":
+            start = None
+        else:
+            start = float(startstr)
+        if endstr == "Outer" or endstr == "":
+            end = None
+        else:
+            end = float(endstr)
+        wing.add_stringer(surf=surface, orientation=orientation, percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ysize=height, start_station=start, end_station=end, part="wing")
+
     def parse_spar(self, wing, node):
         width = float(get_value(node, 'width'))
         height = float(get_value(node, 'height'))
@@ -128,7 +159,7 @@ class Builder():
             end = None
         else:
             end = float(endstr)
-        print str(surface) + " " + str(xstart) + " " + str(xend) + " " + str(xdist) + " " + str(depth) + " " + str(start) + " " + str(end)
+        #print str(surface) + " " + str(xstart) + " " + str(xend) + " " + str(xdist) + " " + str(depth) + " " + str(start) + " " + str(end)
         wing.add_sheeting(surf=surface, xstart=xstart, xend=xend, xdist=xdist, ysize=depth, start_station=start, end_station=end, part="wing")
 
     def parse_simple_hole(self, wing, node):
@@ -243,7 +274,11 @@ class Builder():
     def parse_wing(self, node):
         wing = Wing(get_value(node, 'name'))
         wing.units = self.units
-        wing.load_airfoils(get_value(node, 'airfoil'))
+        airfoil_root = get_value(node, 'airfoil-root')
+        airfoil_tip = get_value(node, 'airfoil-tip')
+        if airfoil_tip == "":
+            airfoil_tip = None
+        wing.load_airfoils( airfoil_root, airfoil_tip )
         wing.span = float(get_value(node, 'span'))
         station_list = map( float, str(get_value(node, 'stations')).split())
         wing.set_stations( station_list )
@@ -258,7 +293,7 @@ class Builder():
         for spar_node in node.findall('spar'):
             self.parse_spar(wing, spar_node)
         for stringer_node in node.findall('stringer'):
-            self.parse_spar(wing, stringer_node)
+            self.parse_stringer(wing, stringer_node)
         for sheet_node in node.findall('sheet'):
             self.parse_sheet(wing, sheet_node)
         for hole_node in node.findall('simple-hole'):
