@@ -85,21 +85,23 @@ class Sheet:
 
         return True
 
-    def draw_part_top(self, offset, orig_airfoil, pos, part_width, nudge, \
+    def draw_part_top(self, offset, orig_contour, pos, part_width, nudge, \
                           stroke_width, color ):
-        airfoil = copy.deepcopy(orig_airfoil)
-        airfoil.scale(1,-1)
-        bounds = airfoil.get_bounds()
-        dx = bounds[1][0] - bounds[0][0]
+        contour = copy.deepcopy(orig_contour)
+        #contour.scale(1,-1)
+        bounds = contour.poly.boundingBox()
+        dx = bounds[1] - bounds[0]
+        #print "contour bounds = " + str(bounds)
+        #print "dx = " + str(dx)
 
-        airfoil.scale( self.dpi, self.dpi )
+        contour.scale( self.dpi, self.dpi )
         shape = []
-        x1 = bounds[0][0] * self.dpi
-        x2 = bounds[1][0] * self.dpi
+        x1 = bounds[0] * self.dpi
+        x2 = bounds[1] * self.dpi
         y1 = -part_width*0.5 * self.dpi
         y2 = part_width*0.5 * self.dpi
 
-        #print (bounds[0][0], bounds[1][0])
+        #print (bounds[0], bounds[1])
         #print pos[1]
         #print (y1, y2)
         shape.append( (x1, y1) )
@@ -116,13 +118,13 @@ class Sheet:
                                     stroke_width = stroke_width)
         g.add( poly )
 
-        for label in airfoil.labels:
+        for label in contour.labels:
             yoffset = -part_width
             if nudge > 0.001:
                 yoffset = 2.5*part_width + nudge
             #print "label = " + str(label[0]) + "," + str(label[1])
             t = self.dwg.text(label[4], (0, 0), font_size = label[2], text_anchor = "middle")
-            t.translate( ((bounds[0][0] + dx*0.5)*self.dpi, \
+            t.translate( ((bounds[0] + dx*0.5)*self.dpi, \
                               yoffset*self.dpi) )
             # text_align = center
             g.add(t)
