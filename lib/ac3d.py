@@ -208,7 +208,7 @@ class AC3D:
         while i < len(top_points):
             c0 = top_points[i-1]
             c1 = top_points[i]
-            ratio = float( len(c0) / len(c1) )
+            ratio = float(len(c0)) / float(len(c1))
             #print "len(c0)=" + str(len(c0)) + " len(c1)=" + str(len(c1))
             #print "ratio=" + str(ratio)
             j_inc = 1.0
@@ -238,12 +238,12 @@ class AC3D:
                 vlist = []
                 if p3 == None:
                     vlist.append( vertices.add_point(p0) )
-                    vlist.append( vertices.add_point(p2) )
                     vlist.append( vertices.add_point(p1) )
+                    vlist.append( vertices.add_point(p2) )
                 elif p1 == None:
                     vlist.append( vertices.add_point(p0) )
-                    vlist.append( vertices.add_point(p2) )
                     vlist.append( vertices.add_point(p3) )
+                    vlist.append( vertices.add_point(p2) )
                 else:
                     vlist.append( vertices.add_point(p0) )
                     vlist.append( vertices.add_point(p1) )
