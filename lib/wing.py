@@ -222,10 +222,10 @@ class Wing:
         self.right_ribs = []
         self.left_ribs = []
 
-    def load_airfoils(self, root, tip = None):
-        self.root = airfoil.Airfoil(root, 1000, True)
+    def load_airfoils(self, root, tip=None, subsamples=1000):
+        self.root = airfoil.Airfoil(root, subsamples, True)
         if tip:
-            self.tip = airfoil.Airfoil(tip, 1000, True)
+            self.tip = airfoil.Airfoil(tip, subsamples, True)
 
     # define the rib 'stations' as evenly spaced
     def set_num_stations(self, count):
@@ -839,52 +839,30 @@ class Wing:
             rib.placed = l.draw_part_demo(contour)
         l.save()
 
-    # make portion from half tip of cutout forward to ideal airfoil
-    # nose
-    def make_leading_edge1(self, ribs):
+    def make_top_extrusion(self, points, front_half=None, rear_half=None):
         side1 = []
         side2 = []
-        for rib in ribs:
-            if rib.has_le:
-                idealfront = rib.contour.saved_bounds[0][0]
-                cutbounds = rib.contour.get_bounds()
-                cutfront = cutbounds[0][0]
-                side1.append( (idealfront+rib.pos[1], -rib.pos[0]) )
-                side2.append( (cutfront+rib.pos[1], -rib.pos[0]) )
-        side2.reverse()
-        shape = side1 + side2
-        return shape
-
-    # make portion from tip of rib cutout to rear of diamond
-    def make_leading_edge2(self, le, ribs):
-        side1 = []
-        side2 = []
-        size = le.size
-        w = math.sqrt(size*size + size*size)
-        halfwidth = w * 0.5
-        for rib in ribs:
-            if self.match_station(le.start_station, le.end_station, rib.pos[0]):
-                if rib.part == le.part:
-                    cutbounds = rib.contour.get_bounds()
-                    cutfront = cutbounds[0][0]
-                    side1.append( (cutfront+rib.pos[1], -rib.pos[0]) )
-                    side2.append( (cutfront+halfwidth+rib.pos[1], -rib.pos[0]) )
-        side2.reverse()
-        shape = side1 + side2
-        return shape
-
-    def make_trailing_edge(self, te, ribs):
-        side1 = []
-        side2 = []
-        for rib in ribs:
-            if self.match_station(te.start_station, te.end_station, rib.pos[0]):
-                if rib.part == te.part:
-                    if rib.has_te:
-                        idealtip = rib.contour.saved_bounds[1][0]
-                        cutbounds = rib.contour.get_bounds()
-                        cuttip = cutbounds[1][0]
-                        side1.append( (cuttip+rib.pos[1], -rib.pos[0]) )
-                        side2.append( (idealtip+rib.pos[1], -rib.pos[0]) )
+        for contour in points:
+            #print "contour = " + str(contour)
+            minx = None
+            maxx = None
+            station = None
+            for pt in contour:
+                if minx == None or pt[0] < minx:
+                    minx = pt[0]
+                if maxx == None or pt[0] > maxx:
+                    maxx = pt[0]
+                station = pt[1]
+            halfway = (minx + maxx) / 2.0
+            if front_half:
+                side1.append( (minx, -station) )
+                side2.append( (halfway, -station) )
+            elif rear_half:
+                side1.append( (halfway, -station) )
+                side2.append( (maxx, -station) )
+            else:
+                side1.append( (minx, -station) )
+                side2.append( (maxx, -station) )
         side2.reverse()
         shape = side1 + side2
         return shape
@@ -938,16 +916,19 @@ class Wing:
                                                  rib.pos, rib.thickness, \
                                                  rib.nudge, "1px", "red")
         for le in self.leading_edges:
-            shape = self.make_leading_edge1(self.right_ribs)
-            if len(shape):
-                sheet.draw_shape(planoffset, shape, "1px", "red")
-            shape = self.make_leading_edge2(le, self.right_ribs)
-            if len(shape):
-                sheet.draw_shape(planoffset, shape, "1px", "red")
+            if le.side == "right":
+                shape = self.make_top_extrusion(le.points, front_half=True)
+                if len(shape):
+                    sheet.draw_shape(planoffset, shape, "1px", "red")
+            if le.side == "right":
+                shape = self.make_top_extrusion(le.points, rear_half=True)
+                if len(shape):
+                    sheet.draw_shape(planoffset, shape, "1px", "red")
         for te in self.trailing_edges:
-            shape = self.make_trailing_edge(te, self.right_ribs)
-            if len(shape):
-                sheet.draw_shape(planoffset, shape, "1px", "red")
+            if te.side == "right":
+                shape = self.make_top_extrusion(te.points)
+                if len(shape):
+                    sheet.draw_shape(planoffset, shape, "1px", "red")
         for stringer in self.stringers:
             shape = self.make_stringer(stringer, self.right_ribs)
             if len(shape):
@@ -964,16 +945,19 @@ class Wing:
                                                  rib.pos, rib.thickness, \
                                                  rib.nudge, "1px", "red")
         for le in self.leading_edges:
-            shape = self.make_leading_edge1(self.left_ribs)
-            if len(shape):
-                sheet.draw_shape(planoffset, shape, "1px", "red")
-            shape = self.make_leading_edge2(le, self.left_ribs)
-            if len(shape):
-                sheet.draw_shape(planoffset, shape, "1px", "red")
+            if le.side == "left":
+                shape = self.make_top_extrusion(le.points, front_half=True)
+                if len(shape):
+                    sheet.draw_shape(planoffset, shape, "1px", "red")
+            if le.side == "left":
+                shape = self.make_top_extrusion(le.points, rear_half=True)
+                if len(shape):
+                    sheet.draw_shape(planoffset, shape, "1px", "red")
         for te in self.trailing_edges:
-            shape = self.make_trailing_edge(te, self.left_ribs)
-            if len(shape):
-                sheet.draw_shape(planoffset, shape, "1px", "red")
+            if te.side == "left":
+                shape = self.make_top_extrusion(te.points)
+                if len(shape):
+                    sheet.draw_shape(planoffset, shape, "1px", "red")
         for stringer in self.stringers:
             shape = self.make_stringer(stringer, self.left_ribs)
             if len(shape):
