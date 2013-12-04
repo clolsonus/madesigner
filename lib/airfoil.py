@@ -106,9 +106,9 @@ class Airfoil(Contour):
             else:
                 x = self.simple_interp(self.parax, d )
                 y = self.simple_interp(self.paray, d )
-            if x >= 0.0:
-                #print str(x) + " " + str(y)
-                self.bottom.append( (x, y) )
+            if x < 0.0:
+                x = 0.0
+            self.bottom.append( (x, y) )
 
     def walk_curve_from_front(self, curve, xstart, target_dist):
         #print "walk from " + str(xstart) + " dist of " + str(target_dist)
@@ -382,12 +382,14 @@ def blend( af1, af2, percent ):
     result.description = 'blend {:.2%}'.format(1.0-percent) + af1.description + ' + {:.2%}'.format(percent) + " " + af2.description
 
     n = len(af1.top)
+    #print str(len(af1.top)) + " = " + str(len(af2.top))
     for i in range(0, n):
 	y1 = af1.top[i][1]
 	y2 = af2.top[i][1]
 	y = (1.0-percent)*y1 + percent*y2
 	result.top.append( (af1.top[i][0], y) )
     n = len(af1.bottom)
+    #print str(len(af1.bottom)) + " = " + str(len(af2.bottom))
     for i in range(0, n):
 	y1 = af1.bottom[i][1]
 	y2 = af2.bottom[i][1]
