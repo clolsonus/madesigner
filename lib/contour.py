@@ -746,7 +746,7 @@ class Contour:
 
         self.poly = self.poly - mask
 
-                    
+
     def get_bounds(self):
         if len(self.top) < 1:
             return ( (0,0), (0,0) )
