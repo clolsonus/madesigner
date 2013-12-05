@@ -647,7 +647,10 @@ class Contour:
         for p2 in surf2:
             v3 = (p2[0]+pos[1], pos[0]-nudge, p2[1])
             bot.append(v3)
-        return (top, bot)
+        if surf == "top":
+            return (top, bot)
+        else:
+            return (bot, top)
 
     # quick scan polygons for possible degenerate problems.  these can
     # occur due to odd numerical issues when we pile a lot of stuff on
