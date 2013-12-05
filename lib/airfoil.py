@@ -281,6 +281,8 @@ class Airfoil(Contour):
         cur_mid = step
         # walk forward specified distances along top and bottom curves
         # (starting at the back)
+        ytop = 0.0
+        ybottom = 0.0
         while cur_mid <= mid_dist and xpos >= xnose:
             ytop = self.simple_interp(self.top, xpos)
             ybottom = self.simple_interp(self.bottom, xpos)
@@ -309,22 +311,42 @@ class Airfoil(Contour):
             newtop = []
             newbottom = []
             newpoly = Polygon.Polygon()
-            for pt in self.top:
-                if pt[0] < 0.0:
-                    offset = 0.0
-                elif pt[0] <= xpos:
-                    offset = ycheat * pt[0] / xpos
+            for i, pt in enumerate(self.top):
+                xcur = self.top[i][0]
+                ycur = self.top[i][1]
+                if i < len(self.top)-1:
+                    xnext = self.top[i+1][0]
                 else:
-                    offset = ycheat * (xtail - pt[0]) / (xtail - xpos)
-                newtop.append( (pt[0], pt[1]+offset) )
-            for pt in self.bottom:
-                if pt[0] < 0.0:
+                    xnext = None
+                if xcur < 0.0:
                     offset = 0.0
-                elif pt[0] <= xpos:
-                    offset = ycheat * pt[0] / xpos
+                elif xcur <= xpos:
+                    offset = ycheat * xcur / xpos
                 else:
-                    offset = ycheat * (xtail - pt[0]) / (xtail - xpos)
-                newbottom.append( (pt[0], pt[1]-offset) )
+                    offset = ycheat * (xtail - xcur) / (xtail - xpos)
+                newtop.append( (xcur, ycur+offset) )
+                if xnext != None and xcur < xpos-step and xnext > xpos+step:
+                    # insert a point right at the cut so we can have a
+                    # perfect fit
+                    newtop.append( (xpos, ytop+ycheat) )
+            for i, pt in enumerate(self.bottom):
+                xcur = self.bottom[i][0]
+                ycur = self.bottom[i][1]
+                if i < len(self.bottom)-1:
+                    xnext = self.bottom[i+1][0]
+                else:
+                    xnext = None
+                if xcur < 0.0:
+                    offset = 0.0
+                elif xcur <= xpos:
+                    offset = ycheat * xcur / xpos
+                else:
+                    offset = ycheat * (xtail - xcur) / (xtail - xpos)
+                newbottom.append( (xcur, ycur-offset) )
+                if xnext != None and xcur < xpos-step and xnext > xpos+step:
+                    # insert a point right at the cut so we can have a
+                    # perfect fit
+                    newbottom.append( (xpos, ybottom-ycheat) )
             self.top = newtop
             self.bottom = newbottom
             # rebuild the polygon (which loses any cuts that might
