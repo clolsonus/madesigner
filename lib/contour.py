@@ -530,11 +530,11 @@ class Contour:
         # call the cutout method with negative ysize to create a tab
         self.buildtab(cutout)
 
-    def cut_hole(self, xpos, ypos, radius):
+    def cut_hole(self, xpos, ypos, radius, points=32):
         if self.poly == None:
             self.make_poly()
         hole = Polygon.Shapes.Circle(radius=radius, center=(xpos, ypos), \
-                                         points=32)
+                                         points=points)
         self.poly = self.poly - hole
 
     def add_label(self, xpos, ypos, size, rotate, text):
@@ -693,7 +693,8 @@ class Contour:
     # vertical, but it should be possible to do angles (to leave an
     # interior triangle structure someday.)
     def carve_shaped_hole(self, pos1=None, pos2=None, \
-                              material_width=0.0, radius=0.0):
+                              material_width=0.0, radius=0.0, \
+                              circle_points=32):
         if self.poly == None:
             self.make_poly()
 
@@ -735,7 +736,7 @@ class Contour:
         # those (incrementally)
         mask = None
         for p in mask_cut[0]:
-            circle = Polygon.Shapes.Circle(radius=radius, center=p, points=23)
+            circle = Polygon.Shapes.Circle(radius=radius, center=p, points=circle_points)
             if mask == None:
                 mask = circle
             else:
