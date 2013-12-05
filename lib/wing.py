@@ -222,10 +222,14 @@ class Wing:
         self.right_ribs = []
         self.left_ribs = []
 
-    def load_airfoils(self, root, tip=None, subsamples=1000):
-        self.root = airfoil.Airfoil(root, subsamples, True)
+        # build parameters
+        self.airfoil_samples = 50 # 50 = fast, 100 = mid, 1000 = quality
+        self.circle_points = 8    # 8 = fast, 16 = mid, 32 = quality
+
+    def load_airfoils(self, root, tip=None):
+        self.root = airfoil.Airfoil(root, self.airfoil_samples, True)
         if tip:
-            self.tip = airfoil.Airfoil(tip, subsamples, True)
+            self.tip = airfoil.Airfoil(tip, self.airfoil_samples, True)
 
     # define the rib 'stations' as evenly spaced
     def set_num_stations(self, count):
@@ -549,7 +553,7 @@ class Wing:
 
         return result
 
-    def make_rib_cuts(self, rib ):
+    def make_rib_cuts(self, rib):
         lat_dist = rib.pos[0]
         chord = rib.contour.saved_bounds[1][0] - rib.contour.saved_bounds[0][0]
 
@@ -603,13 +607,15 @@ class Wing:
                         ty = rib.contour.simple_interp(rib.contour.top, xpos)
                         by = rib.contour.simple_interp(rib.contour.bottom, xpos)
                         ypos = (ty + by) * 0.5
-                        rib.contour.cut_hole( xpos, ypos, hole.radius )
+                        rib.contour.cut_hole( xpos, ypos, hole.radius, \
+                                                  points=self.circle_points )
                     elif hole.type == "shaped":
                         #print "make shaped hole"
                         rib.contour.carve_shaped_hole( pos1=hole.pos1,\
                                           pos2=hole.pos2, \
                                           material_width=hole.material_width, \
-                                          radius=hole.radius )
+                                          radius=hole.radius, \
+                                          circle_points=self.circle_points )
 
 
         # do rotate
@@ -807,7 +813,7 @@ class Wing:
         for rib in self.right_ribs:
             self.make_rib_cuts(rib)
         for rib in self.left_ribs:
-            self.make_rib_cuts(rib)            
+            self.make_rib_cuts(rib)
 
         # a quick pass to update labels on "flap" parts after the
         # cutouts so there is half a chance the label ends up on the
