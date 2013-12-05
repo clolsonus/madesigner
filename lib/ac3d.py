@@ -386,7 +386,13 @@ class AC3D:
         while i < len(top_points):
             contour = top_points[i]
             if i > 0:
-                surfs += len(contour)
+                last_contour = top_points[i-1]
+                last_len = len(last_contour)
+                cur_len = len(contour)
+                if last_len > cur_len:
+                    surfs += last_len
+                else:
+                    surfs += cur_len
             for p3 in contour:
                 v = vertices.add_point(p3)
             i += 1
@@ -394,7 +400,13 @@ class AC3D:
         while i < len(bot_points):
             contour = bot_points[i]
             if i > 0:
-                surfs += len(contour)
+                last_contour = bot_points[i-1]
+                last_len = len(last_contour)
+                cur_len = len(contour)
+                if last_len > cur_len:
+                    surfs += last_len
+                else:
+                    surfs += cur_len
             for p3 in contour:
                 v = vertices.add_point(p3)
             i += 1
@@ -412,7 +424,7 @@ class AC3D:
             self.f.write(str(v[0]) + " " + str(v[1]) + " " + str(v[2]) + "\n")
 
         self.f.write("numsurf " + str(surfs) + "\n")
-        print "predict numsurf = " + str(surfs)
+        print "predict numsurf(sheet) = " + str(surfs)
 
         # pass 2, make top surface triangles
         total = 0
@@ -420,35 +432,6 @@ class AC3D:
         total += self.make_sheet_help1(vertices, bot_points, not invert_order)
         total += self.make_sheet_help2(vertices, top_points, bot_points, invert_order)
         total += self.make_sheet_help3(vertices, top_points, bot_points, invert_order)
-
-        # make the two end caps
-        #self.f.write("SURF 0x10\n")
-        #self.f.write("mat 1\n")
-        #pts = list(copy.deepcopy(points[0]))
-        #if invert_order:
-        #    pts.reverse()
-        #n = len(pts)
-        #self.f.write("refs " + str(n) + "\n")
-        #i = 0
-        #while i < n:
-        #    p = pts[i]
-        #    v = vertices.add_point(p)
-        #    self.f.write(str(v) + " 0 0\n")
-        #    i += 1
-  
-        #self.f.write("SURF 0x10\n")
-        #self.f.write("mat 1\n")
-        #pts = list(copy.deepcopy(points[len(points)-1]))
-        #if not invert_order:
-        #    pts.reverse()
-        #n = len(pts)
-        #self.f.write("refs " + str(n) + "\n")
-        #i = 0
-        #while i < n:
-        #    p = pts[i]
-        #    v = vertices.add_point(p)
-        #    self.f.write(str(v) + " 0 0\n")
-        #    i += 1
 
         print "actual surf = " + str(total)
         self.f.write("kids 0\n")
