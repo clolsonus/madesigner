@@ -24,7 +24,7 @@ import layout
 import spline
 
 
-# rotate a point about (0, 0)
+# rotate a point about (xdist, 0)
 def rotate_point( pt, xdist, angle ):
     rad = math.radians(angle)
     newx = (pt[0]-xdist) * math.cos(rad) - pt[2] * math.sin(rad) + xdist
