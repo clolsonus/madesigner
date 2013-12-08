@@ -27,6 +27,10 @@ except ImportError:
     import contour
     from wing import Wing
 
+# parameterizing first, then we'll connect this up better later
+airfoil_resample = 25           # 25 = fast, 100 = mid, 1000 = quality
+circle_points = 8               # 8 = fast, 16 = mid, 32 = quality
+
 
 def get_value(xml, name):
     e = xml.find(name)
@@ -274,11 +278,13 @@ class Builder():
     def parse_wing(self, node):
         wing = Wing(get_value(node, 'name'))
         wing.units = self.units
+        wing.airfoil_resample = airfoil_resample
+        wing.circle_points=circle_points
         airfoil_root = get_value(node, 'airfoil-root')
         airfoil_tip = get_value(node, 'airfoil-tip')
         if airfoil_tip == "":
             airfoil_tip = None
-        wing.load_airfoils( airfoil_root, airfoil_tip, 50 )
+        wing.load_airfoils( airfoil_root, airfoil_tip )
         wing.span = float(get_value(node, 'span'))
         station_list = map( float, str(get_value(node, 'stations')).split())
         wing.set_stations( station_list )
