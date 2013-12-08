@@ -28,8 +28,6 @@ except ImportError:
     from wing import Wing
 
 # parameterizing first, then we'll connect this up better later
-airfoil_resample = 25           # 25 = fast, 100 = mid, 1000 = quality
-circle_points = 8               # 8 = fast, 16 = mid, 32 = quality
 
 
 def get_value(xml, name):
@@ -41,10 +39,16 @@ def get_value(xml, name):
 
 class Builder():
 
-    def __init__(self, initfile):
+    def __init__(self, filename=None, airfoil_resample=25, circle_points=8):
+        # airfoil_resample: 25 = fast, 100 = mid, 1000 = quality
+        # circle_points: 8 = fast, 16 = mid, 32 = quality
+        self.airfoil_resample = airfoil_resample
+        self.circle_points = circle_points
+
         root = ET.Element('design')
         self.xml = ET.ElementTree(root)
-        self.load(initfile)
+
+        self.load(filename)
 
     def parse_overview(self, node):
         self.units = get_value(node, 'units')
@@ -276,10 +280,10 @@ class Builder():
         wing.add_build_tab(surf=surface, percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ypad=ypad, start_station=start, end_station=end, part="wing")
 
     def parse_wing(self, node):
-        wing = Wing(get_value(node, 'name'))
+        wing = Wing(self.baseroot)
         wing.units = self.units
-        wing.airfoil_resample = airfoil_resample
-        wing.circle_points=circle_points
+        wing.airfoil_resample = self.airfoil_resample
+        wing.circle_points=self.circle_points
         airfoil_root = get_value(node, 'airfoil-root')
         airfoil_tip = get_value(node, 'airfoil-tip')
         if airfoil_tip == "":
@@ -314,7 +318,7 @@ class Builder():
         wing.layout_parts_templates( 8.5, 11 )
         wing.layout_plans( 24, 36 )
 
-        ac = ac3d.AC3D("3dmodel")
+        ac = ac3d.AC3D( self.fileroot )
         ac.gen_headers( "airframe", 2 )
         wing.build_ac3d( ac )
         ac.close()
@@ -331,6 +335,8 @@ class Builder():
             return
 
         self.fileroot, ext = os.path.splitext(filename)
+        self.basename = os.path.basename(filename)
+        self.baseroot, ext = os.path.splitext(self.basename)
 
         root = self.xml.getroot()
 

@@ -13,6 +13,8 @@ started edited: November 2013
 
 import sys
 import os.path
+import subprocess
+import distutils.spawn
 from PyQt4 import QtGui, QtCore
 import xml.etree.ElementTree as ET
 
@@ -22,17 +24,18 @@ from builder import Builder
 
 class Creator(QtGui.QWidget):
     
-    def __init__(self, initfile):
+    def __init__(self, filename):
         super(Creator, self).__init__()
         root = ET.Element('design')
         self.xml = ET.ElementTree(root)
         self.default_title = "Model Aircraft Creator"
         self.wings = []
         self.initUI()
-        self.load(initfile)
+        self.filename = None
+        self.fileroot = None
+        self.load(filename)
 
     def initUI(self):               
-
         self.setWindowTitle( self.default_title )
 
         layout = QtGui.QVBoxLayout()
@@ -86,15 +89,15 @@ class Creator(QtGui.QWidget):
         #cmd_layout.addWidget(add_fuse)
   
         fast_build = QtGui.QPushButton('Fast Build...')
-        fast_build.clicked.connect(self.build)
+        fast_build.clicked.connect(self.build_fast)
         cmd_layout.addWidget(fast_build)
   
         detail_build = QtGui.QPushButton('Detail Build...')
-        detail_build.clicked.connect(self.build)
+        detail_build.clicked.connect(self.build_detail)
         cmd_layout.addWidget(detail_build)
   
         view3d = QtGui.QPushButton('View 3D')
-        #view3d.clicked.connect(self.build)
+        view3d.clicked.connect(self.view3d)
         cmd_layout.addWidget(view3d)
   
         cmd_layout.addStretch(1)
@@ -110,15 +113,27 @@ class Creator(QtGui.QWidget):
     #def add_fuse(self):
     #    print "add fuse requested"
 
-    def build(self):
-        print "build requested"
+    def build_fast(self):
+        build = Builder(filename=self.filename, airfoil_resample=25, \
+                            circle_points=8)
 
+    def build_detail(self):
+        build = Builder(filename=self.filename, airfoil_resample=1000, \
+                            circle_points=32)
+
+    def view3d(self):
+        viewer = distutils.spawn.find_executable("osgviewer")
+        print str(viewer)
+        if viewer == None:
+            error = QtGui.QErrorMessage(self)
+            error.showMessage( "Cannot find osgviewer in path.  Perhaps it needs to be installed?" )
+        else:
+            pid = subprocess.Popen(["osgviewer", self.fileroot + ".ac"]).pid
+            print "spawned osgviewer with pid = " + str(pid)
+ 
     def load(self, filename):
-        self.filename = filename
-
-        if filename != "":
-            self.setWindowTitle( self.default_title + " - "
-                                 + os.path.basename(str(self.filename)) )
+        basename = os.path.basename(str(filename))
+        fileroot, ext = os.path.splitext(basename)
 
         if not os.path.exists(filename):
             #print "new empty design: " + filename
@@ -130,6 +145,12 @@ class Creator(QtGui.QWidget):
             error = QtGui.QErrorMessage(self)
             error.showMessage( filename + ": xml parse error:\n" + str(sys.exc_info()[1]) )
             return
+
+        if filename != "":
+            self.setWindowTitle( self.default_title + " - " + fileroot )
+
+        self.filename = filename
+        self.fileroot, ext = os.path.splitext(self.filename)
 
         root = self.xml.getroot()
         node = root.find('overview')
@@ -161,6 +182,7 @@ class Creator(QtGui.QWidget):
                 return
             else:
                 self.filename = filename
+                self.fileroot, ext = os.path.splitexe(self.filename)
 
         # create a new xml root
         root = ET.Element('design')
@@ -193,6 +215,7 @@ class Creator(QtGui.QWidget):
             return
         else:
             self.filename = filename
+            self.fileroot, ext = os.path.splitexe(self.filename)
 
         self.save()
 
@@ -206,8 +229,8 @@ def main():
         usage()
         return
     elif len(sys.argv) == 2:
-        initfile = sys.argv[1]
-    ex = Creator(initfile)
+        filename = sys.argv[1]
+    ex = Creator(filename)
     sys.exit(app.exec_())
 
 
