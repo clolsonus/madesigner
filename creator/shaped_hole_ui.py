@@ -15,7 +15,7 @@ import xml.etree.ElementTree as ET
 from combobox_nowheel import QComboBoxNoWheel
 
 
-class ShapedHole():
+class ShapedHoleUI():
     def __init__(self):
         self.valid = True
         self.container = self.make_page()

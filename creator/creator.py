@@ -17,7 +17,8 @@ from PyQt4 import QtGui, QtCore
 import xml.etree.ElementTree as ET
 
 from overview import Overview
-from wing import Wing
+from wing_ui import WingUI
+from builder import Builder
 
 class Creator(QtGui.QWidget):
     
@@ -84,15 +85,25 @@ class Creator(QtGui.QWidget):
         #add_fuse.clicked.connect(self.add_fuse)
         #cmd_layout.addWidget(add_fuse)
   
-        build = QtGui.QPushButton('Build...')
-        build.clicked.connect(self.build)
-        cmd_layout.addWidget(build)
+        fast_build = QtGui.QPushButton('Fast Build...')
+        fast_build.clicked.connect(self.build)
+        cmd_layout.addWidget(fast_build)
   
+        detail_build = QtGui.QPushButton('Detail Build...')
+        detail_build.clicked.connect(self.build)
+        cmd_layout.addWidget(detail_build)
+  
+        view3d = QtGui.QPushButton('View 3D')
+        #view3d.clicked.connect(self.build)
+        cmd_layout.addWidget(view3d)
+  
+        cmd_layout.addStretch(1)
+
         self.resize(800, 900)
         self.show()
 
     def add_wing(self):
-        wing = Wing()
+        wing = WingUI()
         self.wings.append(wing)
         self.tabs.addTab( wing.get_widget(), "Wing - New" )
 
@@ -125,13 +136,14 @@ class Creator(QtGui.QWidget):
         self.overview.parse_xml(node)
 
         for wing_node in root.findall('wing'):
-            wing = Wing()
+            wing = WingUI()
             wing.parse_xml(wing_node)
             self.wings.append(wing)
             self.tabs.addTab( wing.get_widget(), "Wing - " + wing.get_name() )
 
     def open(self):
-        filename = QtGui.QFileDialog.getOpenFileName(self, "Open File", "", "MAdesigner (*.mad)")
+        filename = QtGui.QFileDialog.getOpenFileName(self, "Open File", "",
+                                                     "MAdesigner (*.mad)")
         if ( filename == "" ):
             return
         self.load(filename)

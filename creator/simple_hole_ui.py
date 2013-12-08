@@ -15,7 +15,7 @@ import xml.etree.ElementTree as ET
 from combobox_nowheel import QComboBoxNoWheel
 
 
-class SimpleHole():
+class SimpleHoleUI():
     def __init__(self):
         self.valid = True
         self.container = self.make_page()

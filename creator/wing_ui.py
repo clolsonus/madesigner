@@ -12,16 +12,16 @@ started: November 2013
 import sys
 from PyQt4 import QtGui, QtCore
 import xml.etree.ElementTree as ET
-from leading_edge import LeadingEdge
-from trailing_edge import TrailingEdge
-from spar import Spar
-from sheet import Sheet
-from simple_hole import SimpleHole
-from shaped_hole import ShapedHole
-from build_tab import BuildTab
+from leading_edge_ui import LeadingEdgeUI
+from trailing_edge_ui import TrailingEdgeUI
+from spar_ui import SparUI
+from sheet_ui import SheetUI
+from simple_hole_ui import SimpleHoleUI
+from shaped_hole_ui import ShapedHoleUI
+from build_tab_ui import BuildTabUI
 
 
-class Wing():
+class WingUI():
     def __init__(self):
         self.valid = True
         self.container = self.make_page()
@@ -68,7 +68,7 @@ class Wing():
                 tab.rebuild_stations(self.edit_stations.text())
 
     def add_leading_edge(self, xml_node=None):
-        leading_edge = LeadingEdge()
+        leading_edge = LeadingEdgeUI()
         leading_edge.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             leading_edge.parse_xml(xml_node)
@@ -77,7 +77,7 @@ class Wing():
 
 
     def add_trailing_edge(self, xml_node=None):
-        trailing_edge = TrailingEdge()
+        trailing_edge = TrailingEdgeUI()
         trailing_edge.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             trailing_edge.parse_xml(xml_node)
@@ -85,7 +85,7 @@ class Wing():
         self.layout_te.addWidget( trailing_edge.get_widget() )
 
     def add_spar(self, xml_node=None):
-        spar = Spar()
+        spar = SparUI()
         spar.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             spar.parse_xml(xml_node)
@@ -93,7 +93,7 @@ class Wing():
         self.layout_spars.addWidget( spar.get_widget() )
 
     def add_stringer(self, xml_node=None):
-        stringer = Spar()
+        stringer = SparUI()
         stringer.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             stringer.parse_xml(xml_node)
@@ -101,7 +101,7 @@ class Wing():
         self.layout_stringers.addWidget( stringer.get_widget() )
 
     def add_sheet(self, xml_node=None):
-        sheet = Sheet()
+        sheet = SheetUI()
         sheet.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             sheet.parse_xml(xml_node)
@@ -109,7 +109,7 @@ class Wing():
         self.layout_sheeting.addWidget( sheet.get_widget() )
 
     def add_simple_hole(self, xml_node=None):
-        hole = SimpleHole()
+        hole = SimpleHoleUI()
         hole.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             hole.parse_xml(xml_node)
@@ -117,7 +117,7 @@ class Wing():
         self.layout_simple_holes.addWidget( hole.get_widget() )
 
     def add_shaped_hole(self, xml_node=None):
-        hole = ShapedHole()
+        hole = ShapedHoleUI()
         hole.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             hole.parse_xml(xml_node)
@@ -125,7 +125,7 @@ class Wing():
         self.layout_shaped_holes.addWidget( hole.get_widget() )
 
     def add_build_tab(self, xml_node=None):
-        tab = BuildTab()
+        tab = BuildTabUI()
         tab.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             tab.parse_xml(xml_node)
