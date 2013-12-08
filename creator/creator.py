@@ -114,21 +114,34 @@ class Creator(QtGui.QWidget):
     #    print "add fuse requested"
 
     def build_fast(self):
+        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
         build = Builder(filename=self.filename, airfoil_resample=25, \
                             circle_points=8)
+        QtGui.QApplication.restoreOverrideCursor()
 
     def build_detail(self):
+        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
         build = Builder(filename=self.filename, airfoil_resample=1000, \
                             circle_points=32)
+        QtGui.QApplication.restoreOverrideCursor()
 
     def view3d(self):
-        viewer = distutils.spawn.find_executable("osgviewer")
-        print str(viewer)
-        if viewer == None:
+        viewer = "osgviewer"
+        result = distutils.spawn.find_executable(viewer)
+        #print str(viewer) + " " + str(result)
+        if result == None:
             error = QtGui.QErrorMessage(self)
-            error.showMessage( "Cannot find osgviewer in path.  Perhaps it needs to be installed?" )
+            error.showMessage( "Cannot find " + viewer + " in path.  Perhaps it needs to be installed?" )
         else:
-            pid = subprocess.Popen(["osgviewer", self.fileroot + ".ac"]).pid
+            command = []
+            command.append(viewer)
+            command.append("--window")
+            command.append("0")
+            command.append("0")
+            command.append("800")
+            command.append("600")
+            command.append(self.fileroot + ".ac")
+            pid = subprocess.Popen(command).pid
             print "spawned osgviewer with pid = " + str(pid)
  
     def load(self, filename):
