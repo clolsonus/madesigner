@@ -15,19 +15,11 @@ import sys
 import os.path
 import xml.etree.ElementTree as ET
 
-try:
-    import ac3d
-    import contour
-    from wing import Wing
-except ImportError:
-    # if airfoil is not 'installed' append parent dir of __file__ to sys.path
-    sys.path.insert(0, os.path.abspath(os.path.split(os.path.abspath(__file__))[
-0]+'/../lib'))
-    import ac3d
-    import contour
-    from wing import Wing
+sys.path.insert(0, os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/../lib'))
 
-# parameterizing first, then we'll connect this up better later
+import ac3d
+import contour
+from wing import Wing
 
 
 def get_value(xml, name):
@@ -36,6 +28,12 @@ def get_value(xml, name):
         return e.text
     else:
         return ""
+
+def myfloat(input):
+    if input == "":
+        return 0.0
+    else:
+        return float(input)
 
 class Builder():
 
@@ -292,10 +290,10 @@ class Builder():
         wing.span = float(get_value(node, 'span'))
         station_list = map( float, str(get_value(node, 'stations')).split())
         wing.set_stations( station_list )
-        wing.twist = float(get_value(node, 'twist'))
-        wing.set_sweep_angle( float(get_value(node, 'sweep')) )
-        wing.set_chord( float(get_value(node, 'chord')) )
-        wing.dihedral = float(get_value(node, 'dihedral'))
+        wing.twist = myfloat(get_value(node, 'twist'))
+        wing.set_sweep_angle( myfloat(get_value(node, 'sweep')) )
+        wing.set_chord( myfloat(get_value(node, 'chord')) )
+        wing.dihedral = myfloat(get_value(node, 'dihedral'))
         for le_node in node.findall('leading-edge'):
             self.parse_leading_edge(wing, le_node)
         for te_node in node.findall('trailing-edge'):

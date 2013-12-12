@@ -48,7 +48,7 @@ class Creator(QtGui.QWidget):
         file_group.setLayout( file_layout )
 
         new = QtGui.QPushButton('New')
-        #quit.clicked.connect(QtCore.QCoreApplication.instance().quit)
+        #new.clicked.connect(self.new_design)
         file_layout.addWidget(new)
 
         open = QtGui.QPushButton('Open...')
@@ -127,9 +127,16 @@ class Creator(QtGui.QWidget):
 
     def view3d(self):
         viewer = "osgviewer"
+
+        # look for viewer in the standard path
         result = distutils.spawn.find_executable(viewer)
-        #print str(viewer) + " " + str(result)
+
         if result == None:
+            viewer = os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/OpenSceneGraph/bin/osgviewer')
+            print "testing for " + viewer
+            result = os.path.isfile(viewer)
+
+        if not result:
             error = QtGui.QErrorMessage(self)
             error.showMessage( "Cannot find " + viewer + " in path.  Perhaps it needs to be installed?" )
         else:
@@ -162,7 +169,7 @@ class Creator(QtGui.QWidget):
         if filename != "":
             self.setWindowTitle( self.default_title + " - " + fileroot )
 
-        self.filename = filename
+        self.filename = str(filename)
         self.fileroot, ext = os.path.splitext(self.filename)
 
         root = self.xml.getroot()
@@ -227,8 +234,8 @@ class Creator(QtGui.QWidget):
             print "cancelled save as ..."
             return
         else:
-            self.filename = filename
-            self.fileroot, ext = os.path.splitexe(self.filename)
+            self.filename = str(filename)
+            self.fileroot, ext = os.path.splitext(self.filename)
 
         self.save()
 
@@ -237,7 +244,7 @@ def usage():
 
 def main():
     app = QtGui.QApplication(sys.argv)
-    initfile = ""
+    filename = ""
     if len(sys.argv) > 2:
         usage()
         return
