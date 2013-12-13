@@ -133,9 +133,10 @@ class CreatorUI(QtGui.QWidget):
 
         if result == None:
             app_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
-            viewer = app_path + "/OpenSceneGraph/bin/osgviewer"
-            print "testing for " + viewer
-            result = os.path.isfile(viewer)
+            viewer = os.path.abspath(app_path + "/OpenSceneGraph/bin/osgviewer")
+            viewerexe = os.path.abspath(app_path + "/OpenSceneGraph/bin/osgviewer.exe")
+            print "testing for " + viewer + " or " + viewerexe
+            result = os.path.isfile(viewer) or os.path.isfile(viewerexe)
 
         if not result:
             error = QtGui.QErrorMessage(self)
