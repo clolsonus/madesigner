@@ -6,6 +6,8 @@ __version__ = "1.0"
 __license__ = "GPL v2"
 
 
+import sys
+import os.path
 import fileinput
 import math
 import string
@@ -20,6 +22,9 @@ class Airfoil(Contour):
 
     def __init__(self, name = "", samples = 0, use_spline = False):
         Contour.__init__(self)
+        # locate airfoils data path relative to top level script
+        datapath = os.path.split(os.path.abspath(sys.argv[0]))[0] + "/data"
+        self.datapath = datapath
         self.name = ""
         self.description = ""
         # parametric representation of the airfoil dist along surface
@@ -32,7 +37,7 @@ class Airfoil(Contour):
 
     def load(self, base, samples = 0, use_spline = False):
         self.name = base
-        path = datapath + "/airfoils/" + base + ".dat"
+        path = self.datapath + "/airfoils/" + base + ".dat"
         top = True
         dist = 0.0
         firstpt = True

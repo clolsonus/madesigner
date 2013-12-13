@@ -9,13 +9,9 @@ __license__ = "GPL v2"
 import copy
 import math
 import re
+import sys, os
 
-try:
-    import svgwrite
-except ImportError:
-    import sys, os
-    sys.path.insert(0, os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/..'))
-    import svgwrite
+import svgwrite
 
 import ac3d
 import airfoil
