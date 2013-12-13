@@ -102,7 +102,7 @@ class CreatorUI(QtGui.QWidget):
   
         cmd_layout.addStretch(1)
 
-        self.resize(800, 900)
+        self.resize(800, 700)
         self.show()
 
     def add_wing(self):
@@ -145,8 +145,8 @@ class CreatorUI(QtGui.QWidget):
             command = []
             command.append(viewer)
             command.append("--window")
-            command.append("0")
-            command.append("0")
+            command.append("50")
+            command.append("50")
             command.append("800")
             command.append("600")
             command.append(self.fileroot + ".ac")
