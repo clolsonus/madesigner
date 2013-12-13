@@ -15,11 +15,12 @@ import sys
 import os.path
 import xml.etree.ElementTree as ET
 
-sys.path.insert(0, os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/../lib'))
+# import numpy here to avoid a glitch in pyinstaller
+import numpy
 
-import ac3d
-import contour
-from wing import Wing
+import lib.ac3d
+import lib.contour
+from lib.wing import Wing
 
 
 def get_value(xml, name):
@@ -195,7 +196,7 @@ class Builder():
         else:
             end = float(endstr)
 
-        pos=contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
+        pos=lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
         wing.add_simple_hole(radius=radius, pos1=pos, start_station=start, end_station=end, part="wing")
 
     def parse_shaped_hole(self, wing, node):
@@ -216,7 +217,7 @@ class Builder():
             rear = position1_val
         elif position1_ref == "Abs Pos":
             xpos = position1_val
-        pos1=contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
+        pos1=lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
 
         position2_ref = get_value(node, 'position2-ref')
         position2_val = float(get_value(node, 'position2'))
@@ -232,7 +233,7 @@ class Builder():
             rear = position2_val
         elif position2_ref == "Abs Pos":
             xpos = position2_val
-        pos2=contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
+        pos2=lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
 
         junk, startstr = get_value(node, 'start-station').split()
         junk, endstr = get_value(node, 'end-station').split()
@@ -316,7 +317,7 @@ class Builder():
         wing.layout_parts_templates( 8.5, 11 )
         wing.layout_plans( 24, 36 )
 
-        ac = ac3d.AC3D( self.fileroot )
+        ac = lib.ac3d.AC3D( self.fileroot )
         ac.gen_headers( "airframe", 2 )
         wing.build_ac3d( ac )
         ac.close()

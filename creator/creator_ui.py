@@ -22,10 +22,10 @@ from overview import Overview
 from wing_ui import WingUI
 from builder import Builder
 
-class Creator(QtGui.QWidget):
+class CreatorUI(QtGui.QWidget):
     
     def __init__(self, filename):
-        super(Creator, self).__init__()
+        super(CreatorUI, self).__init__()
         root = ET.Element('design')
         self.xml = ET.ElementTree(root)
         self.default_title = "Model Aircraft Creator"
@@ -132,7 +132,8 @@ class Creator(QtGui.QWidget):
         result = distutils.spawn.find_executable(viewer)
 
         if result == None:
-            viewer = os.path.abspath(os.path.split(os.path.abspath(__file__))[0]+'/OpenSceneGraph/bin/osgviewer')
+            app_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
+            viewer = app_path + "/OpenSceneGraph/bin/osgviewer"
             print "testing for " + viewer
             result = os.path.isfile(viewer)
 
@@ -238,21 +239,3 @@ class Creator(QtGui.QWidget):
             self.fileroot, ext = os.path.splitext(self.filename)
 
         self.save()
-
-def usage():
-    print "Usage: " + sys.argv[0] + " [design.mad]"
-
-def main():
-    app = QtGui.QApplication(sys.argv)
-    filename = ""
-    if len(sys.argv) > 2:
-        usage()
-        return
-    elif len(sys.argv) == 2:
-        filename = sys.argv[1]
-    ex = Creator(filename)
-    sys.exit(app.exec_())
-
-
-if __name__ == '__main__':
-    main()
