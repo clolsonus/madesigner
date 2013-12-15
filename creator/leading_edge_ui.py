@@ -68,6 +68,7 @@ class LeadingEdgeUI():
         self.edit_start.addItem("1")
         self.edit_start.addItem("2")
         self.edit_start.addItem("3")
+        self.edit_start.currentIndexChanged.connect(self.onChange)
         layout.addWidget(self.edit_start)
 
         self.edit_end = QComboBoxNoWheel()
@@ -75,6 +76,7 @@ class LeadingEdgeUI():
         self.edit_end.addItem("1")
         self.edit_end.addItem("2")
         self.edit_end.addItem("3")
+        self.edit_end.currentIndexChanged.connect(self.onChange)
         layout.addWidget(self.edit_end)
 
         delete = QtGui.QPushButton('Delete ')

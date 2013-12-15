@@ -77,6 +77,7 @@ class SimpleHoleUI():
         self.edit_start.addItem("1")
         self.edit_start.addItem("2")
         self.edit_start.addItem("3")
+        self.edit_start.currentIndexChanged.connect(self.onChange)
         layout1.addWidget(self.edit_start)
 
         self.edit_end = QComboBoxNoWheel()
@@ -84,6 +85,7 @@ class SimpleHoleUI():
         self.edit_end.addItem("1")
         self.edit_end.addItem("2")
         self.edit_end.addItem("3")
+        self.edit_end.currentIndexChanged.connect(self.onChange)
         layout1.addWidget(self.edit_end)
 
         delete = QtGui.QPushButton('Delete')
@@ -99,6 +101,7 @@ class SimpleHoleUI():
         self.edit_posref.addItem("Rel Front")
         self.edit_posref.addItem("Rel Rear")
         self.edit_posref.addItem("Abs Pos")
+        self.edit_posref.currentIndexChanged.connect(self.onChange)
         layout2.addWidget(self.edit_posref)
 
         self.edit_pos = QtGui.QLineEdit()

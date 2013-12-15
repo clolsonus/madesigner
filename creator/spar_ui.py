@@ -80,6 +80,7 @@ class SparUI():
         self.edit_orientation = QComboBoxNoWheel()
         self.edit_orientation.addItem("Vertical")
         self.edit_orientation.addItem("Tangent")
+        self.edit_orientation.currentIndexChanged.connect(self.onChange)
         layout1.addWidget(self.edit_orientation)
 
         self.edit_start = QComboBoxNoWheel()
@@ -87,6 +88,7 @@ class SparUI():
         self.edit_start.addItem("1")
         self.edit_start.addItem("2")
         self.edit_start.addItem("3")
+        self.edit_start.currentIndexChanged.connect(self.onChange)
         layout1.addWidget(self.edit_start)
 
         self.edit_end = QComboBoxNoWheel()
@@ -94,6 +96,7 @@ class SparUI():
         self.edit_end.addItem("1")
         self.edit_end.addItem("2")
         self.edit_end.addItem("3")
+        self.edit_end.currentIndexChanged.connect(self.onChange)
         layout1.addWidget(self.edit_end)
 
         delete = QtGui.QPushButton('Delete')
@@ -109,6 +112,7 @@ class SparUI():
         self.edit_posref.addItem("Rel Front")
         self.edit_posref.addItem("Rel Rear")
         self.edit_posref.addItem("Abs Pos")
+        self.edit_posref.currentIndexChanged.connect(self.onChange)
         layout2.addWidget(self.edit_posref)
 
         self.edit_pos = QtGui.QLineEdit()
@@ -119,6 +123,7 @@ class SparUI():
         self.edit_surface = QComboBoxNoWheel()
         self.edit_surface.addItem("Top")
         self.edit_surface.addItem("Bottom")
+        self.edit_surface.currentIndexChanged.connect(self.onChange)
         layout2.addWidget(self.edit_surface)
 
         layout2.addStretch(1)

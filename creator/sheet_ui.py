@@ -77,6 +77,7 @@ class SheetUI():
         self.edit_start.addItem("1")
         self.edit_start.addItem("2")
         self.edit_start.addItem("3")
+        self.edit_start.currentIndexChanged.connect(self.onChange)
         layout1.addWidget(self.edit_start)
 
         self.edit_end = QComboBoxNoWheel()
@@ -84,6 +85,7 @@ class SheetUI():
         self.edit_end.addItem("1")
         self.edit_end.addItem("2")
         self.edit_end.addItem("3")
+        self.edit_end.currentIndexChanged.connect(self.onChange)
         layout1.addWidget(self.edit_end)
 
         delete = QtGui.QPushButton('Delete')
@@ -102,6 +104,7 @@ class SheetUI():
         self.edit_xmode = QComboBoxNoWheel()
         self.edit_xmode.addItem("Sheet Width")
         self.edit_xmode.addItem("End Position")
+        self.edit_xmode.currentIndexChanged.connect(self.onChange)
         layout2.addWidget(self.edit_xmode)
 
         self.edit_xend = QtGui.QLineEdit()
@@ -112,6 +115,7 @@ class SheetUI():
         self.edit_surface = QComboBoxNoWheel()
         self.edit_surface.addItem("Top")
         self.edit_surface.addItem("Bottom")
+        self.edit_surface.currentIndexChanged.connect(self.onChange)
         layout2.addWidget(self.edit_surface)
 
         layout2.addStretch(1)

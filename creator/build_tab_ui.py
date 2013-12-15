@@ -20,10 +20,11 @@ class BuildTabUI():
         self.valid = True
         self.container = self.make_page()
         self.xml = None
+        self.clean = True
 
     def onChange(self):
-        # do nothing right now
-        a = 0
+        print "buildtab changed"
+        self.clean = False
 
     def rebuild_stations(self, stations):
         station_list = str(stations).split()
@@ -84,6 +85,7 @@ class BuildTabUI():
         self.edit_start.addItem("1")
         self.edit_start.addItem("2")
         self.edit_start.addItem("3")
+        self.edit_start.currentIndexChanged.connect(self.onChange)
         layout1.addWidget(self.edit_start)
 
         self.edit_end = QComboBoxNoWheel()
@@ -91,6 +93,7 @@ class BuildTabUI():
         self.edit_end.addItem("1")
         self.edit_end.addItem("2")
         self.edit_end.addItem("3")
+        self.edit_end.currentIndexChanged.connect(self.onChange)
         layout1.addWidget(self.edit_end)
 
         delete = QtGui.QPushButton('Delete')
@@ -106,6 +109,7 @@ class BuildTabUI():
         self.edit_posref.addItem("Rel Front")
         self.edit_posref.addItem("Rel Rear")
         self.edit_posref.addItem("Abs Pos")
+        self.edit_posref.currentIndexChanged.connect(self.onChange)
         layout2.addWidget(self.edit_posref)
 
         self.edit_pos = QtGui.QLineEdit()
@@ -116,6 +120,7 @@ class BuildTabUI():
         self.edit_surface = QComboBoxNoWheel()
         self.edit_surface.addItem("Top")
         self.edit_surface.addItem("Bottom")
+        self.edit_surface.currentIndexChanged.connect(self.onChange)
         layout2.addWidget(self.edit_surface)
 
         layout2.addStretch(1)

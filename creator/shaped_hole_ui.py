@@ -84,6 +84,7 @@ class ShapedHoleUI():
         self.edit_start.addItem("1")
         self.edit_start.addItem("2")
         self.edit_start.addItem("3")
+        self.edit_start.currentIndexChanged.connect(self.onChange)
         layout1.addWidget(self.edit_start)
 
         self.edit_end = QComboBoxNoWheel()
@@ -91,6 +92,7 @@ class ShapedHoleUI():
         self.edit_end.addItem("1")
         self.edit_end.addItem("2")
         self.edit_end.addItem("3")
+        self.edit_end.currentIndexChanged.connect(self.onChange)
         layout1.addWidget(self.edit_end)
 
         delete = QtGui.QPushButton('Delete')
@@ -106,6 +108,7 @@ class ShapedHoleUI():
         self.edit_pos1ref.addItem("Rel Front")
         self.edit_pos1ref.addItem("Rel Rear")
         self.edit_pos1ref.addItem("Abs Pos")
+        self.edit_pos1ref.currentIndexChanged.connect(self.onChange)
         layout2.addWidget(self.edit_pos1ref)
 
         self.edit_pos1 = QtGui.QLineEdit()
@@ -120,6 +123,7 @@ class ShapedHoleUI():
         self.edit_pos2ref.addItem("Rel Front")
         self.edit_pos2ref.addItem("Rel Rear")
         self.edit_pos2ref.addItem("Abs Pos")
+        self.edit_pos2ref.currentIndexChanged.connect(self.onChange)
         layout2.addWidget(self.edit_pos2ref)
 
         self.edit_pos2 = QtGui.QLineEdit()

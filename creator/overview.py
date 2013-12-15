@@ -47,6 +47,7 @@ class Overview():
         self.edit_units.addItem("in")
         self.edit_units.addItem("cm")
         self.edit_units.addItem("mm")
+        self.edit_units.currentIndexChanged.connect(self.onChange)
 
         layout.addRow( "<b>Design Name:</b>", self.edit_name )
         layout.addRow( "<b>Description:</b>", self.edit_desc )
