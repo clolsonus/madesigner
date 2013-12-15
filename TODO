@@ -1,0 +1,73 @@
+- Implement change tracking so we can warn of unsaved changes if we are
+  quiting, opening, or new-ing
+
+- Impliment 'new' button that clears the current design and starts from
+  scratch.
+
+- Airfoil selection via file/dialog box rather than typing the name.
+
+- Taper and curved taper via gui
+
+- Control surfaces via gui.
+
+- (why?) wing: made a (bad) stringer shape with only 2 points!
+  picking up inner rib of mirror side?  Maybe assume this is a 'normal'
+  error and don't report ... or figure out how to distinguish these by more
+  than station?  because both wings could share the central station.
+
+- Need to (a) stretch inner rib to account for dihedral and (b) cant it in
+  the 3d model so it looks right.  Probably not a big deal for building
+  but shows up annoyingly in the 3d model.
+
+- Fixed: 12/5/2013 (insert a point right at the cut so we can get a perfect fit)
+  Trailing edge blending not happening now so there is a discontinuity with
+  rib -> stock flow.  We should have support for this in code?
+  Seems to work with symmetrical airfoils, but not asymetric airfoils?
+  It's because we cheet the original contour points before cutout so we
+  can't have the tail ends cross so there's a bit of a discontinuity from the
+  last point to the tip ... in a low res build this is more pronounced.
+  The fix I think would be to insert a contour point right at the trailing
+  edge cut.
+
+- Fixed: 12/4/2013
+  builder can now set # of airfoil resample points and # of points used
+  to build circles to control build speed vs. quality
+
+- Fixed: 12/4/2013
+  Just noticed a glitch in polygon winding on bottom sheeting, fixed.
+
+- Fixed: 12/4/2013
+  need to fix surf # estimation in sheeting when blending shapes and changing
+  # of points from one rib to the next.
+
+- Fixed: 12/4/2013 (pull extrusion from same set of points used to create
+  3d model)
+  trailing edge not correctly drawn on plans.
+  leading edge has same problem I think?
+
+- Fixed: 12/4/2013
+  Need to adjust 'saved_bounds()' when part is rotated so post rotation parts
+  get placed correctly and not relative to the original bounds before rotation.
+  shows up more in high twist design.
+
+- Fixed: 12/3/2013 (float/int implicit conversion bug, otherwise pretty much
+  worked as intended!)
+  test 3d sheet building when airfoil interpolates from one size/shape to
+  another over the length of the wing.
+
+- Fixed: 12/3/2013 (need to rotate/transform the seed points not just the
+  cut polygon)
+  leading edge stock doesn't follow "twist"
+  trailing edge stock doesn't follow "twist"
+  sheeting doesn't follow twist
+  (I believe the problem is because these items are cutout before the twist
+  is applied.)
+
+- Fixed: 12/3/2013 (reimplmented algorithm with new approach)
+  Sheet 3d model creation now far more robust and can handle basic wing
+  sweep.
+
+- FIXED: 12/2/2013 (python indent bug)
+  Spars/stringers can get goofy, drop to bottom for one spar in some case
+  with twist?
+
