@@ -24,16 +24,33 @@ from builder import Builder
 
 class CreatorUI(QtGui.QWidget):
     
-    def __init__(self, filename):
+    def __init__(self, filename=""):
         super(CreatorUI, self).__init__()
         root = ET.Element('design')
         self.xml = ET.ElementTree(root)
         self.default_title = "Model Aircraft Creator"
         self.wings = []
         self.initUI()
-        self.filename = None
-        self.fileroot = None
+        self.filename = ""
+        self.fileroot = ""
         self.load(filename)
+        self.clean = True
+
+    def isClean(self):
+        # need to check our self and all our children
+        if not self.overview.isClean():
+            return False
+        for wing in self.wings:
+            if not wing.isClean():
+                return False
+        # still here (children clean), then return our own status
+        return self.clean
+
+    def setClean(self):
+        self.overview.setClean()
+        for wing in self.wings:
+            wing.setClean()
+        self.clean = True
 
     def initUI(self):               
         self.setWindowTitle( self.default_title )
@@ -64,7 +81,7 @@ class CreatorUI(QtGui.QWidget):
         file_layout.addWidget(saveas)
 
         quit = QtGui.QPushButton('Quit')
-        quit.clicked.connect(QtCore.QCoreApplication.instance().quit)
+        quit.clicked.connect(self.quit)
         file_layout.addWidget(quit)
 
         # Main work area
@@ -154,11 +171,15 @@ class CreatorUI(QtGui.QWidget):
             print "spawned osgviewer with pid = " + str(pid)
  
     def load(self, filename):
+        if filename == "":
+            # new empty design
+            return
+
         basename = os.path.basename(str(filename))
         fileroot, ext = os.path.splitext(basename)
 
         if not os.path.exists(filename):
-            #print "new empty design: " + filename
+            # invalid/nonexistent filename
             return
 
         try:
@@ -168,8 +189,7 @@ class CreatorUI(QtGui.QWidget):
             error.showMessage( filename + ": xml parse error:\n" + str(sys.exc_info()[1]) )
             return
 
-        if filename != "":
-            self.setWindowTitle( self.default_title + " - " + fileroot )
+        self.setWindowTitle( self.default_title + " - " + fileroot )
 
         self.filename = str(filename)
         self.fileroot, ext = os.path.splitext(self.filename)
@@ -198,13 +218,13 @@ class CreatorUI(QtGui.QWidget):
 
     def save(self):
         if self.filename == "":
-            filename = self.setFileName()
+            filename = str(self.setFileName())
             if filename == "":
-                print "cancelled save ..."
+                # print "cancelled save ..."
                 return
             else:
                 self.filename = filename
-                self.fileroot, ext = os.path.splitexe(self.filename)
+                self.fileroot, ext = os.path.splitext(self.filename)
 
         # create a new xml root
         root = ET.Element('design')
@@ -228,15 +248,26 @@ class CreatorUI(QtGui.QWidget):
             return
 
         self.setWindowTitle( self.default_title + " - " + os.path.basename(str(self.filename)) )
+        self.setClean()
 
     def saveas(self):
         filename = self.setFileName()
 
         if filename == "":
-            print "cancelled save as ..."
+            # print "cancelled save as ..."
             return
         else:
             self.filename = str(filename)
             self.fileroot, ext = os.path.splitext(self.filename)
 
         self.save()
+
+    def quit(self):
+        if not self.isClean():
+            reply = QtGui.QMessageBox.question(self, "The design has been modified.", "Do you want to save your changes?", QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
+            #print "response = " + str(reply)
+            if reply == QtGui.QMessageBox.Save:
+                self.save()
+            elif reply == QtGui.QMessageBox.Cancel:
+                return
+        QtCore.QCoreApplication.instance().quit()

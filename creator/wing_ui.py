@@ -40,36 +40,53 @@ class WingUI():
     def onChange(self):
         self.clean = False
 
-    def isClean():
+    def isClean(self):
         # need to check our self and all our children
         for le in self.leading_edges:
-            if le.valid and not le.isClean():
+            if not le.isClean():
                 return False
         for te in self.trailing_edges:
-            if te.valid and not te.isClean():
+            if not te.isClean():
                 return False
         for spar in self.spars:
-            if spar.valid and not spar.isClean():
+            if not spar.isClean():
                 return False
         for stringer in self.stringers:
-            if stringer.valid and not stringer.isClean():
+            if not stringer.isClean():
                 return False
         for sheet in self.sheeting:
-            if sheet.valid and not sheet.isClean():
+            if not sheet.isClean():
                 return False
         for hole in self.simple_holes:
-            if hole.valid and not hole.isClean():
+            if not hole.isClean():
                 return False
         for hole in self.shaped_holes:
-            if hole.valid and not hole.isClean():
+            if not hole.isClean():
                 return False
         for tab in self.build_tabs:
-            if tab.valid not tab.isClean():
+            if not tab.isClean():
                 return False
+
         # still here (children clean), then return our own status
         return self.clean
 
-    def setClean():
+    def setClean(self):
+        for le in self.leading_edges:
+            le.setClean()
+        for te in self.trailing_edges:
+            te.setClean()
+        for spar in self.spars:
+            spar.setClean()
+        for stringer in self.stringers:
+            stringer.setClean()
+        for sheet in self.sheeting:
+            sheet.setClean()
+        for hole in self.simple_holes:
+            hole.setClean()
+        for hole in self.shaped_holes:
+            hole.setClean()
+        for tab in self.build_tabs:
+            tab.setClean()
         self.clean = True
 
     def rebuildStations(self):

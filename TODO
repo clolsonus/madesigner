@@ -1,7 +1,7 @@
-- Implement change tracking so we can warn of unsaved changes if we are
-  quiting, opening, or new-ing
+- Catch deletion of structures as a design change so we can warn of unsaved
+  changes.
 
-- Impliment 'new' button that clears the current design and starts from
+- Implement 'new' button that clears the current design and starts from
   scratch.
 
 - Airfoil selection via file/dialog box rather than typing the name.
@@ -18,6 +18,9 @@
 - Need to (a) stretch inner rib to account for dihedral and (b) cant it in
   the 3d model so it looks right.  Probably not a big deal for building
   but shows up annoyingly in the 3d model.
+
+- 12/15/2013: Implement change tracking so we can warn of unsaved changes
+  if we are quiting, opening, or new-ing
 
 - Fixed: 12/5/2013 (insert a point right at the cut so we can get a perfect fit)
   Trailing edge blending not happening now so there is a discontinuity with

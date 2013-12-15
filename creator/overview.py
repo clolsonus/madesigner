@@ -24,10 +24,10 @@ class Overview():
     def onChange(self):
         self.clean = False
 
-    def isClean():
+    def isClean(self):
         return self.clean
 
-    def setClean():
+    def setClean(self):
         self.clean = True
 
     def make_page(self):
