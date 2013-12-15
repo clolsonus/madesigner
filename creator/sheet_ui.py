@@ -20,10 +20,16 @@ class SheetUI():
         self.valid = True
         self.container = self.make_page()
         self.xml = None
+        self.clean = True
 
     def onChange(self):
-        # do nothing right now
-        a = 0
+        self.clean = False
+
+    def isClean():
+        return self.clean
+
+    def setClean():
+        self.clean = True
 
     def rebuild_stations(self, stations):
         station_list = str(stations).split()

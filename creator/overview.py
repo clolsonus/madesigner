@@ -19,10 +19,16 @@ class Overview():
     def __init__(self):
         self.container = self.make_page()
         self.xml = None
+        self.clean = True
 
     def onChange(self):
-        # do nothing right now
-        a = 0
+        self.clean = False
+
+    def isClean():
+        return self.clean
+
+    def setClean():
+        self.clean = True
 
     def make_page(self):
         # make the full edit widget

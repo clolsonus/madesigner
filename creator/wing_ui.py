@@ -35,10 +35,42 @@ class WingUI():
         self.shaped_holes = []
         self.build_tabs = []
         self.flaps = []
+        self.clean = True
 
     def onChange(self):
-        # do nothing right now
-        a = 0
+        self.clean = False
+
+    def isClean():
+        # need to check our self and all our children
+        for le in self.leading_edges:
+            if le.valid and not le.isClean():
+                return False
+        for te in self.trailing_edges:
+            if te.valid and not te.isClean():
+                return False
+        for spar in self.spars:
+            if spar.valid and not spar.isClean():
+                return False
+        for stringer in self.stringers:
+            if stringer.valid and not stringer.isClean():
+                return False
+        for sheet in self.sheeting:
+            if sheet.valid and not sheet.isClean():
+                return False
+        for hole in self.simple_holes:
+            if hole.valid and not hole.isClean():
+                return False
+        for hole in self.shaped_holes:
+            if hole.valid and not hole.isClean():
+                return False
+        for tab in self.build_tabs:
+            if tab.valid not tab.isClean():
+                return False
+        # still here (children clean), then return our own status
+        return self.clean
+
+    def setClean():
+        self.clean = True
 
     def rebuildStations(self):
         # rebuild stations when station list has changed

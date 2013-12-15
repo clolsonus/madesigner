@@ -23,8 +23,13 @@ class BuildTabUI():
         self.clean = True
 
     def onChange(self):
-        print "buildtab changed"
         self.clean = False
+
+    def isClean():
+        return self.clean
+
+    def setClean():
+        self.clean = True
 
     def rebuild_stations(self, stations):
         station_list = str(stations).split()
