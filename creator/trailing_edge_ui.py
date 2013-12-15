@@ -52,8 +52,9 @@ class TrailingEdgeUI():
             self.edit_end.setCurrentIndex(index)
 
     def delete_self(self):
-        print "delete self!"
+        #print "delete self!"
         self.container.deleteLater()
+        self.clean = True
         self.valid = False
 
     def make_page(self):
