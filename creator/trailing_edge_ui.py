@@ -129,6 +129,7 @@ class TrailingEdgeUI():
         index = self.edit_end.findText(self.get_value('end-station'))
         if index != None:
             self.edit_end.setCurrentIndex(index)
+        self.clean = True
 
     def update_node(self, node, value):
         e = self.xml.find(node)

@@ -39,9 +39,11 @@ class CreatorUI(QtGui.QWidget):
     def isClean(self):
         # need to check our self and all our children
         if not self.overview.isClean():
+            print "overview dirty"
             return False
         for wing in self.wings:
             if not wing.isClean():
+                print "wing is dirty"
                 return False
         # still here (children clean), then return our own status
         return self.clean
@@ -65,7 +67,7 @@ class CreatorUI(QtGui.QWidget):
         file_group.setLayout( file_layout )
 
         new = QtGui.QPushButton('New')
-        #new.clicked.connect(self.new_design)
+        new.clicked.connect(self.new_design)
         file_layout.addWidget(new)
 
         open = QtGui.QPushButton('Open...')
@@ -204,7 +206,31 @@ class CreatorUI(QtGui.QWidget):
             self.wings.append(wing)
             self.tabs.addTab( wing.get_widget(), "Wing - " + wing.get_name() )
 
+    def new_design(self):
+        # wipe the current design (by command or before loading a new design)
+        if not self.isClean():
+            reply = QtGui.QMessageBox.question(self, "The design has been modified.", "Do you want to save your changes?", QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
+            #print "response = " + str(reply)
+            if reply == QtGui.QMessageBox.Save:
+                self.save()
+            elif reply == QtGui.QMessageBox.Cancel:
+                return
+
+        self.overview.wipe_clean()
+        self.overview.setClean()
+        for wing in self.wings:
+            wing.delete_self()
+            wing.setClean()
+
     def open(self):
+        if not self.isClean():
+            reply = QtGui.QMessageBox.question(self, "The design has been modified.", "Do you want to save your changes?", QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
+            #print "response = " + str(reply)
+            if reply == QtGui.QMessageBox.Save:
+                self.save()
+            elif reply == QtGui.QMessageBox.Cancel:
+                return
+
         filename = QtGui.QFileDialog.getOpenFileName(self, "Open File", "",
                                                      "MAdesigner (*.mad)")
         if ( filename == "" ):
@@ -270,4 +296,5 @@ class CreatorUI(QtGui.QWidget):
                 self.save()
             elif reply == QtGui.QMessageBox.Cancel:
                 return
+
         QtCore.QCoreApplication.instance().quit()

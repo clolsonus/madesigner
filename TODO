@@ -1,6 +1,3 @@
-- Catch deletion of structures as a design change so we can warn of unsaved
-  changes.
-
 - Implement 'new' button that clears the current design and starts from
   scratch.
 
@@ -18,6 +15,9 @@
 - Need to (a) stretch inner rib to account for dihedral and (b) cant it in
   the 3d model so it looks right.  Probably not a big deal for building
   but shows up annoyingly in the 3d model.
+
+- 12/15/2013: Catch deletion of structures as a design change so we can warn
+  of unsaved changes.
 
 - 12/15/2013: Implement change tracking so we can warn of unsaved changes
   if we are quiting, opening, or new-ing

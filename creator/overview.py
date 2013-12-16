@@ -81,8 +81,16 @@ class Overview():
         self.edit_email.setText(self.get_value('email'))
         index = self.edit_units.findText(self.get_value('units'))
         if index == None:
-            index = 1
+            index = 0
         self.edit_units.setCurrentIndex(index)
+        self.clean = True
+
+    def wipe_clean(self):
+        self.edit_name.setText('')
+        self.edit_desc.setText('')
+        self.edit_author.setText('')
+        self.edit_email.setText('')
+        self.edit_units.setCurrentIndex(0)
 
     def update_node(self, node, value):
         e = self.xml.find(node)

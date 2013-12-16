@@ -44,27 +44,35 @@ class WingUI():
         # need to check our self and all our children
         for le in self.leading_edges:
             if not le.isClean():
+                print "le dirty"
                 return False
         for te in self.trailing_edges:
             if not te.isClean():
+                print "te dirty"
                 return False
         for spar in self.spars:
             if not spar.isClean():
+                print "spar dirty"
                 return False
         for stringer in self.stringers:
             if not stringer.isClean():
+                print "stringer dirty"
                 return False
         for sheet in self.sheeting:
             if not sheet.isClean():
+                print "sheet dirty"
                 return False
         for hole in self.simple_holes:
             if not hole.isClean():
+                print "simple hole dirty"
                 return False
         for hole in self.shaped_holes:
             if not hole.isClean():
+                print "shaped hole dirty"
                 return False
         for tab in self.build_tabs:
             if not tab.isClean():
+                print "build tab dirty"
                 return False
 
         # still here (children clean), then return our own status
@@ -344,6 +352,7 @@ class WingUI():
         self.edit_sweep.setText(self.get_value('sweep'))
         self.edit_dihedral.setText(self.get_value('dihedral'))
         self.edit_stations.setText(self.get_value('stations'))
+        self.clean = True
 
         for le_node in node.findall('leading-edge'):
             self.add_leading_edge(le_node)
