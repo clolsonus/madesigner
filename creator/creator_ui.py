@@ -231,15 +231,18 @@ class CreatorUI(QtGui.QWidget):
             elif reply == QtGui.QMessageBox.Cancel:
                 return
 
-        filename = QtGui.QFileDialog.getOpenFileName(self, "Open File", "",
+        startdir = os.path.expanduser("~")
+        filename = QtGui.QFileDialog.getOpenFileName(self, "Open File",
+                                                     startdir,
                                                      "MAdesigner (*.mad)")
         if ( filename == "" ):
             return
         self.load(filename)
 
     def setFileName(self):
+        startdir = os.path.expanduser("~/newdesign.mad")
         return QtGui.QFileDialog.getSaveFileName(self, "Save File",
-                                                 "newdesign.mad",
+                                                 startdir,
                                                  "MAdesigner (*.mad)")
 
     def save(self):
