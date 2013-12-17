@@ -9,6 +9,7 @@ website: madesigner.flightgear.org
 started: November 2013
 """
 
+import os.path
 import sys
 from PyQt4 import QtGui, QtCore
 import xml.etree.ElementTree as ET
@@ -123,6 +124,47 @@ class WingUI():
         for tab in self.build_tabs:
             if tab.valid:
                 tab.rebuild_stations(self.edit_stations.text())
+
+    def select_airfoil_root(self):
+        basepath = os.path.split(os.path.abspath(sys.argv[0]))[0]
+        airfoil_path = basepath + "/data/airfoils/"
+        filename = QtGui.QFileDialog.getOpenFileName(None, "Open File",
+                                                     airfoil_path,
+                                                     "Airfoil (*.dat)")
+        if ( filename == "" ):
+            return
+        basename = os.path.basename(str(filename))
+        fileroot, ext = os.path.splitext(basename)
+        self.edit_airfoil_root.setText(fileroot)
+
+    def select_airfoil_tip(self):
+        basepath = os.path.split(os.path.abspath(sys.argv[0]))[0]
+        airfoil_path = basepath + "/data/airfoils/"
+        filename = QtGui.QFileDialog.getOpenFileName(None, "Open File",
+                                                     airfoil_path,
+                                                     "Airfoil (*.dat)")
+        if ( filename == "" ):
+            return
+        basename = os.path.basename(str(filename))
+        fileroot, ext = os.path.splitext(basename)
+        self.edit_airfoil_tip.setText(fileroot)
+
+    def generate_stations(self):
+        text, ok = QtGui.QInputDialog.getText(None, 'Input Dialog', 
+            'Enter number of stations (ribs):')
+        
+        if ok:
+            span = float(self.edit_span.text())
+            num = int(text)
+            spacing = span / float(num)
+            stations = ""
+            pos = 0.0
+            for i in range(num):
+                #print str(i) + " " + str(pos)
+                stations += ("%.2f" % pos).rstrip('0').rstrip('.') + " "
+                pos += spacing
+            stations += ("%.2f" % span).rstrip('0').rstrip('.')
+            self.edit_stations.setText(stations)                
 
     def add_leading_edge(self, xml_node=None):
         leading_edge = LeadingEdgeUI()
@@ -268,6 +310,16 @@ class WingUI():
         cmd_layout = QtGui.QHBoxLayout()
         cmd_group.setLayout( cmd_layout )
 
+        cmd_layout.addWidget( QtGui.QLabel("<b>Wing Tools:</b> ") )
+
+        select_airfoil = QtGui.QPushButton("Assist Me ...")
+        menu = QtGui.QMenu()
+        menu.addAction("Select Root Airfoil", self.select_airfoil_root)
+        menu.addAction("Select Tip Airfoil", self.select_airfoil_tip)
+        menu.addAction("Generate Stations", self.generate_stations)
+        select_airfoil.setMenu(menu)
+        cmd_layout.addWidget(select_airfoil)
+
         add_feature = QtGui.QPushButton("Add Feature ...")
         menu = QtGui.QMenu()
         menu.addAction("Add Control Surface", self.add_flap)
@@ -285,6 +337,8 @@ class WingUI():
         delete = QtGui.QPushButton('Delete Wing')
         delete.clicked.connect(self.delete_self)
         cmd_layout.addWidget(delete)
+
+        cmd_layout.addStretch(1)
 
         # form content
         self.edit_name = QtGui.QLineEdit()

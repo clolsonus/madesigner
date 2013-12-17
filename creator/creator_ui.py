@@ -99,6 +99,8 @@ class CreatorUI(QtGui.QWidget):
         cmd_layout = QtGui.QHBoxLayout()
         cmd_group.setLayout( cmd_layout )
 
+        cmd_layout.addWidget( QtGui.QLabel("<b>Design Tools:</b> ") )
+
         add_wing = QtGui.QPushButton('Add Wing...')
         add_wing.clicked.connect(self.add_wing)
         cmd_layout.addWidget(add_wing)
