@@ -293,7 +293,8 @@ class Builder():
         wing.set_stations( station_list )
         wing.twist = myfloat(get_value(node, 'twist'))
         wing.set_sweep_angle( myfloat(get_value(node, 'sweep')) )
-        wing.set_chord( myfloat(get_value(node, 'chord')) )
+        wing.set_chord( myfloat(get_value(node, 'chord-root')),
+                        myfloat(get_value(node, 'chord-tip')) )
         wing.dihedral = myfloat(get_value(node, 'dihedral'))
         for le_node in node.findall('leading-edge'):
             self.parse_leading_edge(wing, le_node)
