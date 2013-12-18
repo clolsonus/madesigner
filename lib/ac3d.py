@@ -208,8 +208,10 @@ class AC3D:
         while i < len(top_points):
             c0 = top_points[i-1]
             c1 = top_points[i]
-            ratio = float(len(c0)) / float(len(c1))
-            #print "len(c0)=" + str(len(c0)) + " len(c1)=" + str(len(c1))
+            len_c0 = len(c0) - 1
+            len_c1 = len(c1) - 1
+            ratio = float(len_c0) / float(len_c1)
+            #print "len(c0)-1=" + str(len_c0) + " len(c1)-1=" + str(len_c1)
             #print "ratio=" + str(ratio)
             j_inc = 1.0
             k_inc = 1.0
@@ -223,7 +225,7 @@ class AC3D:
             k = self.myint(k_real)
             j_prev = 0
             k_prev = 0
-            while j < len(c0) and k < len(c1):
+            while j <= len_c0 and k <= len_c1:
                 #print "i=" + str(i) + " j=" + str(j) + " k=" + str(k)
                 p0 = c0[j_prev]
                 if j > j_prev:
@@ -250,7 +252,7 @@ class AC3D:
                     vlist.append( vertices.add_point(p3) )
                     vlist.append( vertices.add_point(p2) )
                 j_prev = j
-                k_prev =k
+                k_prev = k
                 j_real += j_inc
                 k_real += k_inc
                 j = self.myint(j_real)
