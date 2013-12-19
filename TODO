@@ -1,4 +1,12 @@
+- Sheeting needs to allow various positioning like other objects to handle
+  tapered wings!
+
+- Fix output location of .svg files
+
 - Control surfaces via gui.
+
+- Add internal version knowledge, remote check for new version (in a task.)
+  About me page/dialog?
 
 - (why?) wing: made a (bad) stringer shape with only 2 points!
   picking up inner rib of mirror side?  Maybe assume this is a 'normal'
@@ -10,6 +18,8 @@
   but shows up annoyingly in the 3d model.
 
 - Relative positioning of sub assemblies.
+
+- 12/19/2013: When opening a new design, old wings aren't deleted.
 
 - 12/19/2013: Warn if trying to build a dirty design (build is from the saved
   file, not in memory
