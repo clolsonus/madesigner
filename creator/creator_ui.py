@@ -71,7 +71,11 @@ class CreatorUI(QtGui.QWidget):
         file_layout.addWidget(new)
 
         open = QtGui.QPushButton('Open...')
-        open.clicked.connect(self.open)
+        open.clicked.connect(self.open_home)
+        file_layout.addWidget(open)
+
+        open = QtGui.QPushButton('Open Examples...')
+        open.clicked.connect(self.open_examples)
         file_layout.addWidget(open)
 
         save = QtGui.QPushButton('Save')
@@ -85,6 +89,8 @@ class CreatorUI(QtGui.QWidget):
         quit = QtGui.QPushButton('Quit')
         quit.clicked.connect(self.quit)
         file_layout.addWidget(quit)
+
+        file_layout.addStretch(1)
 
         # Main work area
         self.tabs = QtGui.QTabWidget()
@@ -188,6 +194,13 @@ class CreatorUI(QtGui.QWidget):
             pid = subprocess.Popen(command).pid
             print "spawned osgviewer with pid = " + str(pid)
  
+    def wipe_slate(self):
+        self.overview.wipe_clean()
+        self.overview.setClean()
+        for wing in self.wings:
+            wing.delete_self()
+            wing.setClean()
+
     def load(self, filename):
         if filename == "":
             # new empty design
@@ -199,6 +212,8 @@ class CreatorUI(QtGui.QWidget):
         if not os.path.exists(filename):
             # invalid/nonexistent filename
             return
+
+        self.wipe_slate()
 
         try:
             self.xml = ET.parse(filename)
@@ -222,6 +237,13 @@ class CreatorUI(QtGui.QWidget):
             self.wings.append(wing)
             self.tabs.addTab( wing.get_widget(), "Wing - " + wing.get_name() )
 
+    def wipe_slate(self):
+        self.overview.wipe_clean()
+        self.overview.setClean()
+        for wing in self.wings:
+            wing.delete_self()
+            wing.setClean()
+
     def new_design(self):
         # wipe the current design (by command or before loading a new design)
         if not self.isClean():
@@ -232,13 +254,9 @@ class CreatorUI(QtGui.QWidget):
             elif reply == QtGui.QMessageBox.Cancel:
                 return
 
-        self.overview.wipe_clean()
-        self.overview.setClean()
-        for wing in self.wings:
-            wing.delete_self()
-            wing.setClean()
+        self.wipe_slate()
 
-    def open(self):
+    def open(self, startdir=None):
         if not self.isClean():
             reply = QtGui.QMessageBox.question(self, "The design has been modified.", "Do you want to save your changes?", QtGui.QMessageBox.Save | QtGui.QMessageBox.No | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
             #print "response = " + str(reply)
@@ -247,13 +265,23 @@ class CreatorUI(QtGui.QWidget):
             elif reply == QtGui.QMessageBox.Cancel:
                 return
 
-        startdir = os.path.expanduser("~")
+        if startdir == None:
+            startdir = os.path.expanduser("~")
         filename = QtGui.QFileDialog.getOpenFileName(self, "Open File",
                                                      startdir,
                                                      "MAdesigner (*.mad)")
         if ( filename == "" ):
             return
         self.load(filename)
+
+    def open_home(self):
+        startdir = os.path.expanduser("~")
+        self.open(startdir)
+
+    def open_examples(self):
+        app_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
+        startdir = os.path.abspath(app_path + "/examples")
+        self.open(startdir)
 
     def setFileName(self):
         startdir = os.path.expanduser("~/newdesign.mad")

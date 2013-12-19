@@ -250,8 +250,8 @@ class Builder():
         wing.add_shaped_hole(pos1=pos1, pos2=pos2, material_width=width, radius=radius, start_station=start, end_station=end, part="wing")
 
     def parse_build_tab(self, wing, node):
-        width = float(get_value(node, 'width'))
-        ypad = float(get_value(node, 'ypad'))
+        width = myfloat(get_value(node, 'width'))
+        ypad = myfloat(get_value(node, 'ypad'))
         position_ref = get_value(node, 'position-ref')
         position_val = float(get_value(node, 'position'))
         percent = None
@@ -280,13 +280,17 @@ class Builder():
         wing.add_build_tab(surf=surface, percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ypad=ypad, start_station=start, end_station=end, part="wing")
 
     def make_curve(self, text):
+        #print text
         curve = []
         pairs = re.split( "\)\s*\(", text )
         for p in pairs:
             p = re.sub( "\s*\(\s*", "", p)
             p = re.sub( "\s*\)\s*", "", p)
-            x, y = re.split( "\s*,\s*", p )
-            curve.append( (float(x), float(y)) )
+            #print " p=" + p
+            #print " search=" + str(re.search("\,", p))
+            if re.search("\,", p):
+                x, y = re.split( "\s*,\s*", p )
+                curve.append( (float(x), float(y)) )
         #print str(curve)
         return curve                         
         
@@ -309,12 +313,12 @@ class Builder():
             wing.set_sweep_curve( sweep_curve )
         else:
             wing.set_sweep_angle( myfloat(get_value(node, 'sweep')) )
-        chord_root = get_value(node, 'chord-root')
-        chord_tip = get_value(node, 'chord-tip')
         chord_curve = self.make_curve( get_value(node, 'chord-curve') )
         if ( len(chord_curve) >= 2 ):
             wing.set_taper_curve( chord_curve )
         else:
+            chord_root = myfloat(get_value(node, 'chord-root'))
+            chord_tip = myfloat(get_value(node, 'chord-tip'))
             wing.set_chord( chord_root, chord_tip )
         wing.dihedral = myfloat(get_value(node, 'dihedral'))
         for le_node in node.findall('leading-edge'):
