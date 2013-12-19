@@ -11,6 +11,7 @@ website: madesigner.flightgear.org
 started edited: December 2013
 """
 
+import re
 import sys
 import os.path
 import xml.etree.ElementTree as ET
@@ -278,6 +279,17 @@ class Builder():
             end = float(endstr)
         wing.add_build_tab(surf=surface, percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ypad=ypad, start_station=start, end_station=end, part="wing")
 
+    def make_curve(self, text):
+        curve = []
+        pairs = re.split( "\)\s*\(", text )
+        for p in pairs:
+            p = re.sub( "\s*\(\s*", "", p)
+            p = re.sub( "\s*\)\s*", "", p)
+            x, y = re.split( "\s*,\s*", p )
+            curve.append( (float(x), float(y)) )
+        #print str(curve)
+        return curve                         
+        
     def parse_wing(self, node):
         wing = Wing(self.baseroot)
         wing.units = self.units
@@ -292,9 +304,18 @@ class Builder():
         station_list = map( float, str(get_value(node, 'stations')).split())
         wing.set_stations( station_list )
         wing.twist = myfloat(get_value(node, 'twist'))
-        wing.set_sweep_angle( myfloat(get_value(node, 'sweep')) )
-        wing.set_chord( myfloat(get_value(node, 'chord-root')),
-                        myfloat(get_value(node, 'chord-tip')) )
+        sweep_curve = self.make_curve( get_value(node, 'sweep-curve') )
+        if ( len(sweep_curve) >= 2 ):
+            wing.set_sweep_curve( sweep_curve )
+        else:
+            wing.set_sweep_angle( myfloat(get_value(node, 'sweep')) )
+        chord_root = get_value(node, 'chord-root')
+        chord_tip = get_value(node, 'chord-tip')
+        chord_curve = self.make_curve( get_value(node, 'chord-curve') )
+        if ( len(chord_curve) >= 2 ):
+            wing.set_taper_curve( chord_curve )
+        else:
+            wing.set_chord( chord_root, chord_tip )
         wing.dihedral = myfloat(get_value(node, 'dihedral'))
         for le_node in node.findall('leading-edge'):
             self.parse_leading_edge(wing, le_node)
