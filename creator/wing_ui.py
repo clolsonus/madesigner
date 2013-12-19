@@ -236,9 +236,10 @@ class WingUI():
 
     def delete_self(self):
         #print "delete self!"
-        self.container.deleteLater()
-        self.clean = False
-        self.valid = False
+        if self.valid:
+            self.container.deleteLater()
+            self.clean = False
+            self.valid = False
 
     def make_page(self):
         # make the full edit widget
