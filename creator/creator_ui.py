@@ -135,12 +135,26 @@ class CreatorUI(QtGui.QWidget):
     #    print "add fuse requested"
 
     def build_fast(self):
+        if not self.isClean():
+            reply = QtGui.QMessageBox.question(self, "The design has been modified.", "You must save before a build.", QtGui.QMessageBox.Save | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
+            if reply == QtGui.QMessageBox.Save:
+                self.save()
+            elif reply == QtGui.QMessageBox.Cancel:
+                return
+
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
         build = Builder(filename=self.filename, airfoil_resample=25, \
                             circle_points=8)
         QtGui.QApplication.restoreOverrideCursor()
 
     def build_detail(self):
+        if not self.isClean():
+            reply = QtGui.QMessageBox.question(self, "The design has been modified.", "You must save before a build.", QtGui.QMessageBox.Save | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
+            if reply == QtGui.QMessageBox.Save:
+                self.save()
+            elif reply == QtGui.QMessageBox.Cancel:
+                return
+
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
         build = Builder(filename=self.filename, airfoil_resample=1000, \
                             circle_points=32)
@@ -211,7 +225,7 @@ class CreatorUI(QtGui.QWidget):
     def new_design(self):
         # wipe the current design (by command or before loading a new design)
         if not self.isClean():
-            reply = QtGui.QMessageBox.question(self, "The design has been modified.", "Do you want to save your changes?", QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
+            reply = QtGui.QMessageBox.question(self, "The design has been modified.", "Do you want to save your changes?", QtGui.QMessageBox.Save | QtGui.QMessageBox.No | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
             #print "response = " + str(reply)
             if reply == QtGui.QMessageBox.Save:
                 self.save()
@@ -226,7 +240,7 @@ class CreatorUI(QtGui.QWidget):
 
     def open(self):
         if not self.isClean():
-            reply = QtGui.QMessageBox.question(self, "The design has been modified.", "Do you want to save your changes?", QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
+            reply = QtGui.QMessageBox.question(self, "The design has been modified.", "Do you want to save your changes?", QtGui.QMessageBox.Save | QtGui.QMessageBox.No | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
             #print "response = " + str(reply)
             if reply == QtGui.QMessageBox.Save:
                 self.save()
