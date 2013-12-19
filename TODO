@@ -1,7 +1,3 @@
-- Airfoil selection via file/dialog box rather than typing the name.
-
-- Taper and curved taper via gui
-
 - Control surfaces via gui.
 
 - (why?) wing: made a (bad) stringer shape with only 2 points!
@@ -13,7 +9,22 @@
   the 3d model so it looks right.  Probably not a big deal for building
   but shows up annoyingly in the 3d model.
 
-- Relative positions of parts.
+- Relative positioning of sub assemblies.
+
+- 12/19/2013: Warn if trying to build a dirty design (build is from the saved
+  file, not in memory
+
+- 12/18/2013: Curved taper via gui / spline curve.  The interface is a bit
+  clunky, but see the yet to be written docs and examples.
+
+- 12/18/2013: Tapered wing, bug with bottom sheeting 3d, predict num
+  surfaces (?)  This was an edge case bug where I was counting number of
+  vertices not number of surfaces.
+
+- 12/18/2013: Add separate root/tip chord support for tapered wings.
+
+- 12/17/2013: Airfoil selection via file/dialog box rather than typing the name.
+  allow either / or via the new 'assist me' menu.
 
 - 12/15/2013: Implement 'new' button that clears the current design andi
   starts from scratch.
