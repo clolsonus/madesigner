@@ -84,11 +84,11 @@ class SparUI():
         self.edit_height.textChanged.connect(self.onChange)
         layout1.addWidget( self.edit_height )
 
-        self.edit_orientation = QComboBoxNoWheel()
-        self.edit_orientation.addItem("Vertical")
-        self.edit_orientation.addItem("Tangent")
-        self.edit_orientation.currentIndexChanged.connect(self.onChange)
-        layout1.addWidget(self.edit_orientation)
+        #self.edit_orientation = QComboBoxNoWheel()
+        #self.edit_orientation.addItem("Vertical")
+        #self.edit_orientation.addItem("Tangent")
+        #self.edit_orientation.currentIndexChanged.connect(self.onChange)
+        #layout1.addWidget(self.edit_orientation)
 
         self.edit_start = QComboBoxNoWheel()
         self.edit_start.addItem("-")
@@ -160,10 +160,10 @@ class SparUI():
         if index == None:
             index = 1
         self.edit_surface.setCurrentIndex(index)
-        index = self.edit_orientation.findText(self.get_value('orientation'))
-        if index == None:
-            index = 1
-        self.edit_orientation.setCurrentIndex(index)
+        #index = self.edit_orientation.findText(self.get_value('orientation'))
+        #if index == None:
+        #    index = 1
+        #self.edit_orientation.setCurrentIndex(index)
         index = self.edit_start.findText(self.get_value('start-station'))
         if index != None:
             self.edit_start.setCurrentIndex(index)
@@ -185,6 +185,6 @@ class SparUI():
         self.update_node('position-ref', self.edit_posref.currentText())
         self.update_node('position', self.edit_pos.text())
         self.update_node('surface', self.edit_surface.currentText())
-        self.update_node('orientation', self.edit_orientation.currentText())
+        #self.update_node('orientation', self.edit_orientation.currentText())
         self.update_node('start-station', self.edit_start.currentText())
         self.update_node('end-station', self.edit_end.currentText())

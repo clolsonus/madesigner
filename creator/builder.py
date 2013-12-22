@@ -101,7 +101,7 @@ class Builder():
         elif position_ref == "Abs Pos":
             xpos = position_val
         surface = get_value(node, 'surface').lower()
-        orientation = get_value(node, 'orientation').lower()
+        #orientation = get_value(node, 'orientation').lower()
         junk, startstr = get_value(node, 'start-station').split()
         junk, endstr = get_value(node, 'end-station').split()
         if startstr == "Inner" or startstr == "":
@@ -112,7 +112,7 @@ class Builder():
             end = None
         else:
             end = float(endstr)
-        wing.add_stringer(surf=surface, orientation=orientation, percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ysize=height, start_station=start, end_station=end, part="wing")
+        wing.add_stringer(surf=surface, orientation="tangent", percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ysize=height, start_station=start, end_station=end, part="wing")
 
     def parse_spar(self, wing, node):
         width = float(get_value(node, 'width'))
@@ -132,7 +132,7 @@ class Builder():
         elif position_ref == "Abs Pos":
             xpos = position_val
         surface = get_value(node, 'surface').lower()
-        orientation = get_value(node, 'orientation').lower()
+        #orientation = get_value(node, 'orientation').lower()
         junk, startstr = get_value(node, 'start-station').split()
         junk, endstr = get_value(node, 'end-station').split()
         if startstr == "Inner" or startstr == "":
@@ -143,7 +143,7 @@ class Builder():
             end = None
         else:
             end = float(endstr)
-        wing.add_spar(surf=surface, orientation=orientation, percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ysize=height, start_station=start, end_station=end, part="wing")
+        wing.add_spar(surf=surface, orientation="vertical", percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ysize=height, start_station=start, end_station=end, part="wing")
 
     def parse_sheet(self, wing, node):
         depth = float(get_value(node, 'depth'))
