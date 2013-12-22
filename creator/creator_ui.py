@@ -16,7 +16,8 @@ import os.path
 import subprocess
 import distutils.spawn
 from PyQt4 import QtGui, QtCore
-import xml.etree.ElementTree as ET
+#import xml.etree.ElementTree as ET
+import lxml.etree as ET
 
 from overview import Overview
 from wing_ui import WingUI
@@ -272,7 +273,7 @@ class CreatorUI(QtGui.QWidget):
                                                      "MAdesigner (*.mad)")
         if ( filename == "" ):
             return
-        self.load(filename)
+        self.load(str(filename))
 
     def open_home(self):
         startdir = os.path.expanduser("~")
@@ -315,7 +316,7 @@ class CreatorUI(QtGui.QWidget):
 
         try:
             self.xml.write(self.filename, encoding="us-ascii",
-                           xml_declaration=False)
+                           xml_declaration=False, pretty_print=True)
         except:
             print "error saving file"
             return

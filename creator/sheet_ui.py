@@ -11,7 +11,8 @@ started: December 2013
 
 import sys
 from PyQt4 import QtGui, QtCore
-import xml.etree.ElementTree as ET
+#import xml.etree.ElementTree as ET
+import lxml.etree as ET
 from combobox_nowheel import QComboBoxNoWheel
 
 

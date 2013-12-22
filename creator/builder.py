@@ -14,7 +14,8 @@ started edited: December 2013
 import re
 import sys
 import os.path
-import xml.etree.ElementTree as ET
+#import xml.etree.ElementTree as ET
+import lxml.etree as ET
 
 # import numpy here to avoid a glitch in pyinstaller
 import numpy

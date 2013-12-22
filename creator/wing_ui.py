@@ -12,7 +12,8 @@ started: November 2013
 import os.path
 import sys
 from PyQt4 import QtGui, QtCore
-import xml.etree.ElementTree as ET
+#import xml.etree.ElementTree as ET
+import lxml.etree as ET
 from leading_edge_ui import LeadingEdgeUI
 from trailing_edge_ui import TrailingEdgeUI
 from spar_ui import SparUI
