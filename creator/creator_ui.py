@@ -183,17 +183,44 @@ class CreatorUI(QtGui.QWidget):
         if not result:
             error = QtGui.QErrorMessage(self)
             error.showMessage( "Cannot find " + viewer + " in path.  Perhaps it needs to be installed?" )
-        else:
-            command = []
-            command.append(viewer)
-            command.append("--window")
-            command.append("50")
-            command.append("50")
-            command.append("800")
-            command.append("600")
-            command.append(self.fileroot + ".ac")
-            pid = subprocess.Popen(command).pid
-            print "spawned osgviewer with pid = " + str(pid)
+            return
+            
+        madfile = self.fileroot + ".mad"
+        if not os.path.exists(madfile):
+            error = QtGui.QErrorMessage(self)
+            error.showMessage( "No '.mad' file ... please save your design with a file name." )
+            return 
+
+        if not self.isClean():
+            error = QtGui.QErrorMessage(self)
+            error.showMessage( "The design has been modified.  You must <b>Build</b> it before viewing the 3d structure." )
+            return 
+
+        acfile = self.fileroot + ".ac"
+        if not os.path.exists(acfile):
+            error = QtGui.QErrorMessage(self)
+            error.showMessage( "Design needs to be 'built'; click ok to continue." )
+            #self.build_fast()
+            return
+
+        madtime = os.path.getmtime(madfile)
+        actime = os.path.getmtime(acfile)
+        if madtime > actime:
+            error = QtGui.QErrorMessage(self)
+            error.showMessage( "Design needs to be 'built'; click ok to continue." )
+            #self.build_fast()
+            return
+
+        command = []
+        command.append(viewer)
+        command.append("--window")
+        command.append("50")
+        command.append("50")
+        command.append("800")
+        command.append("600")
+        command.append(self.fileroot + ".ac")
+        pid = subprocess.Popen(command).pid
+        print "spawned osgviewer with pid = " + str(pid)
  
     def wipe_slate(self):
         self.overview.wipe_clean()
