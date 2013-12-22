@@ -1,9 +1,8 @@
-- Fix output location of .svg files
-
 - Sheeting needs to allow various positioning like other objects to handle
   tapered wings!
 
-- Control surfaces via gui.
+- Control surfaces via gui.  Need to figure out a sane way to specify trailing
+  edge of wing vs. control surface.
 
 - Add internal version knowledge, remote check for new version (in a task.)
   About me page/dialog?
@@ -18,6 +17,11 @@
   but shows up annoyingly in the 3d model.
 
 - Relative positioning of sub assemblies.
+
+- 12/22/2013: Fix output location of .svg files
+
+- 12/22/2013: Check that .ac exists and is newer than .mad file before
+  allowing view3d
 
 - 12/22/2013: Beautify saved xml files (.mad) by using lxml instead of xml
   which supports the pretty_print=True flag when calling write()

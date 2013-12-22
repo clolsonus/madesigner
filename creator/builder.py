@@ -330,7 +330,7 @@ class Builder():
         return curve                         
         
     def parse_wing(self, node):
-        wing = Wing(self.baseroot)
+        wing = Wing(self.fileroot)
         wing.units = self.units
         wing.airfoil_resample = self.airfoil_resample
         wing.circle_points=self.circle_points
