@@ -1,4 +1,118 @@
-<design><overview><name>Example 9</name><description>With a simple wing plan and custom station  positions, let's start adding more features to our wing.
+<design>
+  <overview>
+    <name>Example 9</name>
+    <description>With a simple wing plan and custom station  positions, let's start adding more features to our wing.
 * a simple round hole
 * a shaped hole
-* a build tab for assisting with build alignment</description><author>Curt Olson</author><email /><units>in</units></overview><wing><name>Main</name><airfoil-root>naca0015</airfoil-root><airfoil-tip /><span>30</span><chord-root>10</chord-root><chord-tip>6</chord-tip><chord-curve /><twist>5</twist><sweep /><sweep-curve /><dihedral>5</dihedral><stations>0 1 2 3 6 9 12 14 15 16 18 21 24 27 29 30</stations><leading-edge><size>0.2</size><start-station>Start: Inner</start-station><end-station>End: Outer</end-station></leading-edge><trailing-edge><width>1.0</width><height>0.25</height><shape>Flat</shape><start-station>Start: Inner</start-station><end-station>End: Outer</end-station></trailing-edge><spar><width>0.25</width><height>0.25</height><position-ref>Chord %</position-ref><position>0.33</position><surface>Top</surface><orientation>Vertical</orientation><start-station>Start: Inner</start-station><end-station>End: Outer</end-station></spar><spar><width>0.25</width><height>0.25</height><position-ref>Chord %</position-ref><position>0.33</position><surface>Bottom</surface><orientation>Vertical</orientation><start-station>Start: Inner</start-station><end-station>End: Outer</end-station></spar><stringer><width>0.2</width><height>0.2</height><position-ref>Chord %</position-ref><position>0.65</position><surface>Top</surface><orientation>Tangent</orientation><start-station>Start: Inner</start-station><end-station>End: Outer</end-station></stringer><stringer><width>0.2</width><height>0.2</height><position-ref>Chord %</position-ref><position>0.6</position><surface>Bottom</surface><orientation>Tangent</orientation><start-station>Start: Inner</start-station><end-station>End: Outer</end-station></stringer><stringer><width>0.2</width><height>0.2</height><position-ref>Chord %</position-ref><position>0.15</position><surface>Top</surface><orientation>Tangent</orientation><start-station>Start: Inner</start-station><end-station>End: Outer</end-station></stringer><stringer><width>0.2</width><height>0.2</height><position-ref>Chord %</position-ref><position>0.15</position><surface>Bottom</surface><orientation>Tangent</orientation><start-station>Start: Inner</start-station><end-station>End: Outer</end-station></stringer><simple-hole><radius>0.3</radius><position-ref>Chord %</position-ref><position>0.24</position><start-station>Start: Inner</start-station><end-station>End: Outer</end-station></simple-hole><shaped-hole><material-width>0.25</material-width><corner-radius>0.1</corner-radius><position1-ref>Chord %</position1-ref><position1>0.36</position1><position2-ref>Chord %</position2-ref><position2>0.57</position2><start-station>Start: Inner</start-station><end-station>End: Outer</end-station></shaped-hole><build-tab><width>0.3</width><ypad /><position-ref>Chord %</position-ref><position>0.75</position><surface>Bottom</surface><start-station>Start: Inner</start-station><end-station>End: Outer</end-station></build-tab></wing></design>
+* a build tab for assisting with build alignment</description>
+    <author>Curt Olson</author>
+    <email></email>
+    <units>in</units>
+  </overview>
+  <wing>
+    <name>Main</name>
+    <airfoil-root>naca0015</airfoil-root>
+    <airfoil-tip></airfoil-tip>
+    <span>30</span>
+    <chord-root>10</chord-root>
+    <chord-tip>6</chord-tip>
+    <chord-curve></chord-curve>
+    <twist>5</twist>
+    <sweep></sweep>
+    <sweep-curve></sweep-curve>
+    <dihedral>5</dihedral>
+    <stations>0 1 2 3 6 9 12 14 15 16 18 21 24 27 29 30</stations>
+    <leading-edge>
+      <size>0.2</size>
+      <start-station>Start: Inner</start-station>
+      <end-station>End: Outer</end-station>
+    </leading-edge>
+    <trailing-edge>
+      <width>1.0</width>
+      <height>0.25</height>
+      <shape>Flat</shape>
+      <start-station>Start: Inner</start-station>
+      <end-station>End: Outer</end-station>
+    </trailing-edge>
+    <spar>
+      <width>0.25</width>
+      <height>0.25</height>
+      <position-ref>Chord %</position-ref>
+      <position>0.33</position>
+      <surface>Top</surface>
+      <start-station>Start: Inner</start-station>
+      <end-station>End: Outer</end-station>
+    </spar>
+    <spar>
+      <width>0.25</width>
+      <height>0.25</height>
+      <position-ref>Chord %</position-ref>
+      <position>0.33</position>
+      <surface>Bottom</surface>
+      <start-station>Start: Inner</start-station>
+      <end-station>End: Outer</end-station>
+    </spar>
+    <stringer>
+      <width>0.2</width>
+      <height>0.2</height>
+      <position-ref>Chord %</position-ref>
+      <position>0.65</position>
+      <surface>Top</surface>
+      <start-station>Start: Inner</start-station>
+      <end-station>End: Outer</end-station>
+    </stringer>
+    <stringer>
+      <width>0.2</width>
+      <height>0.2</height>
+      <position-ref>Chord %</position-ref>
+      <position>0.6</position>
+      <surface>Bottom</surface>
+      <start-station>Start: Inner</start-station>
+      <end-station>End: Outer</end-station>
+    </stringer>
+    <stringer>
+      <width>0.2</width>
+      <height>0.2</height>
+      <position-ref>Chord %</position-ref>
+      <position>0.15</position>
+      <surface>Top</surface>
+      <start-station>Start: Inner</start-station>
+      <end-station>End: Outer</end-station>
+    </stringer>
+    <stringer>
+      <width>0.2</width>
+      <height>0.2</height>
+      <position-ref>Chord %</position-ref>
+      <position>0.15</position>
+      <surface>Bottom</surface>
+      <start-station>Start: Inner</start-station>
+      <end-station>End: Outer</end-station>
+    </stringer>
+    <simple-hole>
+      <radius>0.3</radius>
+      <position-ref>Chord %</position-ref>
+      <position>0.24</position>
+      <start-station>Start: Inner</start-station>
+      <end-station>End: Outer</end-station>
+    </simple-hole>
+    <shaped-hole>
+      <material-width>0.25</material-width>
+      <corner-radius>0.1</corner-radius>
+      <position1-ref>Chord %</position1-ref>
+      <position1>0.36</position1>
+      <position2-ref>Chord %</position2-ref>
+      <position2>0.57</position2>
+      <start-station>Start: Inner</start-station>
+      <end-station>End: Outer</end-station>
+    </shaped-hole>
+    <build-tab>
+      <width>0.3</width>
+      <ypad></ypad>
+      <position-ref>Chord %</position-ref>
+      <position>0.75</position>
+      <surface>Bottom</surface>
+      <start-station>Start: Inner</start-station>
+      <end-station>End: Outer</end-station>
+    </build-tab>
+  </wing>
+</design>
