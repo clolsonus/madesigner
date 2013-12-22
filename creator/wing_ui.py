@@ -20,6 +20,7 @@ from sheet_ui import SheetUI
 from simple_hole_ui import SimpleHoleUI
 from shaped_hole_ui import ShapedHoleUI
 from build_tab_ui import BuildTabUI
+from flap_ui import FlapUI
 
 
 class WingUI():
@@ -75,6 +76,10 @@ class WingUI():
             if not tab.isClean():
                 print "build tab dirty"
                 return False
+        for flap in self.flaps:
+            if not flap.isClean():
+                print "flap dirty"
+                return False
 
         # still here (children clean), then return our own status
         return self.clean
@@ -96,6 +101,8 @@ class WingUI():
             hole.setClean()
         for tab in self.build_tabs:
             tab.setClean()
+        for flap in self.flaps:
+            flap.setClean()
         self.clean = True
 
     def rebuildStations(self):
@@ -124,6 +131,9 @@ class WingUI():
         for tab in self.build_tabs:
             if tab.valid:
                 tab.rebuild_stations(self.edit_stations.text())
+        for flap in self.flaps:
+            if flap.valid:
+                flap.rebuild_stations(self.edit_stations.text())
 
     def select_airfoil_root(self):
         basepath = os.path.split(os.path.abspath(sys.argv[0]))[0]
@@ -232,7 +242,12 @@ class WingUI():
         self.layout_build_tabs.addWidget( tab.get_widget() )
 
     def add_flap(self, xml_node=None):
-        print "add flap"
+        flap = FlapUI()
+        flap.rebuild_stations(self.edit_stations.text())
+        if xml_node != None:
+            flap.parse_xml(xml_node)
+        self.flaps.append(flap)
+        self.layout_flaps.addWidget( flap.get_widget() )
 
     def delete_self(self):
         #print "delete self!"
@@ -261,9 +276,6 @@ class WingUI():
         scroll.setWidgetResizable(True)
         #layout.addWidget(scroll)
         toplayout.addWidget(scroll)
-
-        self.group_flaps = QtGui.QGroupBox("Control Surfaces")
-        layout.addWidget(self.group_flaps)
 
         frame = QtGui.QGroupBox("Leading Edges")
         self.layout_le = QtGui.QVBoxLayout()
@@ -305,6 +317,11 @@ class WingUI():
         frame.setLayout(self.layout_build_tabs)
         layout.addWidget(frame)
 
+        frame = QtGui.QGroupBox("Control Surfaces")
+        self.layout_flaps = QtGui.QVBoxLayout()
+        frame.setLayout(self.layout_flaps)
+        layout.addWidget(frame)
+
         # 'Command' button bar
         cmd_group = QtGui.QFrame()
         toplayout.addWidget(cmd_group)
@@ -323,7 +340,6 @@ class WingUI():
 
         add_feature = QtGui.QPushButton("Add Feature ...")
         menu = QtGui.QMenu()
-        menu.addAction("Add Control Surface", self.add_flap)
         menu.addAction("Leading Edge", self.add_leading_edge)
         menu.addAction("Trailing Edge", self.add_trailing_edge)
         menu.addAction("Spar", self.add_spar)
@@ -332,6 +348,7 @@ class WingUI():
         menu.addAction("Lighting/Spar Hole", self.add_simple_hole)
         menu.addAction("Shaped Hole", self.add_shaped_hole)
         menu.addAction("Build Tab", self.add_build_tab)
+        menu.addAction("Add Control Surface", self.add_flap)
         add_feature.setMenu(menu)
         cmd_layout.addWidget(add_feature)
 
@@ -443,6 +460,8 @@ class WingUI():
             self.add_shaped_hole(hole_node)
         for tab_node in node.findall('build-tab'):
             self.add_build_tab(tab_node)
+        for flap_node in node.findall('flap'):
+            self.add_flap(flap_node)
 
     def update_node(self, node, value):
         e = self.xml.find(node)
@@ -497,5 +516,9 @@ class WingUI():
             if tab.valid:
                 subnode = ET.SubElement(node, 'build-tab')
                 tab.gen_xml(subnode)
+        for flap in self.flaps:
+            if flap.valid:
+                subnode = ET.SubElement(node, 'flap')
+                flap.gen_xml(subnode)
 
 

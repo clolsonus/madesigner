@@ -279,6 +279,40 @@ class Builder():
             end = float(endstr)
         wing.add_build_tab(surf=surface, percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ypad=ypad, start_station=start, end_station=end, part="wing")
 
+    def parse_flap(self, wing, node):
+        width = float(get_value(node, 'width'))
+        height = float(get_value(node, 'height'))
+        position_ref = get_value(node, 'position-ref')
+        position_val = float(get_value(node, 'position'))
+        percent = None
+        front = None
+        rear = None
+        xpos = None
+        if position_ref == "Chord %":
+            percent = position_val
+        elif position_ref == "Rel Front":
+            front = position_val
+        elif position_ref == "Rel Rear":
+            rear = position_val
+        elif position_ref == "Abs Pos":
+            xpos = position_val
+        junk, startstr = get_value(node, 'start-station').split()
+        junk, endstr = get_value(node, 'end-station').split()
+        if startstr == "Inner" or startstr == "":
+            start = None
+        else:
+            start = float(startstr)
+        if endstr == "Outer" or endstr == "":
+            end = None
+        else:
+            end = float(endstr)
+        atstation = float(get_value(node, 'at-station'))
+        slope = float(get_value(node, 'slope'))
+        angle = float(get_value(node, 'angle'))
+        pos = lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
+        size = ( width, height )
+        wing.add_flap( start_station=start, end_station=end, pos=pos, type="builtup", angle=angle, edge_stringer_size=size)
+
     def make_curve(self, text):
         #print text
         curve = []
@@ -337,6 +371,8 @@ class Builder():
             self.parse_shaped_hole(wing, hole_node)
         for tab_node in node.findall('build-tab'):
             self.parse_build_tab(wing, tab_node)
+        for flap_node in node.findall('flap'):
+            self.parse_flap(wing, flap_node)
 
         wing.build()
         wing.layout_parts_sheets( 24, 8 )
