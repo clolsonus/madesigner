@@ -61,15 +61,20 @@ class LeadingEdgeUI():
     def make_page(self):
         # make the edit line
         page = QtGui.QFrame()
-        layout = QtGui.QHBoxLayout()
+        layout = QtGui.QVBoxLayout()
         page.setLayout( layout )
 
-        layout.addWidget( QtGui.QLabel("<b>Size:</b> ") )
+        line1 = QtGui.QFrame()
+        layout1 = QtGui.QHBoxLayout()
+        line1.setLayout( layout1 )
+        layout.addWidget( line1 )
+
+        layout1.addWidget( QtGui.QLabel("<b>Size:</b> ") )
 
         self.edit_size = QtGui.QLineEdit()
         self.edit_size.setFixedWidth(50)
         self.edit_size.textChanged.connect(self.onChange)
-        layout.addWidget( self.edit_size )
+        layout1.addWidget( self.edit_size )
 
         self.edit_start = QComboBoxNoWheel()
         self.edit_start.addItem("-")
@@ -77,7 +82,7 @@ class LeadingEdgeUI():
         self.edit_start.addItem("2")
         self.edit_start.addItem("3")
         self.edit_start.currentIndexChanged.connect(self.onChange)
-        layout.addWidget(self.edit_start)
+        layout1.addWidget(self.edit_start)
 
         self.edit_end = QComboBoxNoWheel()
         self.edit_end.addItem("-")
@@ -85,13 +90,13 @@ class LeadingEdgeUI():
         self.edit_end.addItem("2")
         self.edit_end.addItem("3")
         self.edit_end.currentIndexChanged.connect(self.onChange)
-        layout.addWidget(self.edit_end)
+        layout1.addWidget(self.edit_end)
+
+        layout1.addStretch(1)
 
         delete = QtGui.QPushButton('Delete ')
         delete.clicked.connect(self.delete_self)
-        layout.addWidget(delete)
-
-        layout.addStretch(1)
+        layout1.addWidget(delete)
 
         return page
 

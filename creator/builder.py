@@ -310,7 +310,7 @@ class Builder():
         atstation = float(get_value(node, 'at-station'))
         slope = float(get_value(node, 'slope'))
         angle = float(get_value(node, 'angle'))
-        pos = lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
+        pos = lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos, atstation=atstation, slope=slope)
         size = ( width, height )
         wing.add_flap( start_station=start, end_station=end, pos=pos, type="builtup", angle=angle, edge_stringer_size=size)
 

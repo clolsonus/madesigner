@@ -4,6 +4,9 @@
 - Control surfaces via gui.  Need to figure out a sane way to specify trailing
   edge of wing vs. control surface.
 
+- Control surface ... specifying position with anything other than absolute
+  position seems to result in edge stringer misplacement.
+
 - Add internal version knowledge, remote check for new version (in a task.)
   About me page/dialog?
 

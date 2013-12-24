@@ -353,11 +353,11 @@ class WingUI():
         add_feature.setMenu(menu)
         cmd_layout.addWidget(add_feature)
 
+        cmd_layout.addStretch(1)
+
         delete = QtGui.QPushButton('Delete Wing')
         delete.clicked.connect(self.delete_self)
         cmd_layout.addWidget(delete)
-
-        cmd_layout.addStretch(1)
 
         # form content
         self.edit_name = QtGui.QLineEdit()

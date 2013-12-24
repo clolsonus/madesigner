@@ -61,26 +61,31 @@ class TrailingEdgeUI():
     def make_page(self):
         # make the edit line
         page = QtGui.QFrame()
-        layout = QtGui.QHBoxLayout()
+        layout = QtGui.QVBoxLayout()
         page.setLayout( layout )
 
-        layout.addWidget( QtGui.QLabel("<b>W x H:</b> ") )
+        line1 = QtGui.QFrame()
+        layout1 = QtGui.QHBoxLayout()
+        line1.setLayout( layout1 )
+        layout.addWidget( line1 )
+
+        layout1.addWidget( QtGui.QLabel("<b>W x H:</b> ") )
 
         self.edit_width = QtGui.QLineEdit()
         self.edit_width.setFixedWidth(50)
         self.edit_width.textChanged.connect(self.onChange)
-        layout.addWidget( self.edit_width )
+        layout1.addWidget( self.edit_width )
 
         self.edit_height = QtGui.QLineEdit()
         self.edit_height.setFixedWidth(50)
         self.edit_height.textChanged.connect(self.onChange)
-        layout.addWidget( self.edit_height )
+        layout1.addWidget( self.edit_height )
 
         self.edit_shape = QComboBoxNoWheel()
         self.edit_shape.addItem("Flat")
         self.edit_shape.addItem("Symmetrical")
         self.edit_shape.currentIndexChanged.connect(self.onChange)
-        layout.addWidget(self.edit_shape)
+        layout1.addWidget(self.edit_shape)
 
         self.edit_start = QComboBoxNoWheel()
         self.edit_start.addItem("-")
@@ -88,7 +93,7 @@ class TrailingEdgeUI():
         self.edit_start.addItem("2")
         self.edit_start.addItem("3")
         self.edit_start.currentIndexChanged.connect(self.onChange)
-        layout.addWidget(self.edit_start)
+        layout1.addWidget(self.edit_start)
 
         self.edit_end = QComboBoxNoWheel()
         self.edit_end.addItem("-")
@@ -96,13 +101,13 @@ class TrailingEdgeUI():
         self.edit_end.addItem("2")
         self.edit_end.addItem("3")
         self.edit_end.currentIndexChanged.connect(self.onChange)
-        layout.addWidget(self.edit_end)
+        layout1.addWidget(self.edit_end)
+
+        layout1.addStretch(1)
 
         delete = QtGui.QPushButton('Delete ')
         delete.clicked.connect(self.delete_self)
-        layout.addWidget(delete)
-
-        layout.addStretch(1)
+        layout1.addWidget(delete)
 
         return page
 

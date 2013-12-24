@@ -107,12 +107,12 @@ class SparUI():
         self.edit_end.currentIndexChanged.connect(self.onChange)
         layout1.addWidget(self.edit_end)
 
+        layout1.addStretch(1)
+
         delete = QtGui.QPushButton('Delete')
         delete.clicked.connect(self.delete_self)
         layout1.addWidget(delete)
   
-        layout1.addStretch(1)
-
         layout2.addWidget( QtGui.QLabel("<b>Pos:</b> ") )
 
         self.edit_posref = QComboBoxNoWheel()
