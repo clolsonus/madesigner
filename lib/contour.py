@@ -16,12 +16,16 @@ import Polygon.Utils
 
 
 class Cutpos:
-    def __init__(self, percent=None, front=None, rear=None, \
-                     xpos=None, atstation=None, slope=None):
+    def __init__(self, percent=None, front=None, rear=None, xpos=None,
+                 xoffset=0.0, atstation=None, slope=None):
         self.percent = percent             # placed at % point in chord
         self.front = front                 # dist from front of chord
         self.rear = rear                   # dist from rear of chord
         self.xpos = xpos                   # abs position
+
+        # if xoffset is provided, nudge the x position by this amount after
+        # computing the relative position the normal way
+        self.xoffset = xoffset
 
         # if atstation + slope are defined, then the cut position will
         # be just like any other cut position at the 'root' station,
@@ -32,15 +36,8 @@ class Cutpos:
         self.slope = slope
 
     # move the cutpos by dist amount
-    def move(self, xdist=0.0):
-        if self.percent != None:
-            self.percent += xdist
-        elif self.front != None:
-            self.front += xdist
-        elif self.rear != None:
-            self.rear += xdist
-        elif self.xpos != None:
-            self.xpos += xdist
+    def move(self, xoffset=0.0):
+        self.xoffset += xoffset
 
 
 class Cutout:
@@ -288,6 +285,8 @@ class Contour:
             lat_dist = math.fabs(station) - cutpos.atstation
             long_dist = lat_dist * cutpos.slope
             xpos += long_dist
+        if cutpos.xoffset != None:
+            xpos += cutpos.xoffset
         return xpos
 
     def get_slope(self, surf="top", xpos=0.0):
