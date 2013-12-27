@@ -426,6 +426,12 @@ class Wing:
                      pos=None, type="builtup", angle=30.0, \
                      edge_stringer_size=None, \
                      mirror=True):
+
+        if start_station == None:
+            start_station = self.stations[0]
+        if end_station == None:
+            end_station = self.stations[len(self.stations)-1]
+
         flap = Flap( start_station, end_station, pos, angle, \
                          edge_stringer_size )
         flap.side = "right"
