@@ -51,6 +51,72 @@ class Builder():
 
         self.load(filename)
 
+    # return a list of start/end/part triplets for a structure that
+    # spans the given start/end stations.  The structure is separated
+    # at flap boundaries and marked with part=wing or part=flap
+    # accordingly.
+    #
+    # the idea is that the user is allowed to specify lateral
+    # structures along the entire wing and we will split them up as
+    # necessary if flaps are defined (the user could also do this the
+    # hard way if they really wanted to.)
+    def split_for_flaps(self, wing, start, end):
+        if start == None:
+            start = wing.stations[0]
+        if end == None:
+            end = wing.stations[len(wing.stations)-1]
+
+        segments = []
+        segments.append( (start, end, "wing") )
+
+
+        for flap in wing.flaps:
+            if flap.side == "right":
+                #print "flap: " + str( (flap.start_station, flap.end_station) )
+
+                result = []
+                for seg in segments:
+                    #print "segment: " + str(seg)
+                    if seg[2] == 'flap':
+                        # copy flap segments verbatim
+                        result.append( list(seg) )
+                    else:
+                        # starting wing portion
+                        s1 = seg[0]
+                        s2 = seg[1]
+                        p1 = s1
+                        p2 = flap.start_station
+                        if p2 > s2:
+                            p2 = s2
+                        if p1 < p2:
+                            #print "we have starting wing portion"
+                            result.append( (p1, p2, "wing") )
+
+                        # flap portion
+                        p1 = flap.start_station
+                        p2 = flap.end_station
+                        if p1 < s1:
+                            p1 = s1
+                        if p2 > s2:
+                            p2 = s2
+                        if p1 < p2:
+                            result.append( (p1, p2, "flap") )
+
+                        # ending wing portion
+                        p1 = flap.end_station
+                        p2 = s2
+                        if p1 < s1:
+                            p1 = s1
+                        if p1 < p2:
+                            #print "we have ending wing portion"
+                            result.append( (p1, p2, "wing") )
+                #print "after flap, result = " + str(result)
+                segments = list(result)
+
+        #print str(segments)
+        return segments
+
+        
     def parse_overview(self, node):
         self.units = get_value(node, 'units')
 
@@ -82,7 +148,9 @@ class Builder():
             end = None
         else:
             end = float(endstr)
-        wing.add_trailing_edge(width=width, height=height, shape=shape, start_station=start, end_station=end, part="wing")
+        parts = self.split_for_flaps(wing, start, end)
+        for p in parts: 
+            wing.add_trailing_edge(width=width, height=height, shape=shape, start_station=p[0], end_station=p[1], part=p[2])
 
     def parse_stringer(self, wing, node):
         width = float(get_value(node, 'width'))
@@ -356,6 +424,12 @@ class Builder():
             chord_tip = myfloat(get_value(node, 'chord-tip'))
             wing.set_chord( chord_root, chord_tip )
         wing.dihedral = myfloat(get_value(node, 'dihedral'))
+
+        # parse flaps first so we can use this info to partition the
+        # trailing edge and possibly other structures too
+        for flap_node in node.findall('flap'):
+            self.parse_flap(wing, flap_node)
+
         for le_node in node.findall('leading-edge'):
             self.parse_leading_edge(wing, le_node)
         for te_node in node.findall('trailing-edge'):
@@ -372,8 +446,6 @@ class Builder():
             self.parse_shaped_hole(wing, hole_node)
         for tab_node in node.findall('build-tab'):
             self.parse_build_tab(wing, tab_node)
-        for flap_node in node.findall('flap'):
-            self.parse_flap(wing, flap_node)
 
         wing.build()
         wing.layout_parts_sheets( 24, 8 )
