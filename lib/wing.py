@@ -977,18 +977,14 @@ class Wing:
 
         sheet.save()
 
-    def make_dihedral_matrix(self, angle):
-        rad = math.radians(angle)
-        sa = math.sin(rad)
-        ca = math.cos(rad)
-        m = ( (1.0, 0.0, 0.0),
-              (0.0, ca, -sa),
-              (0.0, sa, ca) )
-        return m
-
     def build_ac3d(self, ac, xspread=0.0, yoffset=0.0):
         groups = 2              # left & right wings
-        ac.start_object_group("wing", groups)
+
+        m1 = ac.make_rotation_matrix("Z", -90)
+        m2 = ac.make_rotation_matrix("Y", -90)
+        m = ac.multiply_rotation_matrix(m1, m2)
+
+        ac.start_object_group("wing", groups, m)
 
         # right wing
 

@@ -15,7 +15,8 @@
 - Relative positioning of sub assemblies.
 
 - 12/27/2013: Add internal version knowledge, remote check for new version
-  (in a task.)
+  (in a task.)  Related: heads up message if we are loading a design written
+  by a different version of creator.
 
 - 12/27/2013: Control surfaces via gui.  Need to figure out a sane way to
   specify trailing edge of wing vs. control surface.  builder will split up

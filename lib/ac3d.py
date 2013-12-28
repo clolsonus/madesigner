@@ -548,10 +548,21 @@ class AC3D:
         elif axis == "y" or axis == "Y":
             m = ( (ca,  0.0, -sa),
                   (0.0, 1.0, 0.0),
-                  (sa,  sa,  ca) )
+                  (sa,  0.0,  ca) )
         elif axis == "z" or axis == "Z":
             m = ( (ca,  -sa,  0.0),
                   (sa,   ca,  0.0),
                   (0.0, 0.0,  1.0) )
 
+        return m
+
+    def multiply_rotation_matrix(self, A, B):
+        m = [ [0.0, 0.0, 0.0],
+              [0.0, 0.0, 0.0],
+              [0.0, 0.0, 0.0] ]
+        print str(m[1][1])
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    m[i][j] += A[i][k] * B[k][j]
         return m
