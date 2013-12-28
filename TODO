@@ -1,14 +1,7 @@
+- Add an about me page/dialog?
+
 - Sheeting needs to allow various positioning like other objects to handle
   tapered wings!
-
-- Control surfaces via gui.  Need to figure out a sane way to specify trailing
-  edge of wing vs. control surface.
-
-- Control surface ... specifying position with anything other than absolute
-  position seems to result in edge stringer misplacement.
-
-- Add internal version knowledge, remote check for new version (in a task.)
-  About me page/dialog?
 
 - (why?) wing: made a (bad) stringer shape with only 2 points!
   picking up inner rib of mirror side?  Maybe assume this is a 'normal'
@@ -20,6 +13,19 @@
   but shows up annoyingly in the 3d model.
 
 - Relative positioning of sub assemblies.
+
+- 12/27/2013: Add internal version knowledge, remote check for new version
+  (in a task.)
+
+- 12/27/2013: Control surfaces via gui.  Need to figure out a sane way to
+  specify trailing edge of wing vs. control surface.  builder will split up
+  trailing edge at flap boundaries and assign part = wing | flap accordingly.
+
+- 12/26/2013: Control surface ... specifying position with anything other
+  than absolute position seems to result in edge stringer misplacement.
+  Fixed by adding an "xoffset" to a CutPos which is added after the position
+  is evaluated (could be a percent of chord for instance which we don't know
+  until the rib is made.)
 
 - 12/22/2013: Fix output location of .svg files
 
