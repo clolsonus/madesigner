@@ -13,8 +13,10 @@ started edited: November 2013
 
 import sys
 import os.path
+import time
 import subprocess
 import distutils.spawn
+import urllib2
 from PyQt4 import QtGui, QtCore
 #import xml.etree.ElementTree as ET
 import lxml.etree as ET
@@ -22,6 +24,37 @@ import lxml.etree as ET
 from overview import Overview
 from wing_ui import WingUI
 from builder import Builder
+from version import MADversion
+
+
+# Check if our version is the latest
+class CheckVersion(QtCore.QThread):
+
+    def __init__(self):
+        super(CheckVersion, self).__init__()
+        self.version = MADversion()
+        self.baseurl = "http://mirrors.ibiblio.org/flightgear/ftp/MAdesigner"
+        self.file = "stable_version"
+
+    def run(self):
+        time.sleep(2)
+        #print "Checking for newer version.  We are " + str(self.version)
+        try:
+            url = self.baseurl + "/" + self.file
+            response = urllib2.urlopen(url)
+            html = response.read()
+            stable_version = float(html)
+            #print str(stable_version)
+            if self.version.get() < stable_version:
+                self.emit( QtCore.SIGNAL('update(QString)'),
+                           str(stable_version) )
+        except:
+            # print "version check error = " + str(sys.exc_info()[1])
+            # do nothing
+            a = 1
+
+        return
+
 
 class CreatorUI(QtGui.QWidget):
     
@@ -36,6 +69,15 @@ class CreatorUI(QtGui.QWidget):
         self.fileroot = ""
         self.load(filename)
         self.clean = True
+
+        # version checking task
+        self.checkversion = CheckVersion()
+        self.connect( self.checkversion, QtCore.SIGNAL("update(QString)"),
+                      self.version_message )
+        self.checkversion.start()
+
+    def version_message(self, text):
+        reply = QtGui.QMessageBox.question(self, 'Version Check', 'A new version of MAdesigner (v' + text + ') is available.<br><a href="http://mirrors.ibiblio.org/flightgear/ftp/MAdesigner">Click here to download it.</A>', QtGui.QMessageBox.Ok)
 
     def isClean(self):
         # need to check our self and all our children
