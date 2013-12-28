@@ -9,7 +9,7 @@
   </overview>
   <wing>
     <name>Main</name>
-    <airfoil-root>clarky</airfoil-root>
+    <airfoil-root>m24</airfoil-root>
     <airfoil-tip></airfoil-tip>
     <span>30</span>
     <chord-root>10</chord-root>
