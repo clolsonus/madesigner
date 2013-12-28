@@ -1,5 +1,6 @@
 <design>
   <overview>
+    <MADversion>0.4</MADversion>
     <name>Example 3</name>
     <description>This example begins to add a bit of complexity to show the power of MA designer.
 * add straight taper

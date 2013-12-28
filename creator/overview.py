@@ -14,13 +14,14 @@ from PyQt4 import QtGui, QtCore
 #import xml.etree.ElementTree as ET
 import lxml.etree as ET
 from combobox_nowheel import QComboBoxNoWheel
-
+from version import MADversion
 
 class Overview():
     def __init__(self):
         self.container = self.make_page()
         self.xml = None
         self.clean = True
+        self.version = MADversion()
 
     def onChange(self):
         self.clean = False
@@ -85,6 +86,11 @@ class Overview():
             index = 0
         self.edit_units.setCurrentIndex(index)
         self.clean = True
+        writer_version = self.get_value('MADversion')
+        if writer_version == "" or float(writer_version) != self.version.get():
+            if writer_version == "":
+                writer_version = "(unknown)"
+            reply = QtGui.QMessageBox.question(None, 'Version Alert', 'The design you are loading was created with MAD v' + str(writer_version) + '.  You are running v' + str(self.version.get()) + '.  The file will be converted as best as possible, but please check your design carefully for any issues.', QtGui.QMessageBox.Ok)
 
     def wipe_clean(self):
         self.edit_name.setText('')
@@ -101,6 +107,7 @@ class Overview():
         
     def gen_xml(self, node):
         self.xml = node
+        self.update_node('MADversion', str(self.version.get()))
         self.update_node('name', self.edit_name.text())
         self.update_node('description', self.edit_desc.toPlainText())
         self.update_node('author', self.edit_author.text())

@@ -1,5 +1,6 @@
 <design>
   <overview>
+    <MADversion>0.4</MADversion>
     <name>Example 11</name>
     <description>Stations!  Any feature can start and end at any station.  You are the engineer and get to decide what you want, how big, and where it starts and ends.</description>
     <author>Curt Olson</author>

@@ -1,5 +1,6 @@
 <design>
   <overview>
+    <MADversion>0.4</MADversion>
     <name>Example 9</name>
     <description>With a simple wing plan and custom station  positions, let's start adding more features to our wing.
 * a simple round hole

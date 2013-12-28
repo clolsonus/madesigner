@@ -1,5 +1,6 @@
 <design>
   <overview>
+    <MADversion>0.4</MADversion>
     <name>Example 2</name>
     <description>Beginning to add typical wing structures.
 * add top and bottom spars

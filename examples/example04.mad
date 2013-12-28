@@ -1,5 +1,6 @@
 <design>
   <overview>
+    <MADversion>0.4</MADversion>
     <name>Example 4</name>
     <description>Swept wings are no problem.
 * add sweep

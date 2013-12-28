@@ -1,5 +1,6 @@
 <design>
   <overview>
+    <MADversion>0.4</MADversion>
     <name>Example 12</name>
     <description>This example adds flaps and ailerons to a tapered wing.</description>
     <author>Curt Olson</author>

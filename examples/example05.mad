@@ -1,5 +1,6 @@
 <design>
   <overview>
+    <MADversion>0.4</MADversion>
     <name>Example 5</name>
     <description>This example demonstrates how easy it is to create a wing that blends from one airfoil at the root to a completely different airfoil at the tip.
 * demonstrate airfoil blending

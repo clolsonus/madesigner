@@ -1,5 +1,6 @@
 <design>
   <overview>
+    <MADversion>0.4</MADversion>
     <name>Example 10</name>
     <description>We can skin the wing for sheeting.  Sheet position at the time of this example is limited, but this example shows typical "D" construction wing sheeting.</description>
     <author>Curt Olson</author>

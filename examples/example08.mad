@@ -1,5 +1,6 @@
 <design>
   <overview>
+    <MADversion>0.4</MADversion>
     <name>Example 8</name>
     <description>Back to a simpler wing plan, but now lets put the ribs where we want them by entering our own station values.</description>
     <author>Curt Olson</author>
