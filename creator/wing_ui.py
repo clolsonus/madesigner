@@ -32,6 +32,7 @@ class WingUI():
         self.changefunc = changefunc
         self.container = self.make_page(name=name)
         self.xml = None
+        self.wing_link = "none"
         self.leading_edges = []
         self.trailing_edges = []
         self.spars = []
@@ -79,13 +80,21 @@ class WingUI():
     def rebuild_wing_list(self, wing_list=[]):
         myname = self.get_name()
         wing_link_text = self.edit_wing_link.currentText()
+        print "wing_link_text = " + str(wing_link_text)
+        if wing_link_text == None or wing_link_text == "none":
+            if self.wing_link != "":
+                print "Connecting up with saved name: " + self.wing_link
+                wing_link_text = self.wing_link
         self.edit_wing_link.clear()
+        self.edit_wing_link.addItem("none")
         for index,wing in enumerate(wing_list):
             if ( wing != myname ):
                 self.edit_wing_link.addItem(wing)
-        index = self.edit_start.findText(wing_link_text)
+        index = self.edit_wing_link.findText(wing_link_text)
         if index != None:
             self.edit_wing_link.setCurrentIndex(index)
+        else:
+            self.edit_wing_link.setCurrentIndex(0)
 
     def select_airfoil_root(self):
         basepath = os.path.split(os.path.abspath(sys.argv[0]))[0]
@@ -156,7 +165,7 @@ class WingUI():
         self.changefunc()
 
     def add_stringer(self, xml_node=None):
-        stringer = SparUI()
+        stringer = SparUI(self.changefunc)
         stringer.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             stringer.parse_xml(xml_node)
@@ -358,6 +367,7 @@ class WingUI():
         self.edit_wing_link = QComboBoxNoWheel()
         self.edit_wing_link.setFixedWidth(250)
         self.edit_wing_link.currentIndexChanged.connect(self.onChange)
+        self.edit_wing_link.addItem("none")
 
         formlayout.addRow( "<b>Wing Name:</b>", self.edit_name )
         formlayout.addRow( "<b>Root Airfoil:</b>", self.edit_airfoil_root )
@@ -405,6 +415,7 @@ class WingUI():
         self.edit_sweep_curve.setText(self.get_value('sweep-curve'))
         self.edit_dihedral.setText(self.get_value('dihedral'))
         self.edit_stations.setText(self.get_value('stations'))
+        self.wing_link = self.get_value('wing-link')
 
         for le_node in node.findall('leading-edge'):
             self.add_leading_edge(le_node)
@@ -445,6 +456,7 @@ class WingUI():
         self.update_node('sweep-curve', self.edit_sweep_curve.text())
         self.update_node('dihedral', self.edit_dihedral.text())
         self.update_node('stations', self.edit_stations.text())
+        self.update_node('wing-link', self.edit_wing_link.currentText())
 
         for le in self.leading_edges:
             if le.valid:

@@ -13,7 +13,7 @@ official program version stored here
 
 class MADversion():
     def __init__(self):
-        self.version = 0.4
+        self.version = 0.5
 
     def get(self):
         return self.version

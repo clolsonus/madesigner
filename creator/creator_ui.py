@@ -80,8 +80,10 @@ class CreatorUI(QtGui.QWidget):
         reply = QtGui.QMessageBox.question(self, 'Version Check', 'A new version of MAdesigner (v' + text + ') is available.<br><a href="http://mirrors.ibiblio.org/flightgear/ftp/MAdesigner">Click here to download it.</A>', QtGui.QMessageBox.Ok)
 
     def onChange(self):
-        print "parent onChange() called!"
-        self.rebuildTabNames()
+        #print "parent onChange() called!"
+        result = self.rebuildTabNames()
+        if result:
+            self.rebuildWingLists()
         self.clean = False
 
     def isClean(self):
@@ -91,12 +93,26 @@ class CreatorUI(QtGui.QWidget):
         self.clean = True
 
     def rebuildTabNames(self):
-        for i, wing in enumerate(self.wings):
-            wing_name = "Wing: " + wing.get_name()
-            tab_name = self.tabs.tabText(i+1)
-            if wing_name != tab_name:
-                self.tabs.setTabText(i+1, wing_name)
-                #print str(i) + " " + tab_name + " = " + wing_name
+        updated = False
+        i = 0
+        for wing in self.wings:
+            if wing.valid:
+                wing_name = "Wing: " + wing.get_name()
+                tab_name = self.tabs.tabText(i+1)
+                if wing_name != tab_name:
+                    self.tabs.setTabText(i+1, wing_name)
+                    updated = True
+                i += 1
+        return updated
+
+    def rebuildWingLists(self):
+        wing_names = []
+        for wing in self.wings:
+            if wing.valid:
+                wing_names.append(wing.get_name())
+        for wing in self.wings:
+            if wing.valid:
+                wing.rebuild_wing_list( wing_names )
 
     def initUI(self):               
         self.setWindowTitle( self.default_title )
@@ -178,7 +194,11 @@ class CreatorUI(QtGui.QWidget):
 
     def add_wing(self):
         self.onChange()
-        name = str( len(self.wings) + 1 )
+        valid_wing_count = 0
+        for wing in self.wings:
+            if wing.valid:
+                valid_wing_count += 1
+        name = str( valid_wing_count + 1 )
         wing = WingUI(changefunc=self.onChange, name=name)
         self.wings.append(wing)
         self.tabs.addTab( wing.get_widget(), "Wing: " + name )
@@ -308,6 +328,7 @@ class CreatorUI(QtGui.QWidget):
             wing.parse_xml(wing_node)
             self.wings.append(wing)
             self.tabs.addTab( wing.get_widget(), "Wing: " + wing.get_name() )
+        self.rebuildWingLists()
 
     def new_design(self):
         # wipe the current design (by command or before loading a new design)

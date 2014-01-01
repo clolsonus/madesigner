@@ -402,6 +402,7 @@ class Builder():
         wing.units = self.units
         wing.airfoil_resample = self.airfoil_resample
         wing.circle_points=self.circle_points
+        wing.name = get_value(node, 'name')
         airfoil_root = get_value(node, 'airfoil-root')
         airfoil_tip = get_value(node, 'airfoil-tip')
         if airfoil_tip == "":
@@ -424,6 +425,7 @@ class Builder():
             chord_tip = myfloat(get_value(node, 'chord-tip'))
             wing.set_chord( chord_root, chord_tip )
         wing.dihedral = myfloat(get_value(node, 'dihedral'))
+        wing.link_name = get_value(node, 'wing-link')
 
         # parse flaps first so we can use this info to partition the
         # trailing edge and possibly other structures too
@@ -452,10 +454,16 @@ class Builder():
         wing.layout_parts_templates( 8.5, 11 )
         wing.layout_plans( 24, 36 )
 
-        ac = lib.ac3d.AC3D( self.fileroot )
-        ac.gen_headers( "airframe", 2 )
-        wing.build_ac3d( ac )
-        ac.close()
+        return wing
+
+    def find_wing_by_name(self, name):
+        i = 0
+        for wing in self.wings:
+            if wing.name == name:
+                return i
+            i += 1
+        # no match
+        return -1
 
     def load(self, filename):
         if not os.path.exists(filename):
@@ -477,8 +485,22 @@ class Builder():
         node = root.find('overview')
         self.parse_overview(node)
 
+        self.wings = []
         for wing_node in root.findall('wing'):
-            self.parse_wing(wing_node)
+            wing = self.parse_wing(wing_node)
+            self.wings.append(wing)
+
+        if len(self.wings):
+            ac = lib.ac3d.AC3D( self.fileroot )
+            ac.gen_headers( "airframe", 2 )
+            for wing in self.wings:
+                tip = [ 0.0, 0.0, 0.0 ]
+                if wing.link_name != None and wing.link_name != "none":
+                    i = self.find_wing_by_name( wing.link_name )
+                    if i >= 0:
+                        tip = self.wings[i].get_tip_pos()
+                wing.build_ac3d( ac, xoffset=tip[1], yoffset=tip[2] )
+            ac.close()
 
 
 def usage():
