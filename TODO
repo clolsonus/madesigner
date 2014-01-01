@@ -8,11 +8,14 @@
   error and don't report ... or figure out how to distinguish these by more
   than station?  because both wings could share the central station.
 
+- Dehidral should be summed with previous panel if wing is linked.
+
 - Need to (a) stretch inner rib to account for dihedral and (b) cant it in
   the 3d model so it looks right.  Probably not a big deal for building
   but shows up annoyingly in the 3d model.
 
-- Relative positioning of sub assemblies.
+- 1/1/2014: Relative positioning of sub assemblies.  In the current
+  implementation this is accomplished by "linking" a wing to another wing.
 
 - 12/27/2013: Add internal version knowledge, remote check for new version
   (in a task.)  Related: heads up message if we are loading a design written
