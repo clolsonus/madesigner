@@ -1,6 +1,6 @@
 <design>
   <overview>
-    <MADversion>0.4</MADversion>
+    <MADversion>0.5</MADversion>
     <name>Example 5</name>
     <description>This example demonstrates how easy it is to create a wing that blends from one airfoil at the root to a completely different airfoil at the tip.
 * demonstrate airfoil blending
@@ -26,6 +26,7 @@
     <sweep-curve></sweep-curve>
     <dihedral>5</dihedral>
     <stations>0 3 6 9 12 15 18 21 24 27 30</stations>
+    <wing-link>none</wing-link>
     <leading-edge>
       <size>0.2</size>
       <start-station>Start: Inner</start-station>

@@ -1,6 +1,6 @@
 <design>
   <overview>
-    <MADversion>0.4</MADversion>
+    <MADversion>0.5</MADversion>
     <name>Example 11</name>
     <description>Stations!  Any feature can start and end at any station.  You are the engineer and get to decide what you want, how big, and where it starts and ends.</description>
     <author>Curt Olson</author>
@@ -20,6 +20,7 @@
     <sweep-curve></sweep-curve>
     <dihedral>5</dihedral>
     <stations>0 1 2 3 6 9 12 14 15 16 18 21 24 27 29 30</stations>
+    <wing-link>none</wing-link>
     <leading-edge>
       <size>0.2</size>
       <start-station>Start: Inner</start-station>

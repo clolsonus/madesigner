@@ -1,6 +1,6 @@
 <design>
   <overview>
-    <MADversion>0.4</MADversion>
+    <MADversion>0.5</MADversion>
     <name>Example 7</name>
     <description>This example shows how easy it is to create a wing with a curved sweep.
 Sweep curves are specified using the same syntax as chord/taper curves.
@@ -22,6 +22,7 @@ Why would you do this?  I don't know, but imagine how much work it would be to d
     <sweep-curve>(0,0) (10,0.5) (30,5)</sweep-curve>
     <dihedral>5</dihedral>
     <stations>0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30</stations>
+    <wing-link>none</wing-link>
     <leading-edge>
       <size>0.2</size>
       <start-station>Start: Inner</start-station>

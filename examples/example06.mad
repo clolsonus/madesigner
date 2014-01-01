@@ -1,6 +1,6 @@
 <design>
   <overview>
-    <MADversion>0.4</MADversion>
+    <MADversion>0.5</MADversion>
     <name>Example 6</name>
     <description>This example shows how easy it is to create a complex curved wing using a spline curve to define the cord relative to the span of the wing.
 Curves are specified as pairs of (station, value) with as many points as you wish to use.
@@ -22,6 +22,7 @@ In the example the chord is 10" at station 0 (the root), 12" at station 10 (10 i
     <sweep-curve></sweep-curve>
     <dihedral>5</dihedral>
     <stations>0 3 6 9 12 15 18 21 24 27 30</stations>
+    <wing-link>none</wing-link>
     <leading-edge>
       <size>0.2</size>
       <start-station>Start: Inner</start-station>

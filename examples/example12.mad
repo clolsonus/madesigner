@@ -1,6 +1,6 @@
 <design>
   <overview>
-    <MADversion>0.4</MADversion>
+    <MADversion>0.5</MADversion>
     <name>Example 12</name>
     <description>This example adds flaps and ailerons to a tapered wing.</description>
     <author>Curt Olson</author>
@@ -20,6 +20,7 @@
     <sweep-curve></sweep-curve>
     <dihedral>3</dihedral>
     <stations>0 2 4 6 7 10 13 16 17 20 23 26 29 30</stations>
+    <wing-link>none</wing-link>
     <leading-edge>
       <size>0.2</size>
       <start-station>Start: Inner</start-station>

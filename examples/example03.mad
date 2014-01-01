@@ -1,6 +1,6 @@
 <design>
   <overview>
-    <MADversion>0.4</MADversion>
+    <MADversion>0.5</MADversion>
     <name>Example 3</name>
     <description>This example begins to add a bit of complexity to show the power of MA designer.
 * add straight taper
@@ -24,6 +24,7 @@
     <sweep-curve></sweep-curve>
     <dihedral>5</dihedral>
     <stations>0 3 6 9 12 15 18 21 24 27 30</stations>
+    <wing-link>none</wing-link>
     <leading-edge>
       <size>0.2</size>
       <start-station>Start: Inner</start-station>

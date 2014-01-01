@@ -1,6 +1,6 @@
 <design>
   <overview>
-    <MADversion>0.4</MADversion>
+    <MADversion>0.5</MADversion>
     <name>Example 4</name>
     <description>Swept wings are no problem.
 * add sweep
@@ -25,6 +25,7 @@
     <sweep-curve></sweep-curve>
     <dihedral>5</dihedral>
     <stations>0 3 6 9 12 15 18 21 24 27 30</stations>
+    <wing-link>none</wing-link>
     <leading-edge>
       <size>0.25</size>
       <start-station>Start: Inner</start-station>
