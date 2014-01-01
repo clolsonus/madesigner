@@ -17,20 +17,14 @@ from combobox_nowheel import QComboBoxNoWheel
 from version import MADversion
 
 class Overview():
-    def __init__(self):
+    def __init__(self, changefunc):
+        self.changefunc = changefunc
         self.container = self.make_page()
         self.xml = None
-        self.clean = True
         self.version = MADversion()
 
     def onChange(self):
-        self.clean = False
-
-    def isClean(self):
-        return self.clean
-
-    def setClean(self):
-        self.clean = True
+        self.changefunc()
 
     def make_page(self):
         # make the full edit widget
@@ -85,7 +79,6 @@ class Overview():
         if index == None:
             index = 0
         self.edit_units.setCurrentIndex(index)
-        self.clean = True
         writer_version = self.get_value('MADversion')
         if writer_version == "" or float(writer_version) != self.version.get():
             if writer_version == "":

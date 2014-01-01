@@ -79,22 +79,14 @@ class CreatorUI(QtGui.QWidget):
     def version_message(self, text):
         reply = QtGui.QMessageBox.question(self, 'Version Check', 'A new version of MAdesigner (v' + text + ') is available.<br><a href="http://mirrors.ibiblio.org/flightgear/ftp/MAdesigner">Click here to download it.</A>', QtGui.QMessageBox.Ok)
 
+    def onChange(self):
+        print "parent onChange() called!"
+        self.clean = False
+
     def isClean(self):
-        # need to check our self and all our children
-        if not self.overview.isClean():
-            print "overview dirty"
-            return False
-        for wing in self.wings:
-            if not wing.isClean():
-                print "wing is dirty"
-                return False
-        # still here (children clean), then return our own status
         return self.clean
 
     def setClean(self):
-        self.overview.setClean()
-        for wing in self.wings:
-            wing.setClean()
         self.clean = True
 
     def initUI(self):               
@@ -139,7 +131,7 @@ class CreatorUI(QtGui.QWidget):
         self.tabs = QtGui.QTabWidget()
         layout.addWidget( self.tabs )
 
-        self.overview = Overview()
+        self.overview = Overview(changefunc=self.onChange)
         self.tabs.addTab( self.overview.get_widget(), "Overview" );
 
         # 'Command' button bar
@@ -176,7 +168,8 @@ class CreatorUI(QtGui.QWidget):
         self.show()
 
     def add_wing(self):
-        wing = WingUI()
+        self.onChange()
+        wing = WingUI(changefunc=self.onChange)
         self.wings.append(wing)
         self.tabs.addTab( wing.get_widget(), "Wing - New" )
 
@@ -266,10 +259,9 @@ class CreatorUI(QtGui.QWidget):
  
     def wipe_slate(self):
         self.overview.wipe_clean()
-        self.overview.setClean()
         for wing in self.wings:
             wing.delete_self()
-            wing.setClean()
+        self.clean = True
 
     def load(self, filename):
         if filename == "":
@@ -302,17 +294,10 @@ class CreatorUI(QtGui.QWidget):
         self.overview.parse_xml(node)
 
         for wing_node in root.findall('wing'):
-            wing = WingUI()
+            wing = WingUI(changefunc=self.onChange)
             wing.parse_xml(wing_node)
             self.wings.append(wing)
             self.tabs.addTab( wing.get_widget(), "Wing - " + wing.get_name() )
-
-    def wipe_slate(self):
-        self.overview.wipe_clean()
-        self.overview.setClean()
-        for wing in self.wings:
-            wing.delete_self()
-            wing.setClean()
 
     def new_design(self):
         # wipe the current design (by command or before loading a new design)

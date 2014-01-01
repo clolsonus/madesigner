@@ -14,6 +14,8 @@ import sys
 from PyQt4 import QtGui, QtCore
 #import xml.etree.ElementTree as ET
 import lxml.etree as ET
+from combobox_nowheel import QComboBoxNoWheel
+
 from leading_edge_ui import LeadingEdgeUI
 from trailing_edge_ui import TrailingEdgeUI
 from spar_ui import SparUI
@@ -25,8 +27,9 @@ from flap_ui import FlapUI
 
 
 class WingUI():
-    def __init__(self):
+    def __init__(self, changefunc):
         self.valid = True
+        self.changefunc = changefunc
         self.container = self.make_page()
         self.xml = None
         self.leading_edges = []
@@ -38,75 +41,12 @@ class WingUI():
         self.shaped_holes = []
         self.build_tabs = []
         self.flaps = []
-        self.clean = True
 
     def onChange(self):
-        self.clean = False
-
-    def isClean(self):
-        # need to check our self and all our children
-        for le in self.leading_edges:
-            if not le.isClean():
-                print "le dirty"
-                return False
-        for te in self.trailing_edges:
-            if not te.isClean():
-                print "te dirty"
-                return False
-        for spar in self.spars:
-            if not spar.isClean():
-                print "spar dirty"
-                return False
-        for stringer in self.stringers:
-            if not stringer.isClean():
-                print "stringer dirty"
-                return False
-        for sheet in self.sheeting:
-            if not sheet.isClean():
-                print "sheet dirty"
-                return False
-        for hole in self.simple_holes:
-            if not hole.isClean():
-                print "simple hole dirty"
-                return False
-        for hole in self.shaped_holes:
-            if not hole.isClean():
-                print "shaped hole dirty"
-                return False
-        for tab in self.build_tabs:
-            if not tab.isClean():
-                print "build tab dirty"
-                return False
-        for flap in self.flaps:
-            if not flap.isClean():
-                print "flap dirty"
-                return False
-
-        # still here (children clean), then return our own status
-        return self.clean
-
-    def setClean(self):
-        for le in self.leading_edges:
-            le.setClean()
-        for te in self.trailing_edges:
-            te.setClean()
-        for spar in self.spars:
-            spar.setClean()
-        for stringer in self.stringers:
-            stringer.setClean()
-        for sheet in self.sheeting:
-            sheet.setClean()
-        for hole in self.simple_holes:
-            hole.setClean()
-        for hole in self.shaped_holes:
-            hole.setClean()
-        for tab in self.build_tabs:
-            tab.setClean()
-        for flap in self.flaps:
-            flap.setClean()
-        self.clean = True
+        self.changefunc()
 
     def rebuildStations(self):
+        self.changefunc()
         # rebuild stations when station list has changed
         for le in self.leading_edges:
             if le.valid:
@@ -135,6 +75,17 @@ class WingUI():
         for flap in self.flaps:
             if flap.valid:
                 flap.rebuild_stations(self.edit_stations.text())
+
+    def rebuild_wing_list(self, wing_list=[]):
+        myname = self.get_name()
+        wing_link_text = self.edit_wing_link.currentText()
+        self.edit_wing_link.clear()
+        for index,wing in enumerate(wing_list):
+            if ( wing != myname ):
+                self.edit_wing_link.addItem(wing)
+        index = self.edit_start.findText(wing_link_text)
+        if index != None:
+            self.edit_wing_link.setCurrentIndex(index)
 
     def select_airfoil_root(self):
         basepath = os.path.split(os.path.abspath(sys.argv[0]))[0]
@@ -178,29 +129,31 @@ class WingUI():
             self.edit_stations.setText(stations)                
 
     def add_leading_edge(self, xml_node=None):
-        leading_edge = LeadingEdgeUI()
+        leading_edge = LeadingEdgeUI(self.changefunc)
         leading_edge.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             leading_edge.parse_xml(xml_node)
         self.leading_edges.append(leading_edge)
         self.layout_le.addWidget( leading_edge.get_widget() )
-
+        self.changefunc()
 
     def add_trailing_edge(self, xml_node=None):
-        trailing_edge = TrailingEdgeUI()
+        trailing_edge = TrailingEdgeUI(self.changefunc)
         trailing_edge.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             trailing_edge.parse_xml(xml_node)
         self.trailing_edges.append(trailing_edge)
         self.layout_te.addWidget( trailing_edge.get_widget() )
+        self.changefunc()
 
     def add_spar(self, xml_node=None):
-        spar = SparUI()
+        spar = SparUI(self.changefunc)
         spar.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             spar.parse_xml(xml_node)
         self.spars.append(spar)
         self.layout_spars.addWidget( spar.get_widget() )
+        self.changefunc()
 
     def add_stringer(self, xml_node=None):
         stringer = SparUI()
@@ -209,52 +162,57 @@ class WingUI():
             stringer.parse_xml(xml_node)
         self.stringers.append(stringer)
         self.layout_stringers.addWidget( stringer.get_widget() )
+        self.changefunc()
 
     def add_sheet(self, xml_node=None):
-        sheet = SheetUI()
+        sheet = SheetUI(self.changefunc)
         sheet.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             sheet.parse_xml(xml_node)
         self.sheeting.append(sheet)
         self.layout_sheeting.addWidget( sheet.get_widget() )
+        self.changefunc()
 
     def add_simple_hole(self, xml_node=None):
-        hole = SimpleHoleUI()
+        hole = SimpleHoleUI(self.changefunc)
         hole.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             hole.parse_xml(xml_node)
         self.simple_holes.append(hole)
         self.layout_simple_holes.addWidget( hole.get_widget() )
+        self.changefunc()
 
     def add_shaped_hole(self, xml_node=None):
-        hole = ShapedHoleUI()
+        hole = ShapedHoleUI(self.changefunc)
         hole.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             hole.parse_xml(xml_node)
         self.shaped_holes.append(hole)
         self.layout_shaped_holes.addWidget( hole.get_widget() )
+        self.changefunc()
 
     def add_build_tab(self, xml_node=None):
-        tab = BuildTabUI()
+        tab = BuildTabUI(self.changefunc)
         tab.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             tab.parse_xml(xml_node)
         self.build_tabs.append(tab)
         self.layout_build_tabs.addWidget( tab.get_widget() )
+        self.changefunc()
 
     def add_flap(self, xml_node=None):
-        flap = FlapUI()
+        flap = FlapUI(self.changefunc)
         flap.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
             flap.parse_xml(xml_node)
         self.flaps.append(flap)
         self.layout_flaps.addWidget( flap.get_widget() )
+        self.changefunc()
 
     def delete_self(self):
-        #print "delete self!"
         if self.valid:
+            self.changefunc()
             self.container.deleteLater()
-            self.clean = False
             self.valid = False
 
     def make_page(self):
@@ -397,6 +355,9 @@ class WingUI():
         self.edit_stations = QtGui.QLineEdit()
         self.edit_stations.setFixedWidth(250)
         self.edit_stations.textChanged.connect(self.rebuildStations)
+        self.edit_wing_link = QComboBoxNoWheel()
+        self.edit_wing_link.setFixedWidth(250)
+        self.edit_wing_link.currentIndexChanged.connect(self.onChange)
 
         formlayout.addRow( "<b>Wing Name:</b>", self.edit_name )
         formlayout.addRow( "<b>Root Airfoil:</b>", self.edit_airfoil_root )
@@ -410,6 +371,7 @@ class WingUI():
         formlayout.addRow( "<b>Sweep Curve (see docs):</b>", self.edit_sweep_curve )
         formlayout.addRow( "<b>Dihedral (deg):</b>", self.edit_dihedral )
         formlayout.addRow( "<b>Stations:</b>", self.edit_stations )
+        formlayout.addRow( "<b>Link to Wing:</b>", self.edit_wing_link )
 
         return toppage
 
@@ -443,7 +405,6 @@ class WingUI():
         self.edit_sweep_curve.setText(self.get_value('sweep-curve'))
         self.edit_dihedral.setText(self.get_value('dihedral'))
         self.edit_stations.setText(self.get_value('stations'))
-        self.clean = True
 
         for le_node in node.findall('leading-edge'):
             self.add_leading_edge(le_node)

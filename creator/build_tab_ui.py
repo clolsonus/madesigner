@@ -17,20 +17,14 @@ from combobox_nowheel import QComboBoxNoWheel
 
 
 class BuildTabUI():
-    def __init__(self):
+    def __init__(self, changefunc):
         self.valid = True
+        self.changefunc = changefunc
         self.container = self.make_page()
         self.xml = None
-        self.clean = True
 
     def onChange(self):
-        self.clean = False
-
-    def isClean(self):
-        return self.clean
-
-    def setClean(self):
-        self.clean = True
+        self.changefunc()
 
     def rebuild_stations(self, stations):
         station_list = str(stations).split()
@@ -53,10 +47,10 @@ class BuildTabUI():
             self.edit_end.setCurrentIndex(index)
 
     def delete_self(self):
-        #print "delete self!"
-        self.container.deleteLater()
-        self.clean = False
-        self.valid = False
+        if self.valid:
+            self.changefunc()
+            self.container.deleteLater()
+            self.valid = False
 
     def make_page(self):
         page = QtGui.QFrame()
@@ -163,7 +157,6 @@ class BuildTabUI():
         index = self.edit_end.findText(self.get_value('end-station'))
         if index != None:
             self.edit_end.setCurrentIndex(index)
-        self.clean = True
 
     def update_node(self, node, value):
         e = self.xml.find(node)
