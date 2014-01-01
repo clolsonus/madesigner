@@ -27,10 +27,10 @@ from flap_ui import FlapUI
 
 
 class WingUI():
-    def __init__(self, changefunc):
+    def __init__(self, changefunc, name="New"):
         self.valid = True
         self.changefunc = changefunc
-        self.container = self.make_page()
+        self.container = self.make_page(name=name)
         self.xml = None
         self.leading_edges = []
         self.trailing_edges = []
@@ -215,7 +215,7 @@ class WingUI():
             self.container.deleteLater()
             self.valid = False
 
-    def make_page(self):
+    def make_page(self, name):
         # make the full edit widget
         toppage = QtGui.QFrame()
         toplayout = QtGui.QVBoxLayout()
@@ -321,7 +321,7 @@ class WingUI():
         self.edit_name = QtGui.QLineEdit()
         self.edit_name.setFixedWidth(250)
         self.edit_name.textChanged.connect(self.onChange)
-        self.edit_name.setText("New")
+        self.edit_name.setText(name)
         self.edit_airfoil_root = QtGui.QLineEdit()
         self.edit_airfoil_root.setFixedWidth(250)
         self.edit_airfoil_root.textChanged.connect(self.onChange)

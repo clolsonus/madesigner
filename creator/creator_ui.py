@@ -81,6 +81,7 @@ class CreatorUI(QtGui.QWidget):
 
     def onChange(self):
         print "parent onChange() called!"
+        self.rebuildTabNames()
         self.clean = False
 
     def isClean(self):
@@ -88,6 +89,14 @@ class CreatorUI(QtGui.QWidget):
 
     def setClean(self):
         self.clean = True
+
+    def rebuildTabNames(self):
+        for i, wing in enumerate(self.wings):
+            wing_name = "Wing: " + wing.get_name()
+            tab_name = self.tabs.tabText(i+1)
+            if wing_name != tab_name:
+                self.tabs.setTabText(i+1, wing_name)
+                #print str(i) + " " + tab_name + " = " + wing_name
 
     def initUI(self):               
         self.setWindowTitle( self.default_title )
@@ -169,9 +178,10 @@ class CreatorUI(QtGui.QWidget):
 
     def add_wing(self):
         self.onChange()
-        wing = WingUI(changefunc=self.onChange)
+        name = str( len(self.wings) + 1 )
+        wing = WingUI(changefunc=self.onChange, name=name)
         self.wings.append(wing)
-        self.tabs.addTab( wing.get_widget(), "Wing - New" )
+        self.tabs.addTab( wing.get_widget(), "Wing: " + name )
 
     #def add_fuse(self):
     #    print "add fuse requested"
@@ -297,7 +307,7 @@ class CreatorUI(QtGui.QWidget):
             wing = WingUI(changefunc=self.onChange)
             wing.parse_xml(wing_node)
             self.wings.append(wing)
-            self.tabs.addTab( wing.get_widget(), "Wing - " + wing.get_name() )
+            self.tabs.addTab( wing.get_widget(), "Wing: " + wing.get_name() )
 
     def new_design(self):
         # wipe the current design (by command or before loading a new design)
