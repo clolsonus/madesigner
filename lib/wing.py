@@ -191,6 +191,7 @@ class Wing:
         self.units = "in"
 
         # wing layout
+        self.name = "none"
         self.root = None        # Airfoil()
         self.tip = None         # Airfoil()
         self.root_yscale = 1.0
@@ -977,7 +978,7 @@ class Wing:
 
         sheet.save()
 
-    def build_ac3d(self, ac, xspread=0.0, yoffset=0.0):
+    def build_ac3d(self, ac, xoffset=0.0, yoffset=0.0):
         groups = 2              # left & right wings
 
         m1 = ac.make_rotation_matrix("Z", -90)
@@ -1007,7 +1008,7 @@ class Wing:
                 kids += 1
 
         m = ac.make_rotation_matrix("X", self.dihedral)
-        loc = (0.0, xspread, yoffset)
+        loc = (0.0, xoffset, yoffset)
         ac.start_object_group("right wing", kids, m, loc)
 
         # make parts
@@ -1060,7 +1061,7 @@ class Wing:
                 kids += 1
 
         m = ac.make_rotation_matrix("X", -self.dihedral)
-        loc = (0.0, -xspread, yoffset)
+        loc = (0.0, -xoffset, yoffset)
         ac.start_object_group("left wing", kids, m, loc)
 
         # make parts
