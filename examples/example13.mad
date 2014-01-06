@@ -13,7 +13,7 @@
     <airfoil-tip></airfoil-tip>
     <span>35</span>
     <chord-root>10</chord-root>
-    <chord-tip></chord-tip>
+    <chord-tip>9</chord-tip>
     <chord-curve></chord-curve>
     <twist></twist>
     <sweep></sweep>
@@ -102,7 +102,7 @@
     <airfoil-root>mh43</airfoil-root>
     <airfoil-tip></airfoil-tip>
     <span>21</span>
-    <chord-root>10</chord-root>
+    <chord-root>9</chord-root>
     <chord-tip>6</chord-tip>
     <chord-curve></chord-curve>
     <twist></twist>
