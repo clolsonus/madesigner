@@ -15,12 +15,16 @@ class Sheet:
 
     def __init__(self, name, width, height, margin=0.1, units="in", dpi=90):
         self.dwg = svgwrite.Drawing( name + '.svg', size = (str(width)+units, str(height)+units) )
-        self.dwg.viewbox( 0, 0, width*dpi, height*dpi )
         self.width = width
         self.height = height
         self.margin = margin
         self.units = units
         self.dpi = dpi
+        if units == "mm":
+            self.dpi = self.dpi / 25.4
+        elif units == "cm":
+            self.dpi = self.dpi / 2.54
+        self.dwg.viewbox( 0, 0, self.width*self.dpi, self.height*self.dpi )
         self.ypos = 0.0 + self.margin
         self.xpos = 0.0 + self.margin
         self.biggest_x = 0.0
@@ -159,12 +163,22 @@ class Sheet:
 
 class Layout:
 
-    def __init__(self, basename, width, height, margin = 0.1, units = "in", dpi = 90):
+    def __init__(self, basename, width, height, margin=None, units="in", dpi=90):
         self.basename = basename
         self.width = width
         self.height = height
-        self.margin = margin
         self.units = units
+        if margin != None:
+            self.margin = margin
+        else:
+            if units == "in":
+                self.margin = 0.1
+            elif units == "mm":
+                self.margin = 3
+            elif units == "cm":
+                self.margin = 0.3
+            else:
+                self.margin = 0.1
         self.dpi = dpi
         self.sheets = []
 
@@ -180,7 +194,9 @@ class Layout:
                 print "Failed to fit: " + part.labels[0][4]
             else:
                 print "Failed to fit: " + part.name
-            print "- Part dimensions exceed size of sheet!"
+            print "  Part (" + str(dx) + "x" + str(dy) + self.units \
+                + ") exceed size of sheet (" + str(self.width) + "x" \
+                + str(self.height) + self.units +")"
             return False
         num_sheets = len(self.sheets)
         i = 0
@@ -192,7 +208,8 @@ class Layout:
         if not done:
             # couldn't fit on any existing sheet so create a new one
             sheet = Sheet(self.basename + str(i), self.width, \
-                              self.height, self.margin, self.units, self.dpi)
+                              self.height, margin=self.margin, \
+                              units=self.units, dpi=self.dpi)
             done = sheet.draw_part_side(part, stroke_width, color, lines, \
                                             points, outline)
             self.sheets.append(sheet)

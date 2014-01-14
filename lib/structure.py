@@ -554,7 +554,7 @@ class Structure:
                 if rib.part == tab.part and rib.side == tab.side:
                     shape = rib.contour.add_build_tab(tab.surf, tab.pos, tab.xsize, tab.ypad)
 
-    def layout_parts_sheets(self, width, height, margin=0.1, units="in"):
+    def layout_parts_sheets(self, width, height, margin=None, units="in"):
         l = layout.Layout( self.basename + '-sheet', width, height, margin=margin, units=units )
         for rib in self.right_ribs:
             rib.placed = l.draw_part_cut_line(rib.contour)
@@ -562,7 +562,7 @@ class Structure:
             rib.placed = l.draw_part_cut_line(rib.contour)
         l.save()
 
-    def layout_parts_templates(self, width, height, margin = 0.1):
+    def layout_parts_templates(self, width, height, margin=None):
         l = layout.Layout( self.basename + '-template', width, height, margin )
         for rib in self.right_ribs:
             contour = copy.deepcopy(rib.contour)
@@ -623,7 +623,7 @@ class Structure:
 
         return shape
 
-    def layout_plans(self, width, height, margin = 0.1, units = "in", dpi = 90):
+    def layout_plans(self, width, height, margin=None, units = "in", dpi = 90):
         sheet = layout.Sheet( self.basename + "-plan", width, height )
         yoffset = (height - self.span) * 0.5
         #print yoffset

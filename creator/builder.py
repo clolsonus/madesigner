@@ -460,7 +460,7 @@ class Builder():
 
         wing.build()
         wing.layout_parts_sheets( self.sheet_w, self.sheet_h, units=self.units )
-        wing.layout_parts_templates( 8.5, 11 )
+        #wing.layout_parts_templates( 8.5, 11 )
         wing.layout_plans( 24, 36 )
 
         return wing
