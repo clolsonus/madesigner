@@ -11,6 +11,7 @@ import os.path
 import fileinput
 import math
 import string
+import re
 import Polygon
 
 from contour import Contour
@@ -40,40 +41,61 @@ class Airfoil(Contour):
         path = self.datapath + "/airfoils/" + base + ".dat"
         top = True
         dist = 0.0
-        firstpt = True
+        dlast = 0.0
+        xlast = None
+        ylast = None
         f = fileinput.input(path)
         for line in f:
+            #print line
+            line.strip()
             if f.isfirstline():
                 self.description = string.join(line.split())
+                continue
+            xa, ya = line.split()
+            if ya == "......":
+                continue
+            x = float(xa)
+            y = 0.0
+            m = re.search('\(([\d\.\-]+)\)', ya)
+            if m != None:
+                y = float(m.group(1))
+                #print str(y)
             else:
-                line.strip()
-                xa, ya = line.split()
-                x = float(xa)
                 y = float(ya)
-                # print str(x) + " " + str(y)
-                if firstpt:
-                    xlast = x
-                    ylast = y
-                    dlast = 0.0
-                    firstpt = False
+            # print str(x) + " " + str(y)
+            if x != xlast:
                 dist += self.dist_2d( (xlast, ylast), (x, y) )
                 self.parax.append( (dist, x) )
                 self.paray.append( (dist, y) )
-                if top:
-                    self.top.append( (x, y) )
-                if top and x - xlast > 0.0:
+                if top and xlast != None and x - xlast > 0.0:
                     # mark the exact airfoil nose in parameterized
                     # surface distance space
                     self.nosedist = dlast
                     top = False
-                if not top:
+                    self.bottom.append( (xlast, ylast) )
+                if top:
+                    self.top.append( (x, y) )
+                else:
                     self.bottom.append( (x, y) )
                 xlast = x
                 ylast = y
                 dlast = dist
         self.top.reverse()
+        #print str(self.top)
+        #print str(self.bottom)
+        #self.display()
+        #print "PARAX"
+        #for pt in self.parax:
+        #    print str(pt[0]) + " " + str(pt[1])
+        #print "PARAY"
+        #for pt in self.paray:
+        #    print str(pt[0]) + " " + str(pt[1])
         if samples > 0:
             self.resample( samples, use_spline )
+            #print "RESAMPLE"
+            #print str(self.top)
+            #print str(self.bottom)
+            #self.display()
 
     def resample(self, xdivs, use_spline):
         self.top = []
