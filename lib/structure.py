@@ -623,8 +623,10 @@ class Structure:
 
         return shape
 
-    def layout_plans(self, width, height, margin=None, units = "in", dpi = 90):
-        sheet = layout.Sheet( self.basename + "-plan", width, height )
+    def layout_plans(self, width, height, margin=None, units="in", dpi=90):
+        sheet = layout.Sheet( self.basename + "-plan", width=width,
+                              height=height, margin=margin, units=units,
+                              dpi=dpi )
         yoffset = (height - self.span) * 0.5
         #print yoffset
 

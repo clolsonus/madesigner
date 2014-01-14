@@ -13,11 +13,14 @@ import airfoil
 
 class Sheet:
 
-    def __init__(self, name, width, height, margin=0.1, units="in", dpi=90):
+    def __init__(self, name, width, height, margin=None, units="in", dpi=90):
         self.dwg = svgwrite.Drawing( name + '.svg', size = (str(width)+units, str(height)+units) )
         self.width = width
         self.height = height
-        self.margin = margin
+        if margin != None:
+            self.margin = margin
+        else:
+            self.margin = 0.1
         self.units = units
         self.dpi = dpi
         if units == "mm":

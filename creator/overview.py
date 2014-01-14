@@ -56,6 +56,12 @@ class Overview():
         self.edit_sheet_h = QtGui.QLineEdit()
         self.edit_sheet_h.setFixedWidth(250)
         self.edit_sheet_h.textChanged.connect(self.onChange)
+        self.edit_plans_w = QtGui.QLineEdit()
+        self.edit_plans_w.setFixedWidth(250)
+        self.edit_plans_w.textChanged.connect(self.onChange)
+        self.edit_plans_h = QtGui.QLineEdit()
+        self.edit_plans_h.setFixedWidth(250)
+        self.edit_plans_h.textChanged.connect(self.onChange)
 
         layout.addRow( "<b>Design Name:</b>", self.edit_name )
         layout.addRow( "<b>Description:</b>", self.edit_desc )
@@ -64,6 +70,8 @@ class Overview():
         layout.addRow( "<b>Units:</b>", self.edit_units )
         layout.addRow( "<b>Mat. Sheet Width:</b>", self.edit_sheet_w )
         layout.addRow( "<b>Mat. Sheet Height:</b>", self.edit_sheet_h )
+        layout.addRow( "<b>Plans Width:</b>", self.edit_plans_w )
+        layout.addRow( "<b>Plans Height:</b>", self.edit_plans_h )
 
         return page
 
@@ -101,12 +109,31 @@ class Overview():
                 sheet_w = "60"
             if sheet_h == "":
                 sheet_h = "30"
+        plans_w = self.get_value('plans-width')
+        plans_h = self.get_value('plans-height')
+        if units == "in":
+            if plans_w == "":
+                plans_w = "24"
+            if plans_h == "":
+                plans_h = "36"
+        elif units == "mm":
+            if plans_w == "":
+                plans_w = "600"
+            if plans_h == "":
+                plans_h = "900"
+        elif units == "cm":
+            if plans_w == "":
+                plans_w = "60"
+            if plans_h == "":
+                plans_h = "90"
         index = self.edit_units.findText(units)
         if index == None:
             index = 0
         self.edit_units.setCurrentIndex(index)
         self.edit_sheet_w.setText(sheet_w)
         self.edit_sheet_h.setText(sheet_h)
+        self.edit_plans_w.setText(plans_w)
+        self.edit_plans_h.setText(plans_h)
         
         writer_version = self.get_value('MADversion')
         if writer_version == "" or float(writer_version) != self.version.get():
@@ -120,8 +147,10 @@ class Overview():
         self.edit_author.setText('')
         self.edit_email.setText('')
         self.edit_units.setCurrentIndex(0)
-        self.edit_sheet_w.setText('')
-        self.edit_sheet_h.setText('')
+        self.edit_sheet_w.setText('24')
+        self.edit_sheet_h.setText('12')
+        self.edit_plans_w.setText('24')
+        self.edit_plans_h.setText('36')
 
     def update_node(self, node, value):
         e = self.xml.find(node)
@@ -139,3 +168,5 @@ class Overview():
         self.update_node('units', self.edit_units.currentText())
         self.update_node('sheet-width', self.edit_sheet_w.text())
         self.update_node('sheet-height', self.edit_sheet_h.text())
+        self.update_node('plans-width', self.edit_plans_w.text())
+        self.update_node('plans-height', self.edit_plans_h.text())

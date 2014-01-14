@@ -120,6 +120,8 @@ class Builder():
         self.units = get_value(node, 'units')
         self.sheet_w = myfloat(get_value(node, 'sheet-width'))
         self.sheet_h = myfloat(get_value(node, 'sheet-height'))
+        self.plans_w = myfloat(get_value(node, 'plans-width'))
+        self.plans_h = myfloat(get_value(node, 'plans-height'))
 
     def parse_leading_edge(self, wing, node):
         size = float(get_value(node, 'size'))
@@ -461,7 +463,7 @@ class Builder():
         wing.build()
         wing.layout_parts_sheets( self.sheet_w, self.sheet_h, units=self.units )
         #wing.layout_parts_templates( 8.5, 11 )
-        wing.layout_plans( 24, 36 )
+        wing.layout_plans( self.plans_w, self.plans_h, units=self.units )
 
         return wing
 

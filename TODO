@@ -1,3 +1,11 @@
+- Need a way to specify rib material thickness.
+
+- Design is dirty after initial load from menu->open and shouldn't be.
+
+- Support flap/aileron starting/stopped at the same station.
+
+- Test/support full wing sheeting.
+
 - Add an about me page/dialog?
 
 - Sheeting needs to allow various positioning like other objects to handle
@@ -8,11 +16,13 @@
   error and don't report ... or figure out how to distinguish these by more
   than station?  because both wings could share the central station.
 
-- Dehidral should be summed with previous panel if wing is linked.
+- Dihedral should be summed with previous panel if wing is linked.
 
 - Need to (a) stretch inner rib to account for dihedral and (b) cant it in
   the 3d model so it looks right.  Probably not a big deal for building
   but shows up annoyingly in the 3d model.
+
+- Way to specify absolute position of assemblies.
 
 - 1/1/2014: Relative positioning of sub assemblies.  In the current
   implementation this is accomplished by "linking" a wing to another wing.
