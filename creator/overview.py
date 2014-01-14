@@ -50,12 +50,20 @@ class Overview():
         self.edit_units.addItem("cm")
         self.edit_units.addItem("mm")
         self.edit_units.currentIndexChanged.connect(self.onChange)
+        self.edit_sheet_w = QtGui.QLineEdit()
+        self.edit_sheet_w.setFixedWidth(250)
+        self.edit_sheet_w.textChanged.connect(self.onChange)
+        self.edit_sheet_h = QtGui.QLineEdit()
+        self.edit_sheet_h.setFixedWidth(250)
+        self.edit_sheet_h.textChanged.connect(self.onChange)
 
         layout.addRow( "<b>Design Name:</b>", self.edit_name )
         layout.addRow( "<b>Description:</b>", self.edit_desc )
         layout.addRow( "<b>Author:</b>", self.edit_author )
         layout.addRow( "<b>Email:</b>", self.edit_email )
         layout.addRow( "<b>Units:</b>", self.edit_units )
+        layout.addRow( "<b>Mat. Sheet Width:</b>", self.edit_sheet_w )
+        layout.addRow( "<b>Mat. Sheet Height:</b>", self.edit_sheet_h )
 
         return page
 
@@ -75,10 +83,31 @@ class Overview():
         self.edit_desc.setText(self.get_value('description'))
         self.edit_author.setText(self.get_value('author'))
         self.edit_email.setText(self.get_value('email'))
-        index = self.edit_units.findText(self.get_value('units'))
+        units = self.get_value('units')
+        sheet_w = self.get_value('sheet-width')
+        sheet_h = self.get_value('sheet-height')
+        if units == "in":
+            if sheet_w == "":
+                sheet_w = "24"
+            if sheet_h == "":
+                sheet_h = "12"
+        elif units == "mm":
+            if sheet_w == "":
+                sheet_w = "600"
+            if sheet_h == "":
+                sheet_h = "300"
+        elif units == "cm":
+            if sheet_w == "":
+                sheet_w = "60"
+            if sheet_h == "":
+                sheet_h = "30"
+        index = self.edit_units.findText(units)
         if index == None:
             index = 0
         self.edit_units.setCurrentIndex(index)
+        self.edit_sheet_w.setText(sheet_w)
+        self.edit_sheet_h.setText(sheet_h)
+        
         writer_version = self.get_value('MADversion')
         if writer_version == "" or float(writer_version) != self.version.get():
             if writer_version == "":
@@ -91,6 +120,8 @@ class Overview():
         self.edit_author.setText('')
         self.edit_email.setText('')
         self.edit_units.setCurrentIndex(0)
+        self.edit_sheet_w.setText('')
+        self.edit_sheet_h.setText('')
 
     def update_node(self, node, value):
         e = self.xml.find(node)
@@ -106,3 +137,5 @@ class Overview():
         self.update_node('author', self.edit_author.text())
         self.update_node('email', self.edit_email.text())
         self.update_node('units', self.edit_units.currentText())
+        self.update_node('sheet-width', self.edit_sheet_w.text())
+        self.update_node('sheet-height', self.edit_sheet_h.text())

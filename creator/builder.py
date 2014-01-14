@@ -69,7 +69,6 @@ class Builder():
         segments = []
         segments.append( (start, end, "wing") )
 
-
         for flap in wing.flaps:
             if flap.side == "right":
                 #print "flap: " + str( (flap.start_station, flap.end_station) )
@@ -119,6 +118,8 @@ class Builder():
         
     def parse_overview(self, node):
         self.units = get_value(node, 'units')
+        self.sheet_w = myfloat(get_value(node, 'sheet-width'))
+        self.sheet_h = myfloat(get_value(node, 'sheet-height'))
 
     def parse_leading_edge(self, wing, node):
         size = float(get_value(node, 'size'))
@@ -365,16 +366,24 @@ class Builder():
             rear = position_val
         elif position_ref == "Abs Pos":
             xpos = position_val
-        junk, startstr = get_value(node, 'start-station').split()
-        junk, endstr = get_value(node, 'end-station').split()
-        if startstr == "Inner" or startstr == "":
+        start_text = get_value(node, 'start-station')
+        if start_text == "":
+            print "Invalid start station for flap"
+            return
+        junk, start_str = start_text.split()
+        if start_str == "Inner" or start_str == "":
             start = None
         else:
-            start = myfloat(startstr)
-        if endstr == "Outer" or endstr == "":
+            start = myfloat(start_str)
+        end_text = get_value(node, 'end-station')
+        if end_text == "":
+            print "Invalid end station for flap"
+            return
+        junk, end_str = end_text.split()
+        if end_str == "Outer" or end_str == "":
             end = None
         else:
-            end = myfloat(endstr)
+            end = myfloat(end_str)
         atstation = myfloat(get_value(node, 'at-station'))
         slope = myfloat(get_value(node, 'slope'))
         angle = myfloat(get_value(node, 'angle'))
@@ -450,7 +459,7 @@ class Builder():
             self.parse_build_tab(wing, tab_node)
 
         wing.build()
-        wing.layout_parts_sheets( 24, 8 )
+        wing.layout_parts_sheets( self.sheet_w, self.sheet_h, units=self.units )
         wing.layout_parts_templates( 8.5, 11 )
         wing.layout_plans( 24, 36 )
 
