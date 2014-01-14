@@ -63,9 +63,12 @@ class Contour:
         self.saved_bounds = []        # see self.save_bounds() for details
 
     def dist_2d(self, pt1, pt2):
-        dx = pt2[0]-pt1[0]
-        dy = pt2[1]-pt1[1]
-        return math.sqrt(dx*dx + dy*dy)
+        result = 0.0
+        if pt1[0] != None and pt1[1] != None:
+            dx = pt2[0]-pt1[0]
+            dy = pt2[1]-pt1[1]
+            result = math.sqrt(dx*dx + dy*dy)
+        return result
 
     def simple_interp(self, points, v):
         index = spline.binsearch(points, v)
@@ -175,7 +178,9 @@ class Contour:
         return wip
 
     def display(self):
-        for pt in self.top:
+        tmp = list(self.top)
+        tmp.reverse()
+        for pt in tmp:
             print str(pt[0]) + " " + str(pt[1])
         for pt in self.bottom:
             print str(pt[0]) + " " + str(pt[1])
