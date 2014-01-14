@@ -13,7 +13,7 @@ import airfoil
 
 class Sheet:
 
-    def __init__(self, name, width, height, margin = 0.1, units = "in", dpi = 90):
+    def __init__(self, name, width, height, margin=0.1, units="in", dpi=90):
         self.dwg = svgwrite.Drawing( name + '.svg', size = (str(width)+units, str(height)+units) )
         self.dwg.viewbox( 0, 0, width*dpi, height*dpi )
         self.width = width
@@ -87,6 +87,9 @@ class Sheet:
 
     def draw_part_top(self, offset, orig_contour, pos, part_width, nudge, \
                           stroke_width, color ):
+        # sanity check
+        if orig_contour.poly == None:
+            orig_contour.make_poly()
         contour = copy.deepcopy(orig_contour)
         #contour.scale(1,-1)
         bounds = contour.poly.boundingBox()
