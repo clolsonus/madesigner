@@ -554,8 +554,8 @@ class Structure:
                 if rib.part == tab.part and rib.side == tab.side:
                     shape = rib.contour.add_build_tab(tab.surf, tab.pos, tab.xsize, tab.ypad)
 
-    def layout_parts_sheets(self, width, height, margin = 0.1):
-        l = layout.Layout( self.basename + '-sheet', width, height, margin )
+    def layout_parts_sheets(self, width, height, margin=0.1, units="in"):
+        l = layout.Layout( self.basename + '-sheet', width, height, margin=margin, units=units )
         for rib in self.right_ribs:
             rib.placed = l.draw_part_cut_line(rib.contour)
         for rib in self.left_ribs:
