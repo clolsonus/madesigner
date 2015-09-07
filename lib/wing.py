@@ -34,23 +34,23 @@ class Wing(Structure):
         Structure.__init__(self, basename)
         self.flaps = []
 
-    def add_flap(self, start_station=None, end_station=None, \
-                     pos=None, type="builtup", angle=30.0, \
-                     edge_stringer_size=None, \
-                     mirror=True):
+    def add_flap(self, start_station=None, end_station=None,
+                 pos=None, type="builtup", angle=30.0,
+                 edge_stringer_size=None,
+                 mirror=True):
 
         if start_station == None:
             start_station = self.stations[0]
         if end_station == None:
             end_station = self.stations[len(self.stations)-1]
 
-        flap = Flap( start_station, end_station, pos, angle, \
-                         edge_stringer_size )
+        flap = Flap( start_station, end_station, pos, angle,
+                     edge_stringer_size )
         flap.side = "right"
         self.flaps.append( flap )
         if mirror:
-            flap = Flap( -start_station, -end_station, pos, angle, \
-                             edge_stringer_size )
+            flap = Flap( -start_station, -end_station, pos, angle,
+                         edge_stringer_size )
             flap.side = "left"
             self.flaps.append( flap )
 
@@ -59,10 +59,10 @@ class Wing(Structure):
             half_offset = flap.edge_stringer_size[0] * 0.5
             front_pos = copy.deepcopy(pos)
             front_pos.move(-half_offset)
-            topcutout = contour.Cutout( surf="top", orientation="tangent", \
-                                            cutpos=front_pos, \
-                                            xsize=flap.edge_stringer_size[0], \
-                                            ysize=flap.edge_stringer_size[1] )
+            topcutout = contour.Cutout( surf="top", orientation="tangent",
+                                        cutpos=front_pos,
+                                        xsize=flap.edge_stringer_size[0],
+                                        ysize=flap.edge_stringer_size[1] )
             stringer = Stringer( topcutout, start_station, end_station, "wing" )
             stringer.side = "right"
             self.stringers.append( stringer )
@@ -71,10 +71,10 @@ class Wing(Structure):
                 stringer.side = "left"
                 self.stringers.append( stringer )
 
-            botcutout = contour.Cutout( surf="bottom", orientation="tangent", \
-                                            cutpos=front_pos, \
-                                            xsize=flap.edge_stringer_size[0], \
-                                            ysize=flap.edge_stringer_size[1] )
+            botcutout = contour.Cutout( surf="bottom", orientation="tangent",
+                                        cutpos=front_pos,
+                                        xsize=flap.edge_stringer_size[0],
+                                        ysize=flap.edge_stringer_size[1] )
             stringer = Stringer( botcutout, start_station, end_station, "wing" )
             stringer.side = "right"
             self.stringers.append( stringer )
@@ -85,10 +85,10 @@ class Wing(Structure):
 
             rear_pos = copy.deepcopy(pos)
             rear_pos.move(half_offset)
-            topcutout = contour.Cutout( surf="top", orientation="tangent", \
-                                            cutpos=rear_pos, \
-                                            xsize=flap.edge_stringer_size[0], \
-                                            ysize=flap.edge_stringer_size[1] )
+            topcutout = contour.Cutout( surf="top", orientation="tangent",
+                                        cutpos=rear_pos,
+                                        xsize=flap.edge_stringer_size[0],
+                                        ysize=flap.edge_stringer_size[1] )
             stringer = Stringer( topcutout, start_station, end_station, "flap" )
             stringer.side = "right"
             self.stringers.append( stringer )
