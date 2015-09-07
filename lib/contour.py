@@ -268,7 +268,7 @@ class Contour:
 
     # given one of the possible ways to specify position, return the
     # actual position (relative to the original pre-cut part dimensions)
-    def get_xpos(self, cutpos=None, station=None):
+    def get_xpos(self, cutpos=None, station=None, sweep=0.0):
         if len(self.saved_bounds) == 0:
             print "need to call contour.save_bounds() after part created,"
             print "but before any cutouts are made"
@@ -281,7 +281,8 @@ class Contour:
         elif cutpos.rear != None:
             xpos = self.saved_bounds[1][0] - cutpos.rear
         elif cutpos.xpos != None:
-            xpos = cutpos.xpos
+            # offset by sweep amount
+            xpos = cutpos.xpos - sweep
         else:
             print "get_xpos() called with no valid cut position!!!"
         if cutpos.atstation != None and station != None:
@@ -411,7 +412,10 @@ class Contour:
         # compute position of cutout
         xpos = self.get_xpos(cutout.cutpos, station=pos[0])
         ypos = self.poly_intersect(cutout.surf, xpos)
-
+        print "xpos=", xpos
+        print "ypos=", ypos
+        print "cutpos=", cutout.cutpos.__dict__
+        
         # make, position, and orient the cutout
         angle = 0
         if tangent:
@@ -510,8 +514,7 @@ class Contour:
     def cutout_stringer(self, stringer, pos=None, nudge=0.0):
         return self.cutout( stringer, pos=pos, nudge=nudge )
 
-    def add_build_tab(self, surf="top", cutpos=None, \
-                          xsize=0.0, yextra=0.0):
+    def add_build_tab(self, surf="top", cutpos=None, xsize=0.0, yextra=0.0):
         # compute actual "x" position
         xpos = self.get_xpos(cutpos)
 
@@ -696,9 +699,9 @@ class Contour:
     # (hopefully) add rounded corners.  Right now left right walls are
     # vertical, but it should be possible to do angles (to leave an
     # interior triangle structure someday.)
-    def carve_shaped_hole(self, pos1=None, pos2=None, \
-                              material_width=0.0, radius=0.0, \
-                              circle_points=32):
+    def carve_shaped_hole(self, pos1=None, pos2=None, sweep=0.0,
+                          material_width=0.0, radius=0.0,
+                          circle_points=32):
         if self.poly == None:
             self.make_poly()
 
@@ -707,21 +710,21 @@ class Contour:
         # hollow entire interior (longitudinal axis) at cut radius +
         # corner radius.  This like the center 'cut' line if we were
         # cutting with a 'radius' radius tool.
-        top = self.project_contour(surf="top", \
-                                       xstart=bounds[0][0], \
-                                       xend=bounds[1][0], \
-                                       ysize=material_width+radius)
-        bot = self.project_contour(surf="bottom", \
-                                       xstart=bounds[0][0], \
-                                       xend=bounds[1][0], \
-                                       ysize=material_width+radius)
+        top = self.project_contour(surf="top",
+                                   xstart=bounds[0][0],
+                                   xend=bounds[1][0],
+                                   ysize=material_width+radius)
+        bot = self.project_contour(surf="bottom",
+                                   xstart=bounds[0][0],
+                                   xend=bounds[1][0],
+                                   ysize=material_width+radius)
         top.reverse()
         shape = top + bot
         mask1 = Polygon.Polygon(shape)
 
         # vertical column (narrowed by radius)
-        xstart = self.get_xpos( pos1 ) + radius
-        xend = self.get_xpos( pos2 ) - radius
+        xstart = self.get_xpos( pos1, sweep=sweep ) + radius
+        xend = self.get_xpos( pos2, sweep=sweep ) - radius
         shape = []
         shape.append( (xstart, bounds[0][1]) )
         shape.append( (xend, bounds[0][1]) )

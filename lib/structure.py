@@ -521,20 +521,22 @@ class Structure:
             if self.match_station(hole.start_station, hole.end_station, lat_dist):
                 if rib.part == hole.part:
                     if hole.type == "simple":
-                        xpos = rib.contour.get_xpos(hole.pos1, \
-                                                        station=rib.pos[0])
+                        xpos = rib.contour.get_xpos(hole.pos1,
+                                                    station=rib.pos[0],
+                                                    sweep=rib.pos[1])
                         ty = rib.contour.simple_interp(rib.contour.top, xpos)
                         by = rib.contour.simple_interp(rib.contour.bottom, xpos)
                         ypos = (ty + by) * 0.5
-                        rib.contour.cut_hole( xpos, ypos, hole.radius, \
-                                                  points=self.circle_points )
+                        rib.contour.cut_hole( xpos, ypos, hole.radius,
+                                              points=self.circle_points )
                     elif hole.type == "shaped":
                         #print "make shaped hole"
-                        rib.contour.carve_shaped_hole( pos1=hole.pos1,\
-                                          pos2=hole.pos2, \
-                                          material_width=hole.material_width, \
-                                          radius=hole.radius, \
-                                          circle_points=self.circle_points )
+                        rib.contour.carve_shaped_hole( pos1=hole.pos1,
+                                                       pos2=hole.pos2,
+                                                       sweep=rib.pos[1],
+                                                       material_width=hole.material_width,
+                                                       radius=hole.radius,
+                                                       circle_points=self.circle_points )
 
 
         # do rotate
