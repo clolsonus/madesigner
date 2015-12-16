@@ -9,6 +9,7 @@ __license__ = "GPL v2"
 import copy
 import math
 
+import airfoil
 import contour
 from structure import Structure, Stringer
 import spline
