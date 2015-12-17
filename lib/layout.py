@@ -63,19 +63,21 @@ class Sheet:
             shape = tmp.top
             shape.reverse()
             shape += tmp.bottom
-            poly = self.dwg.polygon(shape, stroke='blue', fill='none', \
-                                        stroke_width=stroke_width)
+            poly = self.dwg.polygon(shape, stroke='blue', fill='none',
+                                    stroke_width=stroke_width)
             g.add( poly )
 
         if lines:
             for shape in p:
-                poly = self.dwg.polygon(shape, stroke = 'red', fill = 'none', \
-                                            stroke_width = stroke_width)
+                poly = self.dwg.polygon(shape, stroke='red', fill='none',
+                                        stroke_width=stroke_width)
                 g.add( poly )
 
         for label in part.labels:
             #print "label = " + str(label[0]) + "," + str(label[1])
-            t = self.dwg.text(label[4], (0, 0), font_size = label[2], text_anchor = "middle")
+            t = self.dwg.text(label[4], (0, 0), font_size=label[2],
+                              text_anchor="middle", stroke='blue', fill='none',
+                              stroke_width=stroke_width)
             t.translate( (label[0]*self.dpi, -label[1]*self.dpi) )
             t.rotate(-label[3])
             # text_align = center
