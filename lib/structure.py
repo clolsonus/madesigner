@@ -480,7 +480,7 @@ class Structure:
         for te in self.trailing_edges:
             if self.match_station(te.start_station, te.end_station, lat_dist):
                 if rib.has_te and rib.part == te.part and rib.side == te.side:
-                    shape = rib.contour.cutout_trailing_edge( width=te.width, height=te.height, shape =te.shape, force_fit=True, pos=rib.pos, nudge=rib.nudge)
+                    shape = rib.contour.cutout_trailing_edge( width=te.width, height=te.height, shape=te.shape, force_fit=True, pos=rib.pos, nudge=rib.nudge)
                     if len(shape):
                         rot_shape = rotate(shape, rib.pos[1], rib.twist)
                         te.points.append(rot_shape)
@@ -801,23 +801,29 @@ class Structure:
         if len(self.trailing_edges):
             for te in self.trailing_edges:
                 if te.side == "left":
-                    ac.make_extrusion("trailing edge", te.points, \
+                    if len(te.points):
+                        ac.make_extrusion("trailing edge", te.points,
                                           te.side=="left")
+                    else:
+                        print "Error: no trailing edge points"
         if len(self.leading_edges):
             for le in self.leading_edges:
                 if le.side == "left":
-                    ac.make_extrusion("leading edge", le.points, \
-                                          le.side=="left")
+                    ac.make_extrusion("leading edge", le.points,
+                                      le.side=="left")
         if len(self.sheeting):
             for sheet in self.sheeting:
                 if sheet.side == "left":
-                    ac.make_sheet("sheet", sheet.top_points, sheet.bot_points, \
-                                      sheet.side=="left")
+                    ac.make_sheet("sheet", sheet.top_points, sheet.bot_points,
+                                  sheet.side=="left")
         if len(self.stringers):
             for stringer in self.stringers:
                 if stringer.side == "left":
-                    ac.make_extrusion("stringer", stringer.points, \
+                    if len(stringer.points):
+                        ac.make_extrusion("stringer", stringer.points,
                                           stringer.side=="left")
+                    else:
+                        print "Error: no trailing edge points"
         if len(self.spars):
             for spar in self.spars:
                 if spar.side == "left":
