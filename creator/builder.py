@@ -140,7 +140,7 @@ class Builder():
     def parse_trailing_edge(self, wing, node):
         width = float(get_value(node, 'width'))
         height = float(get_value(node, 'height'))
-        shape = get_value(node, 'shape').lower()
+        shape = get_value(node, 'shape')
         junk, startstr = get_value(node, 'start-station').split()
         junk, endstr = get_value(node, 'end-station').split()
         if startstr == "Inner" or startstr == "":
