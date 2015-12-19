@@ -255,6 +255,16 @@ class Airfoil(Contour):
         return shape
 
 
+    def cutout_trailing_edge(self, width=0.0, height=0.0, shape="",
+                             force_fit=False, pos=None, nudge=0.0):
+        if shape == "Flat Triangle" or shape == "Symmetrical":
+            result = self.cutout_trailing_edge_triangle(width, height, shape,
+                                                        force_fit, pos, nudge)
+        elif shape == "Bottom Sheet":
+            result = self.cutout_trailing_edge_sheet(width, height, shape,
+                                                     force_fit, pos, nudge)
+        return result
+            
     # Important note: If calling the trailing edge cutout function
     # with force_fit, then please notice that this routine modifies
     # the basic airfoil shape and rebuilds the self.poly object from
@@ -276,20 +286,28 @@ class Airfoil(Contour):
     #
     # Sorry for the long complicated explanation!
     #
-    def cutout_trailing_edge(self, width=0.0, height=0.0, shape="flat",
-                             force_fit=False, pos=None, nudge=0.0):
+    def cutout_trailing_edge_triangle(self, width=0.0, height=0.0, shape="",
+                                      force_fit=True, pos=None, nudge=0.0):
         h2 = height*0.5
-        if shape == "flat":
+        if shape == "Flat Triangle":
             bottom_dist = width
             mid_dist = math.sqrt(width*width + h2*h2)
             top_dist = math.sqrt(width*width + height*height)
-        elif shape == "symmetrical":
+        elif shape == "Symmetrical":
             bottom_dist = math.sqrt(width*width + h2*h2)
             mid_dist = width
             top_dist = bottom_dist
+        elif shape == "Bottom Sheet":
+            bottom_dist = width
+            top_dist = width
+            mid_dist = width
         else:
-            print "Unknown trailing edge shape. Must be 'flat' or 'symmetrical'"
+            print "Unknown trailing edge shape. Must be Flat Triangle, Symmetrical, or Bottom Sheet."
             return
+
+        # make the Polygon representation of this part if needed
+        if self.poly == None:
+            self.make_poly()
 
         tn = len(self.top)
         bn = len(self.bottom)
@@ -383,7 +401,7 @@ class Airfoil(Contour):
 
         # make the exact trailing edge stock shape
         p1 = (xtail, ytail)
-        if shape == "symmetrical":
+        if shape == "Symmetrical":
             p2 = (xtail-width, ytail+h2)
             p3 = (xtail-width, ytail-h2)
         else:
@@ -398,7 +416,7 @@ class Airfoil(Contour):
         p4 = (xtail+width, ytail-h2)
         mask = Polygon.Polygon( (p1, p2, p3, p4) )
 
-        if shape == "flat":
+        if shape == "Flat Triangle":
             # need to prerotate to align mid line of stock with
             # midline of airfoil
             #print "prerotate = " + str( (h2, width) )
@@ -416,6 +434,83 @@ class Airfoil(Contour):
         if exact_shape:
             self.poly = self.poly - contour
         else:
+            self.poly = self.poly - mask
+
+        result = []
+        for p2 in contour[0]:
+            p3 = (p2[0]+pos[1], pos[0]-nudge, p2[1])
+            result.append(p3)
+        return result
+
+    # This version cuts a 'sheet' into the bottom trailing edge so the
+    # bottom corner of the sheet cross section aligns with the tip of
+    # the original airfoil and the bottom of the sheet follows the
+    # bottom of the airfoil as best is possible.
+    def cutout_trailing_edge_sheet(self, width=0.0, height=0.0, shape="",
+                                   force_fit=True, pos=None, nudge=0.0):
+        # make the Polygon representation of this part if needed
+        if self.poly == None:
+            self.make_poly()
+
+        tn = len(self.top)
+        bn = len(self.bottom)
+        xnose = self.top[0][0]
+        xtail = self.top[tn-1][0]
+        yttail = self.top[tn-1][1]
+        ybtail = self.bottom[bn-1][1]
+        ytail = (yttail + ybtail) * 0.5
+        chord = xtail - xnose
+        if width > chord:
+            # unable
+            return
+
+        step = 0.001
+        xpos = xtail - step
+        cur_dist = step
+        # walk forward specified distances along the bottom curve
+        # (starting at the back)
+        ybottom = 0.0
+        while cur_dist <= width and xpos >= xnose:
+            ybottom = self.simple_interp(self.bottom, xpos)
+            cur_dist = self.dist_2d( (xtail, ytail), (xpos, ybottom) )
+            xpos -= step
+
+        dx = xpos - xtail
+        dy = ybottom - ytail
+        print (dx, dy)
+        angle = math.atan2(dy, -dx)
+        print "angle = " + str(math.degrees(angle))
+
+        #print "Trailing edge: stock height = " + str(height)
+        #print "Rotated stock end height = " + str(height*math.cos(angle))
+        #print "Rib height at cut pt = " + str(ytop - ybottom)
+
+        # make the exact trailing edge stock shape
+        p1 = (xtail, ytail)
+        p2 = (xtail-width, ytail)
+        p3 = (xtail-width, ytail+height)
+        p4 = (xtail, ytail+height)
+        contour = Polygon.Polygon( (p1, p2, p3, p4) )
+
+        # make an oversize mask
+        p1 = (xtail, ytail-height)
+        p2 = (xtail-width, ytail-height)
+        p3 = (xtail-width, ytail+height)
+        p4 = (xtail, ytail+height)
+        mask = Polygon.Polygon( (p1, p2, p3, p4) )
+
+        # rotate to best fit alignment
+        contour.rotate(-angle, xtail, ytail)
+        mask.rotate(-angle, xtail, ytail)
+
+        # exact_shape = True can be a useful debugging tool because
+        # you can see exactly the trailing edge part that gets cutout.
+        exact_shape = False
+        if exact_shape:
+            self.poly = self.poly - contour
+        else:
+            print "poly:", self.poly
+            print "mask:", mask
             self.poly = self.poly - mask
 
         result = []
