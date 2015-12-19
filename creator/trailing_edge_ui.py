@@ -76,8 +76,9 @@ class TrailingEdgeUI():
         layout1.addWidget( self.edit_height )
 
         self.edit_shape = QComboBoxNoWheel()
-        self.edit_shape.addItem("Flat")
-        self.edit_shape.addItem("Symmetrical")
+        self.edit_shape.addItem("Flat Triangle")
+        self.edit_shape.addItem("Symmetrical") 
+        self.edit_shape.addItem("Bottom Sheet")
         self.edit_shape.currentIndexChanged.connect(self.onChange)
         layout1.addWidget(self.edit_shape)
 
