@@ -47,7 +47,7 @@ class Airfoil(Contour):
         f = fileinput.input(path)
         for line in f:
             #print line
-            line.strip()
+            line = line.strip()
             if f.isfirstline():
                 self.description = string.join(line.split())
                 continue

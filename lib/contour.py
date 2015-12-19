@@ -412,10 +412,12 @@ class Contour:
         # compute position of cutout
         xpos = self.get_xpos(cutout.cutpos, station=pos[0])
         ypos = self.poly_intersect(cutout.surf, xpos)
-        print "xpos=", xpos
-        print "ypos=", ypos
-        print "cutpos=", cutout.cutpos.__dict__
-        
+
+        print "xpos = " + str(xpos)
+        print "ypos = " + str(ypos)
+        if ypos == None:
+            ypos = 0.0
+
         # make, position, and orient the cutout
         angle = 0
         if tangent:

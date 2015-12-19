@@ -1,3 +1,7 @@
+- Change control surface wedge cutout to two supported lines.
+
+- Add support for sheeted trailing edge (bottom sheet/square stock.)
+
 - Need a way to specify rib material thickness.
 
 - Design is dirty after initial load from menu->open and shouldn't be.
@@ -23,6 +27,11 @@
   but shows up annoyingly in the 3d model.
 
 - Way to specify absolute position of assemblies.
+
+- 1/14/2014: User bug report with mm units: leads to addition of fields to
+  specify cut sheet and plan sheet dimensions, as well as working through
+  the process of doing everything in mm.  Still an open issue with material
+  width when not using "in" units.
 
 - 1/1/2014: Relative positioning of sub assemblies.  In the current
   implementation this is accomplished by "linking" a wing to another wing.

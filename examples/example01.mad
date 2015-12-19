@@ -1,11 +1,15 @@
 <design>
   <overview>
-    <MADversion>0.4</MADversion>
+    <MADversion>0.5</MADversion>
     <name>Example 1</name>
     <description>A very simple example</description>
     <author>Curt Olson</author>
     <email></email>
     <units>in</units>
+    <sheet-width>24</sheet-width>
+    <sheet-height>12</sheet-height>
+    <plans-width>24</plans-width>
+    <plans-height>36</plans-height>
   </overview>
   <wing>
     <name>Main</name>
@@ -20,6 +24,7 @@
     <sweep-curve></sweep-curve>
     <dihedral>5</dihedral>
     <stations>0 3 6 9 12 15 18 21 24 27 30</stations>
+    <wing-link>none</wing-link>
     <leading-edge>
       <size>0.25</size>
       <start-station>Start: Inner</start-station>

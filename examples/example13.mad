@@ -6,6 +6,10 @@
     <author>Curt Olson</author>
     <email></email>
     <units>in</units>
+    <sheet-width>24</sheet-width>
+    <sheet-height>12</sheet-height>
+    <plans-width>24</plans-width>
+    <plans-height>36</plans-height>
   </overview>
   <wing>
     <name>Inner</name>
