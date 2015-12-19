@@ -276,8 +276,8 @@ class Airfoil(Contour):
     #
     # Sorry for the long complicated explanation!
     #
-    def cutout_trailing_edge(self, width=0.0, height=0.0, shape="flat", \
-                                 force_fit=False, pos=None, nudge=0.0):
+    def cutout_trailing_edge(self, width=0.0, height=0.0, shape="flat",
+                             force_fit=False, pos=None, nudge=0.0):
         h2 = height*0.5
         if shape == "flat":
             bottom_dist = width
