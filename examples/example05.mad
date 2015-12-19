@@ -35,7 +35,7 @@
     <trailing-edge>
       <width>1.0</width>
       <height>0.25</height>
-      <shape>Flat</shape>
+      <shape>Flat Triangle</shape>
       <start-station>Start: Inner</start-station>
       <end-station>End: Outer</end-station>
     </trailing-edge>
