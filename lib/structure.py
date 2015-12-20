@@ -502,13 +502,13 @@ class Structure:
         # leading edge cutout
         for le in self.leading_edges:
             if self.match_station(le.start_station, le.end_station, lat_dist):
-                if rib.part == le.part and rib.side == le.side:
+                if rib.has_le and rib.side == le.side:
                     shape = rib.contour.cutout_leading_edge_diamond( le.size, rib.pos, rib.nudge )
                     if len(shape):
                         rot_shape = rotate(shape, rib.pos[1], rib.twist)
                         le.points.append(rot_shape)
                 else:
-                    print "no match: " + rib.part + " != " + le.part + " or " + rib.side + " != " + le.side + " (has_le= " + str(rib.has_le) + ")"
+                    print "no match: " + " or " + rib.side + " != " + le.side + " (has_le= " + str(rib.has_le) + ")"
 
         # sheeting next
         for sheet in self.sheeting:
@@ -524,33 +524,37 @@ class Structure:
         # cutout stringers (before twist)
         for stringer in self.stringers:
             if self.match_station(stringer.start_station, stringer.end_station, lat_dist):
-                if rib.part == stringer.part and rib.side == stringer.side:
-                    shape = rib.contour.cutout_stringer(stringer.cutout, rib.pos, rib.nudge)
-                    if len(shape):
-                        rot_shape = rotate(shape, rib.pos[1], rib.twist)
-                        stringer.points.append(rot_shape)
+                if rib.side != stringer.side:
+                    continue
+                if rib.part != 'flap' and stringer.part == 'flap':
+                    continue
+                shape = rib.contour.cutout_stringer(stringer.cutout, rib.pos, rib.nudge)
+                if shape != None and len(shape):
+                    rot_shape = rotate(shape, rib.pos[1], rib.twist)
+                    stringer.points.append(rot_shape)
 
         # hole cutouts
         for hole in self.holes:
             if self.match_station(hole.start_station, hole.end_station, lat_dist):
-                if rib.part == hole.part:
-                    if hole.type == "simple":
-                        xpos = rib.contour.get_xpos(hole.pos1,
-                                                    station=rib.pos[0],
-                                                    sweep=rib.pos[1])
-                        ty = rib.contour.simple_interp(rib.contour.top, xpos)
-                        by = rib.contour.simple_interp(rib.contour.bottom, xpos)
-                        ypos = (ty + by) * 0.5
-                        rib.contour.cut_hole( xpos, ypos, hole.radius,
-                                              points=self.circle_points )
-                    elif hole.type == "shaped":
-                        #print "make shaped hole"
-                        rib.contour.carve_shaped_hole( pos1=hole.pos1,
-                                                       pos2=hole.pos2,
-                                                       sweep=rib.pos[1],
-                                                       material_width=hole.material_width,
-                                                       radius=hole.radius,
-                                                       circle_points=self.circle_points )
+                if hole.type == "simple":
+                    xpos = rib.contour.get_xpos(hole.pos1,
+                                                station=rib.pos[0],
+                                                sweep=rib.pos[1])
+                    ty = rib.contour.simple_interp(rib.contour.top, xpos)
+                    by = rib.contour.simple_interp(rib.contour.bottom, xpos)
+                    if ty == None or by == None:
+                        continue
+                    ypos = (ty + by) * 0.5
+                    rib.contour.cut_hole( xpos, ypos, hole.radius,
+                                          points=self.circle_points )
+                elif hole.type == "shaped":
+                    #print "make shaped hole"
+                    rib.contour.carve_shaped_hole( pos1=hole.pos1,
+                                                   pos2=hole.pos2,
+                                                   sweep=rib.pos[1],
+                                                   material_width=hole.material_width,
+                                                   radius=hole.radius,
+                                                   circle_points=self.circle_points )
 
 
         # do rotate
@@ -559,7 +563,7 @@ class Structure:
         # cutout spars (stringer cut after twist)
         for spar in self.spars:
             if self.match_station(spar.start_station, spar.end_station, lat_dist):
-                if rib.part == spar.part and rib.side == spar.side:
+                if rib.side == spar.side:
                     shape = rib.contour.cutout_stringer(spar.cutout, rib.pos, rib.nudge)
                     if len(shape):
                         spar.points.append( shape )
@@ -567,7 +571,7 @@ class Structure:
         # add build tabs last (after twist of course)
         for tab in self.build_tabs:
             if self.match_station(tab.start_station, tab.end_station, lat_dist):
-                if rib.part == tab.part and rib.side == tab.side:
+                if rib.side == tab.side:
                     shape = rib.contour.add_build_tab(tab.surf, tab.pos, tab.xsize, tab.ypad)
 
     def layout_parts_sheets(self, width, height, margin=None, units="in"):

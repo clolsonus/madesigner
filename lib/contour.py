@@ -71,6 +71,10 @@ class Contour:
         return result
 
     def simple_interp(self, points, v):
+        if v < points[0][0]:
+            return None
+        if v > points[len(points)-1][0]:
+            return None
         index = spline.binsearch(points, v)
         n = len(points) - 1
         if index < n:
@@ -416,7 +420,7 @@ class Contour:
         print "xpos = " + str(xpos)
         print "ypos = " + str(ypos)
         if ypos == None:
-            ypos = 0.0
+            return None
 
         # make, position, and orient the cutout
         angle = 0
@@ -527,11 +531,15 @@ class Contour:
         # vertical size of the tab needed
         if surf == "top":
             ypos = self.simple_interp(self.top, xpos)
+            if ypos == None:
+                return
             ysize = bounds[1][1] - ypos + yextra
         else:
             ypos = self.simple_interp(self.bottom, xpos)
+            if ypos == None:
+                return
             ysize = ypos - bounds[0][1] + yextra
-
+        
         cutout = Cutout( surf=surf, orientation="vertical", \
                              cutpos=cutpos, \
                              xsize=xsize, ysize=ysize )

@@ -132,7 +132,51 @@ class Wing(Structure):
                 else:
                     print "Whoops, something strange in flap ranges"
         return result
-        
+
+    def make_new_ribs_for_flaps(self, base_ribs, side):
+        if side == 'right':
+            nudge_in = 1.5
+            nudge_out = -1.5
+        else:
+            nudge_in = -1.5
+            nudge_out = 1.5
+            
+        new_ribs = []
+        for rib in base_ribs:
+            type = self.get_station_rib_type(rib.pos[0])
+            if type == "inner":
+                newrib = copy.deepcopy(rib)
+                newrib.nudge = rib.thickness * nudge_out
+                newrib.part = "flap"
+                newrib.type = type
+                newrib.has_le = False
+                new_ribs.append(rib)
+                new_ribs.append(newrib)
+            elif type == "outer":
+                newrib = copy.deepcopy(rib)
+                newrib.nudge = rib.thickness * nudge_in
+                newrib.part = "flap"
+                newrib.type = type
+                newrib.has_le = False
+                new_ribs.append(newrib)
+                new_ribs.append(rib)
+            elif type == "shared":
+                newrib = copy.deepcopy(rib)
+                newrib.nudge = rib.thickness * nudge_out
+                rib.part = "flap" 
+                newrib.part = "flap"
+                rib.type = "inner-shared"
+                newrib.type = "outer-shared"
+                new_ribs.append(rib)
+                new_ribs.append(newrib)
+            elif type == "mid":
+                #print "match flap at mid station " + str(rib.pos[0])
+                rib.part = "flap"
+                new_ribs.append(rib)
+            else:
+                new_ribs.append(rib)
+        return new_ribs
+    
     def build(self):
         if len(self.stations) < 2:
             print "Must define at least 2 stations to build a wing"
@@ -198,53 +242,9 @@ class Wing(Structure):
         # at the ends of each control surface we need a full length
         # rib to cap off the space, so we need to create copies of the
         # ribs at these points.
+        self.right_ribs = self.make_new_ribs_for_flaps(self.right_ribs, 'right')
+        self.left_ribs = self.make_new_ribs_for_flaps(self.left_ribs, 'left')
 
-        # currently there will be some material waste because the end
-        # of each control surface only needs the trailing portion of
-        # the rib copy.  Maybe this can be a future 'fixme'.
-        
-        # make the control surface ribs.  Instead of dividing the
-        # original base ribs into two parts, we make copies of the
-        # base ribs and then trim off the parts we don't want.  This
-        # makes a bit of sense considering we need double ribs at the
-        # cutout edges.  We do this in one pass per side, stepping
-        # through each rib and seeing if it matches a control surface
-        # cutout and if it's an inner, outer, or mid rib.
-        new_ribs = []
-        for rib in self.right_ribs:
-            type = self.get_station_rib_type(rib.pos[0])
-            if type == "inner":
-                newrib = copy.deepcopy(rib)
-                rib.nudge = rib.thickness * 0.75
-                newrib.nudge = -rib.thickness * 0.75
-                newrib.part = "flap"
-                newrib.type = type
-                newrib.has_le = False
-                new_ribs.append(newrib)
-            elif type == "outer":
-                newrib = copy.deepcopy(rib)
-                rib.nudge = -rib.thickness * 0.75
-                newrib.nudge = rib.thickness * 0.75
-                newrib.part = "flap"
-                newrib.type = type
-                newrib.has_le = False
-                new_ribs.append(newrib)
-            elif type == "shared":
-                newrib = copy.deepcopy(rib)
-                rib.nudge = rib.thickness * 0.75
-                newrib.nudge = -rib.thickness * 0.75
-                rib.part = "flap" 
-                newrib.part = "flap"
-                rib.type = "inner-shared"
-                newrib.type = "outer-shared"
-                new_ribs.append(newrib)
-            elif type == "mid":
-                #print "match flap at mid station " + str(rib.pos[0])
-                rib.part = "flap"
-
-        for rib in new_ribs:
-            self.right_ribs.append(rib)
- 
         for rib in self.right_ribs:
             rib_pos = rib.pos[0] - rib.nudge
             for flap in self.flaps:
@@ -272,56 +272,30 @@ class Wing(Structure):
                         # rib.trim_rear(flap.pos)
 
         for rib in self.left_ribs:
-            rib_pos = rib.pos[0] - rib.nudge
+            rib_pos = rib.pos[0] + rib.nudge
             for flap in self.flaps:
                 if self.match_station(flap.start_station, flap.end_station, rib_pos):
                     if rib.part == "flap":
-                        pos = rib.trim_front_wedge(flap.pos, flap.angle)
                         if rib.type == "inner":
+                            pos = rib.trim_front_wedge(flap.pos, flap.angle)
                             flap.start_bot_str_pos = pos
                             print "flap start bot = " + str(pos)
                         elif rib.type == "outer":
+                            pos = rib.trim_front_wedge(flap.pos, flap.angle)
+                            flap.end_bot_str_pos = pos
+                            print "flap end bot = " + str(pos)
+                        elif rib.type == "inner-shared":
+                            pos = rib.find_flap_bottom_front(flap.pos, flap.angle)
+                            pos = rib.trim_front_wedge(flap.pos, flap.angle)
+                            flap.start_bot_str_pos = pos
+                            print "flap start bot = " + str(pos)
+                        elif rib.type == "outer-shared":
+                            pos = rib.find_flap_bottom_front(flap.pos, flap.angle)
                             flap.end_bot_str_pos = pos
                             print "flap end bot = " + str(pos)
                     else:
-                        rib.trim_rear(flap.pos)
-
-        if False:
-            new_ribs = []
-            for rib in self.left_ribs:
-                for flap in self.flaps:
-                    if self.match_station(flap.start_station, flap.start_station, rib.pos[0]):
-                        #print "start station = " + str(rib.pos[0])
-                        newrib = copy.deepcopy(rib)
-                        rib.nudge = -rib.thickness * 0.5
-                        newrib.nudge = rib.thickness * 1.0
-                        flap.start_bot_str_pos = newrib.trim_front_wedge(flap.pos, flap.angle)
-                        newrib.part = "flap"
-                        newrib.has_le = False
-                        new_ribs.append(newrib)
-                    elif self.match_station(flap.end_station, flap.end_station, rib.pos[0]):
-                        #print "end station = " + str(rib.pos[0])
-                        newrib = copy.deepcopy(rib)
-                        rib.nudge = rib.thickness * 0.5
-                        newrib.nudge = -rib.thickness * 1.0
-                        flap.end_bot_str_pos =  newrib.trim_front_wedge(flap.pos, flap.angle)
-                        newrib.part = "flap"
-                        newrib.has_le = False
-                        new_ribs.append(newrib)
-                    elif self.match_station(flap.start_station, flap.end_station, rib.pos[0]):
-                        #print "left match flap at station " + str(rib.pos[0])
-                        newrib = copy.deepcopy(rib)
-                        newrib.trim_front_wedge(flap.pos, flap.angle)
-                        newrib.part = "flap"
-                        newrib.has_le = False
-                        new_ribs.append(newrib)
-                        rib.trim_rear(flap.pos)
-                        rib.has_te = False
-                        #rib.contour.trim(surf="top", discard="rear", cutpos=flap.pos)
-                        #rib.contour.trim(surf="bottom", discard="rear", cutpos=flap.pos)
-            for rib in new_ribs:
-                self.left_ribs.append(rib)
-        # end if if False:
+                        print "skipping rear trim"
+                        # rib.trim_rear(flap.pos)
 
         # now place the leading edge bottom stringer for each flap.
         # This is left until now because this can be very dynamic
