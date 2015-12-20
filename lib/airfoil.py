@@ -493,10 +493,10 @@ class Airfoil(Contour):
         contour = Polygon.Polygon( (p1, p2, p3, p4) )
 
         # make an oversize mask
-        p1 = (xtail, ytail-height)
+        p1 = (xtail+width, ytail-height)
         p2 = (xtail-width, ytail-height)
         p3 = (xtail-width, ytail+height)
-        p4 = (xtail, ytail+height)
+        p4 = (xtail+width, ytail+height)
         mask = Polygon.Polygon( (p1, p2, p3, p4) )
 
         # rotate to best fit alignment

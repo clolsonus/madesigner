@@ -272,7 +272,7 @@ class Wing(Structure):
                         # rib.trim_rear(flap.pos)
 
         for rib in self.left_ribs:
-            rib_pos = rib.pos[0] + rib.nudge
+            rib_pos = rib.pos[0] - rib.nudge
             for flap in self.flaps:
                 if self.match_station(flap.start_station, flap.end_station, rib_pos):
                     if rib.part == "flap":
