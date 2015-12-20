@@ -127,6 +127,7 @@ class Rib:
         self.twist = 0.0
         self.part = "wing"      # wing or flap
         self.side = "right"
+        self.type = "middle"
         # todo can we eliminate has_le/has_te by using self.part names?
         self.has_le = True      # has leading edge
         self.has_te = True      # has trailing edge
@@ -149,6 +150,19 @@ class Rib:
         bx = self.contour.intersect("bottom", (tx, ty), wedge_slope)
         botpos = contour.Cutpos( xpos=bx )
         self.contour.trim(surf="bottom", discard="front", cutpos=botpos, station=self.pos[0])
+        return bx
+
+    # returns the bottom front location which is hard to compute
+    # externally (this can be used by the calling layer to position a
+    # boundary stringer.
+    def find_flap_bottom_front(self, cutpos, angle):
+        wedge_angle = math.radians(90.0-angle)
+        wedge_slope = -math.tan(wedge_angle)
+        
+        tx = self.contour.get_xpos(cutpos, station=self.pos[0])
+        ty = self.contour.simple_interp(self.contour.top, tx)
+
+        bx = self.contour.intersect("bottom", (tx, ty), wedge_slope)
         return bx
 
     def get_label(self):

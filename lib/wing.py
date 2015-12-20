@@ -169,15 +169,15 @@ class Wing(Structure):
             # compute sweep offset pos if a sweep function provided
             if self.sweep:
                 sw_index = spline.binsearch(self.sweep.top, lat_dist)
-                sweep_dist = spline.spline(self.sweep.top, sweep_y2, sw_index, \
-                                               lat_dist)
+                sweep_dist = spline.spline(self.sweep.top, sweep_y2, sw_index,
+                                           lat_dist)
             else:
                 sweep_dist = 0.0
 
             # make the rib (cutouts will be handled later)
             label = 'WR' + str(index+1) 
-            right_rib = self.make_raw_rib(af, chord, lat_dist, sweep_dist, \
-                                              twist, label)
+            right_rib = self.make_raw_rib(af, chord, lat_dist, sweep_dist,
+                                          twist, label)
             right_rib.side = "right"
             if percent < 0.001:
                 right_rib.nudge = -right_rib.thickness * 0.5
@@ -186,8 +186,8 @@ class Wing(Structure):
             self.right_ribs.append(right_rib)
 
             label = 'WL' + str(index+1)
-            left_rib = self.make_raw_rib(af, chord, -lat_dist, sweep_dist, \
-                                             twist, label)
+            left_rib = self.make_raw_rib(af, chord, -lat_dist, sweep_dist,
+                                         twist, label)
             left_rib.side = "left"
             if percent < 0.001:
                 left_rib.nudge = right_rib.thickness * 0.5
@@ -195,6 +195,14 @@ class Wing(Structure):
                 left_rib.nudge = -right_rib.thickness * 0.5
             self.left_ribs.append(left_rib)
 
+        # at the ends of each control surface we need a full length
+        # rib to cap off the space, so we need to create copies of the
+        # ribs at these points.
+
+        # currently there will be some material waste because the end
+        # of each control surface only needs the trailing portion of
+        # the rib copy.  Maybe this can be a future 'fixme'.
+        
         # make the control surface ribs.  Instead of dividing the
         # original base ribs into two parts, we make copies of the
         # base ribs and then trim off the parts we don't want.  This
@@ -225,32 +233,45 @@ class Wing(Structure):
                 newrib = copy.deepcopy(rib)
                 rib.nudge = rib.thickness * 0.75
                 newrib.nudge = -rib.thickness * 0.75
-                newrib1 = copy.deepcopy(rib)
-                newrib2 = copy.deepcopy(newrib)
-                newrib1.part = "flap" 
-                newrib2.part = "flap"
-                newrib1.type = "outer"
-                newrib2.type = "inner"
-                newrib1.has_le = False
-                newrib2.has_le = False
-                rib.has_te = False
-                newrib.has_te = False
+                rib.part = "flap" 
+                newrib.part = "flap"
+                rib.type = "inner-shared"
+                newrib.type = "outer-shared"
                 new_ribs.append(newrib)
-                new_ribs.append(newrib1)
-                new_ribs.append(newrib2)
             elif type == "mid":
                 #print "match flap at mid station " + str(rib.pos[0])
-                newrib = copy.deepcopy(rib)
-                newrib.part = "flap"
-                newrib.type = type
-                newrib.has_le = False
-                new_ribs.append(newrib)
-                rib.has_te = False
+                rib.part = "flap"
 
         for rib in new_ribs:
             self.right_ribs.append(rib)
  
         for rib in self.right_ribs:
+            rib_pos = rib.pos[0] - rib.nudge
+            for flap in self.flaps:
+                if self.match_station(flap.start_station, flap.end_station, rib_pos):
+                    if rib.part == "flap":
+                        if rib.type == "inner":
+                            pos = rib.trim_front_wedge(flap.pos, flap.angle)
+                            flap.start_bot_str_pos = pos
+                            print "flap start bot = " + str(pos)
+                        elif rib.type == "outer":
+                            pos = rib.trim_front_wedge(flap.pos, flap.angle)
+                            flap.end_bot_str_pos = pos
+                            print "flap end bot = " + str(pos)
+                        elif rib.type == "inner-shared":
+                            pos = rib.find_flap_bottom_front(flap.pos, flap.angle)
+                            pos = rib.trim_front_wedge(flap.pos, flap.angle)
+                            flap.start_bot_str_pos = pos
+                            print "flap start bot = " + str(pos)
+                        elif rib.type == "outer-shared":
+                            pos = rib.find_flap_bottom_front(flap.pos, flap.angle)
+                            flap.end_bot_str_pos = pos
+                            print "flap end bot = " + str(pos)
+                    else:
+                        print "skipping rear trim"
+                        # rib.trim_rear(flap.pos)
+
+        for rib in self.left_ribs:
             rib_pos = rib.pos[0] - rib.nudge
             for flap in self.flaps:
                 if self.match_station(flap.start_station, flap.end_station, rib_pos):
