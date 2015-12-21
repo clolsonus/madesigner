@@ -8,6 +8,9 @@ __license__ = "GPL v2"
 
 import copy
 import numpy as np
+import Polygon
+import Polygon.IO
+import Polygon.Utils
 import svgwrite
 
 import airfoil
@@ -15,14 +18,14 @@ import airfoil
 
 class Sheet:
 
-    def __init__(self, name, width, height, margin=None, units="in", dpi=90):
+    def __init__(self, name, width, height, step=None, units="in", dpi=90):
         self.dwg = svgwrite.Drawing( name + '.svg', size = (str(width)+units, str(height)+units) )
         self.width = width
         self.height = height
-        if margin != None:
-            self.margin = margin
+        if step != None:
+            self.step = step
         else:
-            self.margin = 0.1
+            self.step = 0.1
         self.units = units
         self.dpi = dpi
         if units == "mm":
@@ -30,12 +33,14 @@ class Sheet:
         elif units == "cm":
             self.dpi = self.dpi / 2.54
         self.dwg.viewbox( 0, 0, self.width*self.dpi, self.height*self.dpi )
-        self.ypos = 0.0 + self.margin
-        self.xpos = 0.0 + self.margin
-        self.biggest_x = 0.0
+        #self.ypos = 0.0 + self.step
+        self.xpos = 0.0 + self.step
+        #self.biggest_x = 0.0
+        self.mask = Polygon.Polygon()
 
     def draw_part_side(self, part, stroke_width="1px", color="red",
                        lines=True, points=False, outline=False):
+        print "Placing:", part.labels
         if part.poly == None:
             part.make_poly()
         p = copy.deepcopy(part.poly)
@@ -43,21 +48,63 @@ class Sheet:
         bounds = p.boundingBox()
         dx = bounds[1] - bounds[0]
         dy = bounds[3] - bounds[2]
+        print "dx:", dx, "dy:", dy
 
-        p.scale( self.dpi, self.dpi, 0.0, 0.0 )
-        if self.ypos + dy + self.margin > self.height:
-            self.xpos += self.biggest_x + self.margin
-            self.ypos = self.margin
-            self.biggest_x = 0.0
-        if self.xpos + dx + self.margin > self.width:
+        # make layout sheet polygon
+        sheet = Polygon.Polygon([ [0, 0],
+                                  [self.width, 0],
+                                  [self.width, self.height],
+                                  [0, self.height] ])
+        
+        # make convex hull outline of polygon, and make grow it a tiny bit
+        hull = Polygon.Utils.convexHull(p)
+        hull.scale((dx+self.step)/dx, (dy+self.step)/dy)
+        
+        #outline = Polygon.Polygon()
+        #print p
+        #print len(p)
+        #for i in range(len(p)):
+        #    if not p.isHole(i):
+        #        outline.addContour(p.contour(i))
+        #outline.simplify()
+                
+        # nest the 'bmask' against the existing sheet mask
+        x = 0.0
+        found = False
+        while not found and x + dx + self.step < self.width:
+            x += self.step
+            y = 0.0
+            while not found and y + dy + self.step < self.height:
+                y += self.step
+                #print "x,y:", x, y
+                #p1 = [ x, y ]
+                #p2 = [ x + dx, y]
+                #p3 = [ x + dx, y + dy ]
+                #p4 = [ x, y + dy]
+                #bmask = Polygon.Polygon( bounds )
+                bmask = Polygon.Polygon(hull)
+                bmask.shift(x, y)
+                if sheet.covers(bmask) and not self.mask.overlaps(bmask):
+                    found = True
+        # print "x:", x, "dx:", dx, "self.step", self.step, "self.width:", self.width
+        
+        if not found:
             return False
 
+        # merge bounds mask into sheet mask
+        self.mask += bmask
+        # self.mask.simplify()
+
+        #Polygon.IO.writeGnuplotTriangles("mask.plt", [self.mask])
+        #result = raw_input("press enter to continue:")
+        
         g = self.dwg.g()
-        g.translate((self.xpos-bounds[0])*self.dpi,
-                    (self.ypos-bounds[2])*self.dpi)
-        self.ypos += dy + self.margin
-        if dx > self.biggest_x:
-            self.biggest_x = dx
+        #g.translate((x-bounds[0])*self.dpi,
+        #            (y-bounds[2])*self.dpi)
+        g.translate((x)*self.dpi,
+                    (y)*self.dpi)
+
+        p.scale( self.dpi, self.dpi, 0.0, 0.0 )
 
         if outline:
             tmp = copy.deepcopy(part)
@@ -183,22 +230,22 @@ class Sheet:
 
 class Layout:
 
-    def __init__(self, basename, width, height, margin=None, units="in", dpi=90):
+    def __init__(self, basename, width, height, step=None, units="in", dpi=90):
         self.basename = basename
         self.width = width
         self.height = height
         self.units = units
-        if margin != None:
-            self.margin = margin
+        if step != None:
+            self.step = step
         else:
             if units == "in":
-                self.margin = 0.1
+                self.step = 0.1
             elif units == "mm":
-                self.margin = 3
+                self.step = 3
             elif units == "cm":
-                self.margin = 0.3
+                self.step = 0.3
             else:
-                self.margin = 0.1
+                self.step = 0.1
         self.dpi = dpi
         self.sheets = []
 
@@ -208,8 +255,8 @@ class Layout:
         bounds = part.get_bounds()
         dx = bounds[1][0] - bounds[0][0]
         dy = bounds[1][1] - bounds[0][1]
-        if (dx > self.width - 2*self.margin) or \
-                (dy > self.height - 2*self.margin):
+        if (dx > self.width - 2*self.step) or \
+                (dy > self.height - 2*self.step):
             if len(part.labels):
                 print "Failed to fit: " + part.labels[0][4]
             else:
@@ -228,7 +275,7 @@ class Layout:
         if not done:
             # couldn't fit on any existing sheet so create a new one
             sheet = Sheet(self.basename + str(i), self.width, self.height,
-                          margin=self.margin, units=self.units, dpi=self.dpi)
+                          step=self.step, units=self.units, dpi=self.dpi)
             done = sheet.draw_part_side(part, stroke_width, color, lines,
                                         points, outline)
             self.sheets.append(sheet)
