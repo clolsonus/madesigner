@@ -7,7 +7,9 @@ __license__ = "GPL v2"
 
 
 import copy
+import numpy as np
 import svgwrite
+
 import airfoil
 
 
@@ -32,8 +34,8 @@ class Sheet:
         self.xpos = 0.0 + self.margin
         self.biggest_x = 0.0
 
-    def draw_part_side(self, part, stroke_width="1px", color="red", \
-                           lines=True, points=False, outline=False):
+    def draw_part_side(self, part, stroke_width="1px", color="red",
+                       lines=True, points=False, outline=False):
         if part.poly == None:
             part.make_poly()
         p = copy.deepcopy(part.poly)
@@ -51,8 +53,8 @@ class Sheet:
             return False
 
         g = self.dwg.g()
-        g.translate((self.xpos-bounds[0])*self.dpi, \
-                        (self.ypos-bounds[2])*self.dpi)
+        g.translate((self.xpos-bounds[0])*self.dpi,
+                    (self.ypos-bounds[2])*self.dpi)
         self.ypos += dy + self.margin
         if dx > self.biggest_x:
             self.biggest_x = dx
@@ -72,6 +74,19 @@ class Sheet:
                 poly = self.dwg.polygon(shape, stroke='red', fill='none',
                                         stroke_width=stroke_width)
                 g.add( poly )
+            if len(part.cut_lines):
+                shape = np.array(part.cut_lines)
+                print "shape:", shape
+                shape[:,2] *= -1.0  # invert vertical axis
+                shape *= self.dpi   # scale for drawing
+                for i in range(len(part.cut_lines) / 2):
+                    p1 = shape[2*i]
+                    p2 = shape[2*i + 1]
+                    print "line:", p1, p2
+                    line = self.dwg.line([p1[0], p1[2]], [p2[0], p2[2]],
+                                         stroke='red', fill='none',
+                                         stroke_width=stroke_width)
+                    g.add( line )
 
         for label in part.labels:
             #print "label = " + str(label[0]) + "," + str(label[1])
@@ -86,8 +101,8 @@ class Sheet:
         if points:
             for shape in p:
                 for pt in shape:
-                    c = self.dwg.circle( center=pt, r=2, stroke='green', \
-                                             fill='green', opacity=0.6)
+                    c = self.dwg.circle( center=pt, r=2, stroke='green',
+                                         fill='green', opacity=0.6 )
                     g.add(c)
 
         self.dwg.add(g)
@@ -187,8 +202,8 @@ class Layout:
         self.dpi = dpi
         self.sheets = []
 
-    def draw_part(self, part, stroke_width="1px", color="red", \
-                      lines=False, points=False, outline=False ):
+    def draw_part(self, part, stroke_width="1px", color="red", lines=False,
+                  points=False, outline=False ):
         # sanity check that part will fit on a sheet
         bounds = part.get_bounds()
         dx = bounds[1][0] - bounds[0][0]
@@ -207,16 +222,15 @@ class Layout:
         i = 0
         done = False
         while i < num_sheets and not done:
-            done = self.sheets[i].draw_part_side(part, stroke_width, color, \
-                                                     lines, points, outline)
+            done = self.sheets[i].draw_part_side(part, stroke_width, color,
+                                                 lines, points, outline)
             i += 1
         if not done:
             # couldn't fit on any existing sheet so create a new one
-            sheet = Sheet(self.basename + str(i), self.width, \
-                              self.height, margin=self.margin, \
-                              units=self.units, dpi=self.dpi)
-            done = sheet.draw_part_side(part, stroke_width, color, lines, \
-                                            points, outline)
+            sheet = Sheet(self.basename + str(i), self.width, self.height,
+                          margin=self.margin, units=self.units, dpi=self.dpi)
+            done = sheet.draw_part_side(part, stroke_width, color, lines,
+                                        points, outline)
             self.sheets.append(sheet)
         if not done:
             print "this should never happen!"

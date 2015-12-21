@@ -59,8 +59,9 @@ class Contour:
         self.top = []
         self.bottom = []
         self.poly = None
+        self.cut_lines = []     # extra cut lines (maybe internal)
         self.labels = []
-        self.saved_bounds = []        # see self.save_bounds() for details
+        self.saved_bounds = []  # see self.save_bounds() for details
 
     def dist_2d(self, pt1, pt2):
         result = 0.0

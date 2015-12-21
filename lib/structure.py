@@ -8,6 +8,7 @@ __license__ = "GPL v2"
 
 import copy
 import math
+import numpy as np
 import re
 import sys, os
 
@@ -25,12 +26,12 @@ def rotate_point( pt, xdist, angle ):
     newx = (pt[0]-xdist) * math.cos(rad) - pt[2] * math.sin(rad) + xdist
     newy = pt[1]
     newz = pt[2] * math.cos(rad) + (pt[0]-xdist) * math.sin(rad)
-    return (newx, newy, newz)
+    return [newx, newy, newz]
 
 def rotate( points, xdist, angle ):
     newpoints = []
     for pt in points:
-        #print str(pt)
+        print pt
         newpoints.append( rotate_point(pt, xdist, angle) )
     return newpoints
 
@@ -132,26 +133,6 @@ class Rib:
         self.has_le = True      # has leading edge
         self.has_te = True      # has trailing edge
 
-    def trim_rear(self, cutpos):
-        self.contour.trim(surf="top", discard="rear", cutpos=cutpos, station=self.pos[0])
-        self.contour.trim(surf="bottom", discard="rear", cutpos=cutpos, station=self.pos[0])
-
-    # returns the bottom front location which is hard to compute
-    # externally (this can be used by the calling layer to position a
-    # boundary stringer.
-    def trim_front_wedge(self, cutpos, angle):
-        self.contour.trim(surf="top", discard="front", cutpos=cutpos, station=self.pos[0])
-        wedge_angle = math.radians(90.0-angle)
-        wedge_slope = -math.tan(wedge_angle)
-        
-        tx = self.contour.get_xpos(cutpos, station=self.pos[0])
-        ty = self.contour.simple_interp(self.contour.top, tx)
-
-        bx = self.contour.intersect("bottom", (tx, ty), wedge_slope)
-        botpos = contour.Cutpos( xpos=bx )
-        self.contour.trim(surf="bottom", discard="front", cutpos=botpos, station=self.pos[0])
-        return bx
-
     # returns the bottom front location which is hard to compute
     # externally (this can be used by the calling layer to position a
     # boundary stringer.
@@ -165,6 +146,67 @@ class Rib:
         bx = self.contour.intersect("bottom", (tx, ty), wedge_slope)
         return bx
 
+    def trim_rear(self, cutpos):
+        self.contour.trim(surf="top", discard="rear", cutpos=cutpos, station=self.pos[0])
+        self.contour.trim(surf="bottom", discard="rear", cutpos=cutpos, station=self.pos[0])
+
+    # returns the bottom front location which is hard to compute
+    # externally (this can be used by the calling layer to position a
+    # boundary stringer.
+    def trim_front_wedge(self, cutpos, angle):
+        self.contour.trim(surf="top", discard="front", cutpos=cutpos, station=self.pos[0])
+        bx = self.find_flap_bottom_front(cutpos, angle)
+        botpos = contour.Cutpos( xpos=bx )
+        self.contour.trim(surf="bottom", discard="front", cutpos=botpos, station=self.pos[0])
+        return bx
+
+    # segment line: divide line in half and leave a small bit uncut in
+    # middle and ends
+    def segment_line(self, p1, p2):
+        solid_len = 0.1
+        print "segment line"
+        p1 = np.array(p1)
+        p2 = np.array(p2)
+        vector = p2 - p1
+        dist = np.linalg.norm(vector)
+        if dist > solid_len*3:
+            d2 = dist / 2.0
+            np1 = p1 + vector * solid_len / dist
+            np2 = p1 + vector * (d2 - solid_len*0.5) / dist
+            np3 = p1 + vector * (d2 + solid_len*0.5) / dist
+            np4 = p1 + vector * (dist - solid_len) / dist
+            return [np1, np2, np3, np4]
+        else:
+            return [p1, p2]        
+        
+    # instead of trimming, add cut lines so the part is intact, but
+    # can be separated easily after the structure is assembled.
+    def add_wedge_cut_lines(self, cutpos, angle):
+        # hinge point (top)
+        tx = self.contour.get_xpos(cutpos, station=self.pos[0])
+        ty = self.contour.simple_interp(self.contour.top, tx)
+
+        # bottom front of wedge (directly below hinge line)
+        bfy = self.contour.simple_interp(self.contour.bottom, tx)
+        
+        # bottom rear of wedge (front of flap on the bottom)
+        brx = self.find_flap_bottom_front(cutpos, angle)
+        bry = self.contour.simple_interp(self.contour.bottom, brx)
+
+        front = self.segment_line([tx, ty], [tx, bfy]) # front of wedge
+        rear = self.segment_line([tx, ty], [brx, bry]) # rear of wedge
+        
+        # list of line pairs
+        lines = []
+        for p in front:
+            lines.append( [p[0], 0.0, p[1]] )
+        for p in rear:
+            lines.append( [p[0], 0.0, p[1]] )
+        print "lines:", lines
+        print "rotating about:", 0.0
+        self.contour.cut_lines = rotate(lines, 0.0, self.twist)
+        print "rotated lines:", self.contour.cut_lines
+        
     def get_label(self):
         if len(self.contour.labels):
             return self.contour.labels[0][4]

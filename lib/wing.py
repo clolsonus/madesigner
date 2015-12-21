@@ -259,7 +259,7 @@ class Wing(Structure):
                             flap.end_bot_str_pos = pos
                             print "flap end bot = " + str(pos)
                         elif rib.type == "inner-shared":
-                            pos = rib.find_flap_bottom_front(flap.pos, flap.angle)
+                            #pos = rib.find_flap_bottom_front(flap.pos, flap.angle)
                             pos = rib.trim_front_wedge(flap.pos, flap.angle)
                             flap.start_bot_str_pos = pos
                             print "flap start bot = " + str(pos)
@@ -267,6 +267,9 @@ class Wing(Structure):
                             pos = rib.find_flap_bottom_front(flap.pos, flap.angle)
                             flap.end_bot_str_pos = pos
                             print "flap end bot = " + str(pos)
+                        else:
+                            # add cut lines
+                            rib.add_wedge_cut_lines(flap.pos, flap.angle)
                     else:
                         print "skipping rear trim"
                         # rib.trim_rear(flap.pos)
@@ -293,6 +296,9 @@ class Wing(Structure):
                             pos = rib.find_flap_bottom_front(flap.pos, flap.angle)
                             flap.end_bot_str_pos = pos
                             print "flap end bot = " + str(pos)
+                        else:
+                            # add cut lines
+                            rib.add_wedge_cut_lines(flap.pos, flap.angle)
                     else:
                         print "skipping rear trim"
                         # rib.trim_rear(flap.pos)
