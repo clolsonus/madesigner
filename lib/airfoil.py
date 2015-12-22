@@ -52,8 +52,8 @@ class Airfoil(Contour):
                 self.description = string.join(line.split())
                 continue
             xa, ya = line.split()
-            if ya == "......":
-                continue
+            if ya == "......" or ya == ".......":
+                ya = "0.0"
             x = float(xa)
             y = 0.0
             m = re.search('\(([\d\.\-]+)\)', ya)
