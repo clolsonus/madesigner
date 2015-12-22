@@ -39,7 +39,7 @@ class Sheet:
         self.mask = Polygon.Polygon()
 
     def draw_part_side(self, part, stroke_width="1px", color="red",
-                       lines=True, points=False, outline=False):
+                       lines=True, points=False, outline=False, speed="fast"):
         print "Placing:", part.labels
         if part.poly == None:
             part.make_poly()
@@ -56,19 +56,30 @@ class Sheet:
                                   [self.width, self.height],
                                   [0, self.height] ])
         
-        # make convex hull outline of polygon, and make grow it a tiny bit
-        hull = Polygon.Utils.convexHull(p)
+        if speed == "fast":
+            hull = Polygon.Polygon( [ [bounds[0], bounds[2]],
+                                      [bounds[1], bounds[2]],
+                                      [bounds[1], bounds[3]],
+                                      [bounds[0], bounds[3]] ])
+        elif speed == "medium":
+            # make convex hull outline of polygon, and make grow it a tiny bit
+            hull = Polygon.Utils.convexHull(p)
+        elif speed == "nice":
+            # more details polygon yields better fit, but nesting takes longer
+            hull = Polygon.Utils.fillHoles(p)
+        else:
+            print "ERROR: Unknown nesting speed/quality:", speed
+            print "Defaulting to 'fast'"
+            hull = Polygon.Polygon( [ [bounds[0], bounds[2]],
+                                      [bounds[1], bounds[2]],
+                                      [bounds[1], bounds[3]],
+                                      [bounds[0], bounds[3]] ])
+
         hull.scale((dx+self.step)/dx, (dy+self.step)/dy)
+        hull180 = Polygon.Polygon(hull)
+        hull180.rotate(180.0)
         
-        #outline = Polygon.Polygon()
-        #print p
-        #print len(p)
-        #for i in range(len(p)):
-        #    if not p.isHole(i):
-        #        outline.addContour(p.contour(i))
-        #outline.simplify()
-                
-        # nest the 'bmask' against the existing sheet mask
+        # nest the hull against the existing sheet mask
         x = 0.0
         found = False
         while not found and x + dx + self.step < self.width:
@@ -76,24 +87,16 @@ class Sheet:
             y = 0.0
             while not found and y + dy + self.step < self.height:
                 y += self.step
-                #print "x,y:", x, y
-                #p1 = [ x, y ]
-                #p2 = [ x + dx, y]
-                #p3 = [ x + dx, y + dy ]
-                #p4 = [ x, y + dy]
-                #bmask = Polygon.Polygon( bounds )
                 bmask = Polygon.Polygon(hull)
                 bmask.shift(x, y)
                 if sheet.covers(bmask) and not self.mask.overlaps(bmask):
                     found = True
-        # print "x:", x, "dx:", dx, "self.step", self.step, "self.width:", self.width
-        
+
         if not found:
             return False
 
         # merge bounds mask into sheet mask
         self.mask += bmask
-        # self.mask.simplify()
 
         #Polygon.IO.writeGnuplotTriangles("mask.plt", [self.mask])
         #result = raw_input("press enter to continue:")
@@ -250,7 +253,7 @@ class Layout:
         self.sheets = []
 
     def draw_part(self, part, stroke_width="1px", color="red", lines=False,
-                  points=False, outline=False ):
+                  points=False, outline=False, speed="fast" ):
         # sanity check that part will fit on a sheet
         bounds = part.get_bounds()
         dx = bounds[1][0] - bounds[0][0]
@@ -270,14 +273,14 @@ class Layout:
         done = False
         while i < num_sheets and not done:
             done = self.sheets[i].draw_part_side(part, stroke_width, color,
-                                                 lines, points, outline)
+                                                 lines, points, outline, speed)
             i += 1
         if not done:
             # couldn't fit on any existing sheet so create a new one
             sheet = Sheet(self.basename + str(i), self.width, self.height,
                           step=self.step, units=self.units, dpi=self.dpi)
             done = sheet.draw_part_side(part, stroke_width, color, lines,
-                                        points, outline)
+                                        points, outline, speed)
             self.sheets.append(sheet)
         if not done:
             print "this should never happen!"
@@ -287,18 +290,21 @@ class Layout:
                 print "Failed to fit: " + part.name
         return done
 
-    def draw_part_cut_line(self, airfoil ):
-        self.draw_part(airfoil, stroke_width="0.001in", color="red", lines=True)
+    def draw_part_cut_line(self, airfoil, speed):
+        self.draw_part(airfoil, stroke_width="0.001in", color="red", lines=True,
+                       speed=speed)
 
-    def draw_part_plan_side(self, airfoil ):
-        self.draw_part(airfoil, stroke_width="1px", color="red", lines=True)
+    def draw_part_plan_side(self, airfoil, speed):
+        self.draw_part(airfoil, stroke_width="1px", color="red", lines=True,
+                       speed=speed)
 
-    def draw_part_demo(self, airfoil ):
-        self.draw_part(airfoil, stroke_width="1px", color="red", \
-                           lines=True, points=True, outline=True )
+    def draw_part_demo(self, airfoil, speed):
+        self.draw_part(airfoil, stroke_width="1px", color="red", lines=True,
+                       points=True, outline=True, speed=speed)
 
-    def draw_part_vertices(self, airfoil ):
-        self.draw_part(airfoil, stroke_width="1px", color="red", points=True)
+    def draw_part_vertices(self, airfoil, speed):
+        self.draw_part(airfoil, stroke_width="1px", color="red", points=True,
+                       speed=speed)
 
     def save(self):
         for sheet in self.sheets:

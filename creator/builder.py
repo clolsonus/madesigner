@@ -40,11 +40,13 @@ def myfloat(input):
 
 class Builder():
 
-    def __init__(self, filename=None, airfoil_resample=25, circle_points=8):
+    def __init__(self, filename=None, airfoil_resample=25, circle_points=8,
+                 nest_speed="fast"):
         # airfoil_resample: 25 = fast, 100 = mid, 1000 = quality
         # circle_points: 8 = fast, 16 = mid, 32 = quality
         self.airfoil_resample = airfoil_resample
         self.circle_points = circle_points
+        self.nest_speed = nest_speed
 
         root = ET.Element('design')
         self.xml = ET.ElementTree(root)
@@ -461,7 +463,8 @@ class Builder():
             self.parse_build_tab(wing, tab_node)
 
         wing.build()
-        wing.layout_parts_sheets( self.sheet_w, self.sheet_h, units=self.units )
+        wing.layout_parts_sheets( self.sheet_w, self.sheet_h, units=self.units,
+                                  speed=self.nest_speed)
         #wing.layout_parts_templates( 8.5, 11 )
         wing.layout_plans( self.plans_w, self.plans_h, units=self.units )
 

@@ -624,7 +624,8 @@ class Structure:
                 if rib.side == tab.side:
                     shape = rib.contour.add_build_tab(tab.surf, tab.pos, tab.xsize, tab.ypad)
 
-    def layout_parts_sheets(self, width, height, step=None, units="in"):
+    def layout_parts_sheets(self, width, height, step=None, units="in",
+                            speed="fast"):
         l = layout.Layout( self.basename + '-sheet', width, height, step=step, units=units )
         # sort by size (ascending), then place in reverse order (largest first)
         sorted_list = []
@@ -636,19 +637,19 @@ class Structure:
         sorted_list = sorted(sorted_list, key=lambda fields: fields[0])
         # place the ribs
         for (area, rib) in reversed(sorted_list):
-            rib.placed = l.draw_part_cut_line(rib.contour)
+            rib.placed = l.draw_part_cut_line(rib.contour, speed=speed)
         l.save()
 
-    def layout_parts_templates(self, width, height, step=None):
+    def layout_parts_templates(self, width, height, step=None, speed="fast"):
         l = layout.Layout( self.basename + '-template', width, height, step )
         for rib in self.right_ribs:
             contour = copy.deepcopy(rib.contour)
             contour.rotate(90)
-            rib.placed = l.draw_part_demo(contour)
+            rib.placed = l.draw_part_demo(contour, speed=speed)
         for rib in self.left_ribs:
             contour = copy.deepcopy(rib.contour)
             contour.rotate(90)
-            rib.placed = l.draw_part_demo(contour)
+            rib.placed = l.draw_part_demo(contour, speed=speed)
         l.save()
 
     def make_top_extrusion(self, points, front_half=None, rear_half=None):
@@ -823,23 +824,23 @@ class Structure:
         if len(self.trailing_edges):
             for te in self.trailing_edges:
                 if te.side == "right":
-                    ac.make_extrusion("trailing edge", te.points, \
-                                          te.side=="left")
+                    ac.make_extrusion("trailing edge", te.points,
+                                      te.side=="left")
         if len(self.leading_edges):
             for le in self.leading_edges:
                 if le.side == "right":
-                    ac.make_extrusion("leading edge", le.points, \
-                                          le.side=="left")
+                    ac.make_extrusion("leading edge", le.points,
+                                      le.side=="left")
         if len(self.sheeting):
             for sheet in self.sheeting:
                 if sheet.side == "right":
-                    ac.make_sheet("sheet", sheet.top_points, sheet.bot_points, \
-                                      sheet.side=="left")
+                    ac.make_sheet("sheet", sheet.top_points, sheet.bot_points,
+                                  sheet.side=="left")
         if len(self.stringers):
             for stringer in self.stringers:
                 if stringer.side == "right":
-                    ac.make_extrusion("stringer", stringer.points, \
-                                          stringer.side=="left")
+                    ac.make_extrusion("stringer", stringer.points,
+                                      stringer.side=="left")
         if len(self.spars):
             for spar in self.spars:
                 if spar.side == "right":

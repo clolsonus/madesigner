@@ -218,7 +218,7 @@ class CreatorUI(QtGui.QWidget):
 
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
         build = Builder(filename=self.filename, airfoil_resample=25,
-                        circle_points=8)
+                        circle_points=8, nest_speed="fast")
         QtGui.QApplication.restoreOverrideCursor()
 
     def build_detail(self):
@@ -231,7 +231,7 @@ class CreatorUI(QtGui.QWidget):
 
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
         build = Builder(filename=self.filename, airfoil_resample=1000,
-                        circle_points=32)
+                        circle_points=32, nest_speed="nice")
         QtGui.QApplication.restoreOverrideCursor()
 
     def view3d(self):
