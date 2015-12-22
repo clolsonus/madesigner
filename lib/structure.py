@@ -12,6 +12,8 @@ import numpy as np
 import re
 import sys, os
 
+import Polygon
+import Polygon.Utils
 import svgwrite
 
 import ac3d
@@ -223,6 +225,12 @@ class Rib:
             label = "unlabeled"
         self.contour.labels = []
         self.contour.add_label( xcenter, ycenter, 14, 0, label )
+
+    def hull_area(self):
+        if self.contour.poly == None:
+            self.contour.make_poly()
+        hull = Polygon.Utils.convexHull(self.contour.poly)
+        return hull.area()
 
 
 class Structure:
@@ -618,9 +626,16 @@ class Structure:
 
     def layout_parts_sheets(self, width, height, step=None, units="in"):
         l = layout.Layout( self.basename + '-sheet', width, height, step=step, units=units )
+        # sort by size (ascending), then place in reverse order (largest first)
+        sorted_list = []
         for rib in self.right_ribs:
-            rib.placed = l.draw_part_cut_line(rib.contour)
+            sorted_list.append( (rib.hull_area(), rib) )
         for rib in self.left_ribs:
+            sorted_list.append( (rib.hull_area(), rib) )
+        print "placement_list:", sorted_list
+        sorted_list = sorted(sorted_list, key=lambda fields: fields[0])
+        # place the ribs
+        for (area, rib) in reversed(sorted_list):
             rib.placed = l.draw_part_cut_line(rib.contour)
         l.save()
 
