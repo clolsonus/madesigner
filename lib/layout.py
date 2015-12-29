@@ -7,6 +7,7 @@ __license__ = "GPL v2"
 
 
 import copy
+import math
 import numpy as np
 import Polygon
 import Polygon.IO
@@ -80,20 +81,32 @@ class Sheet:
         hull180.rotate(180.0)
         
         # nest the hull against the existing sheet mask
+        bestx = self.width
+        besty = self.height
+        best_dist = self.width + self.height
         x = 0.0
         found = False
-        while not found and x + dx + self.step < self.width:
+        while x < best_dist and x + dx + self.step < self.width:
             x += self.step
             y = 0.0
-            while not found and y + dy + self.step < self.height:
+            while y < best_dist and y + dy + self.step < self.height:
                 y += self.step
                 bmask = Polygon.Polygon(hull)
                 bmask.shift(x, y)
                 if sheet.covers(bmask) and not self.mask.overlaps(bmask):
                     found = True
+                    dist = math.sqrt(x*x + y*y)
+                    if dist < best_dist:
+                        best_x = x
+                        best_y = y
+                        best_dist = dist
 
         if not found:
             return False
+
+        # create and position the shape mask in the 'best' position.
+        bmask = Polygon.Polygon(hull)
+        bmask.shift(best_x, best_y)
 
         # merge bounds mask into sheet mask
         self.mask += bmask
@@ -104,8 +117,8 @@ class Sheet:
         g = self.dwg.g()
         #g.translate((x-bounds[0])*self.dpi,
         #            (y-bounds[2])*self.dpi)
-        g.translate((x)*self.dpi,
-                    (y)*self.dpi)
+        g.translate((best_x)*self.dpi,
+                    (best_y)*self.dpi)
 
         p.scale( self.dpi, self.dpi, 0.0, 0.0 )
 
