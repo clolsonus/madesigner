@@ -21,7 +21,7 @@ from PyQt4 import QtGui, QtCore
 #import xml.etree.ElementTree as ET
 import lxml.etree as ET
 
-import jsonpickle
+#import jsonpickle
 
 from overview import Overview
 from wing_ui import WingUI
@@ -387,8 +387,8 @@ class CreatorUI(QtGui.QWidget):
                 self.filename = filename
                 self.fileroot, ext = os.path.splitext(self.filename)
 
-        pickle = jsonpickle.encode(self)
-        print str(pickle)
+        #pickle = jsonpickle.encode(self)
+        #print str(pickle)
 
         # create a new xml root
         root = ET.Element('design')

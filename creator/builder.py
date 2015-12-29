@@ -245,7 +245,8 @@ class Builder():
         wing.add_sheeting(surf=surface, xstart=xstart, xend=xend, xdist=xdist, ysize=depth, start_station=start, end_station=end, part="wing")
 
     def parse_simple_hole(self, wing, node):
-        radius = float(get_value(node, 'radius'))
+        style = get_value(node, 'style')
+        size = float(get_value(node, 'size'))
         position_ref = get_value(node, 'position-ref')
         position_val = float(get_value(node, 'position'))
         percent = None
@@ -272,7 +273,7 @@ class Builder():
             end = float(endstr)
 
         pos=lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
-        wing.add_simple_hole(radius=radius, pos1=pos, start_station=start, end_station=end, part="wing")
+        wing.add_simple_hole(style=style, size=size, pos1=pos, start_station=start, end_station=end, part="wing")
 
     def parse_shaped_hole(self, wing, node):
         width = float(get_value(node, 'material-width'))

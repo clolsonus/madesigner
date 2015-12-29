@@ -91,13 +91,14 @@ class Stringer:
 
 class Hole:
     def __init__(self, type="simple", pos1=None, pos2=None, \
-                     radius=0.0, material_width=None, \
+                     style="Radius", size=0.0, material_width=None, \
                      start_station=None, end_station=None, \
                      part=""):
         self.type = type
         self.pos1 = pos1
         self.pos2 = pos2
-        self.radius = radius
+        self.style = style
+        self.size = size
         self.material_width = material_width
         self.start_station = start_station
         self.end_station = end_station
@@ -427,22 +428,22 @@ class Structure:
             spar.side = "left"
             self.spars.append( spar )
 
-    def add_simple_hole(self, radius=0.0, pos1=None, \
-                            start_station=None, end_station=None, mirror=True, \
-                            part="wing"):
+    def add_simple_hole(self, style="Radius", size=0.0, pos1=None,
+                        start_station=None, end_station=None, mirror=True,
+                        part="wing"):
         if start_station == None:
             start_station = self.stations[0]
         if end_station == None:
             end_station = self.stations[len(self.stations)-1]
-        hole = Hole( type="simple", radius=radius, pos1=pos1, \
-                         start_station=start_station, end_station=end_station,\
-                         part=part )
+        hole = Hole( type="simple", style=style, size=size, pos1=pos1,
+                     start_station=start_station, end_station=end_station,
+                     part=part )
         hole.side = "right"
         self.holes.append( hole )
         if mirror:
-            hole = Hole( type="simple", radius=radius, pos1=pos1, \
-                             start_station=-start_station, \
-                             end_station=-end_station,\
+            hole = Hole( type="simple", style=style, size=size, pos1=pos1,
+                             start_station=-start_station,
+                             end_station=-end_station,
                              part=part )
             hole.side = "left"
             self.holes.append( hole )
@@ -595,7 +596,13 @@ class Structure:
                     if ty == None or by == None:
                         continue
                     ypos = (ty + by) * 0.5
-                    rib.contour.cut_hole( xpos, ypos, hole.radius,
+                    if hole.style == 'Radius':
+                        radius = hole.size
+                    elif hole.style == '% Height':
+                        radius = (ty - by) * hole.size * 0.5
+                    if radius < 0.0:
+                        radius = 0.0
+                    rib.contour.cut_hole( xpos, ypos, radius,
                                           points=self.circle_points )
                 elif hole.type == "shaped":
                     #print "make shaped hole"

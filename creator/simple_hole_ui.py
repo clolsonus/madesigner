@@ -67,12 +67,18 @@ class SimpleHoleUI():
         line2.setLayout( layout2 )
         layout.addWidget( line2 )
 
+        self.edit_style = QComboBoxNoWheel()
+        self.edit_style.addItem("Radius")
+        self.edit_style.addItem("% Height")
+        self.edit_style.currentIndexChanged.connect(self.onChange)
+        layout1.addWidget(self.edit_style)
+
         layout1.addWidget( QtGui.QLabel("<b>Radius:</b> ") )
 
-        self.edit_radius = QtGui.QLineEdit()
-        self.edit_radius.setFixedWidth(50)
-        self.edit_radius.textChanged.connect(self.onChange)
-        layout1.addWidget( self.edit_radius )
+        self.edit_size = QtGui.QLineEdit()
+        self.edit_size.setFixedWidth(50)
+        self.edit_size.textChanged.connect(self.onChange)
+        layout1.addWidget( self.edit_size )
 
         self.edit_start = QComboBoxNoWheel()
         self.edit_start.addItem("-")
@@ -127,7 +133,11 @@ class SimpleHoleUI():
 
     def parse_xml(self, node):
         self.xml = node
-        self.edit_radius.setText(self.get_value('radius'))
+        index = self.edit_style.findText(self.get_value('style'))
+        if index == None:
+            index = 1
+        self.edit_style.setCurrentIndex(index)
+        self.edit_size.setText(self.get_value('size'))
         index = self.edit_posref.findText(self.get_value('position-ref'))
         if index == None:
             index = 1
@@ -148,7 +158,8 @@ class SimpleHoleUI():
         
     def gen_xml(self, node):
         self.xml = node
-        self.update_node('radius', self.edit_radius.text())
+        self.update_node('style', self.edit_style.currentText())
+        self.update_node('size', self.edit_size.text())
         self.update_node('position-ref', self.edit_posref.currentText())
         self.update_node('position', self.edit_pos.text())
         self.update_node('start-station', self.edit_start.currentText())
