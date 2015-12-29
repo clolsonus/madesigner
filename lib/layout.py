@@ -48,7 +48,7 @@ class Sheet:
         bounds = p.boundingBox()
         dx = bounds[1] - bounds[0]
         dy = bounds[3] - bounds[2]
-        print "dx:", dx, "dy:", dy
+        # print "dx:", dx, "dy:", dy
 
         # make layout sheet polygon
         sheet = Polygon.Polygon([ [0, 0],
@@ -126,13 +126,13 @@ class Sheet:
                 g.add( poly )
             if len(part.cut_lines):
                 shape = np.array(part.cut_lines)
-                print "shape:", shape
+                # print "shape:", shape
                 shape[:,2] *= -1.0  # invert vertical axis
                 shape *= self.dpi   # scale for drawing
                 for i in range(len(part.cut_lines) / 2):
                     p1 = shape[2*i]
                     p2 = shape[2*i + 1]
-                    print "line:", p1, p2
+                    # print "line:", p1, p2
                     line = self.dwg.line([p1[0], p1[2]], [p2[0], p2[2]],
                                          stroke='red', fill='none',
                                          stroke_width=stroke_width)
