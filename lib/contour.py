@@ -570,9 +570,9 @@ class Contour:
         pt = ( r0[0] + orig[0], r0[1] + orig[1] )
         return pt
 
-    def project_contour(self, surf="top", \
-                            xstart=0, xend=None, xdist=None, \
-                            ysize=0):
+    def project_contour(self, surf="top",
+                        xstart=0, xend=None, xdist=None,
+                        ysize=0):
         #print "xstart=" + str(xstart) + " xend=" + str(xend) + " xdist=" + str(xdist)
         curve = []
         #print "surf == " + surf
