@@ -192,11 +192,30 @@ fuselage design and construction.  The shapes are different between a
 wing and a fuselage, but much of the process is analogous.
 
 
+HOW TO INSTALL AND RUN
+======================
+
+1. If you don't have Python, install it (python.org)
+
+2. Install required python libraries: numpy polygon2 svgwrite
+      ( Example for Debian or Ubuntu, as root or with sudo: 
+          apt-get install python-numpy python-pip python2.7-dev 
+          pip install polygon2
+          pip install svgwrite )
+
+3. Get madesigner and unpack it someplace
+      ( Use git or untar or unzip or your favorite pointy clicky programs )
+
+4. Get a command prompt, cd to the directory, and run: 
+         python madesigner.py
+
+
 FREQUENTLY ASKED QUESTIONS
 ==========================
 
 Here's a quick FAQ (although no one has yet asked me any questions, so I'm 
 just trying to anticipate what people might be thinking.)
+
 
 Q: Are you a moron?  Haven't you hear of profili (or "xxx" cad program)???
 
