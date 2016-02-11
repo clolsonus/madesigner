@@ -197,7 +197,11 @@ HOW TO INSTALL AND RUN
 
 1. If you don't have Python, install it (python.org)
 
-2. Install required python libraries: numpy polygon2 svgwrite
+2. If you don't have OpenSceneGraph, install it
+      ( Example for Debian or Ubuntu, as root or with sudo: 
+          apt-get install openscenegraph )
+
+2. Install required python libraries: numpy polygon2 svgwrite openscenegraph
       ( Example for Debian or Ubuntu, as root or with sudo: 
           apt-get install python-numpy python-pip python2.7-dev 
           pip install polygon2
