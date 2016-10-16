@@ -53,8 +53,11 @@ class Airfoil(Contour):
                 continue
             xa, ya = line.split()
             if ya == "......" or ya == ".......":
-                ya = "0.0"
+                # ya = "0.0"
+                continue
             x = float(xa)
+            if x >= 100.0:
+                continue
             y = 0.0
             m = re.search('\(([\d\.\-]+)\)', ya)
             if m != None:
