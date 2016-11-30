@@ -1,0 +1,13 @@
+example01.mad A very simple example
+example02.mad Beginning to add typical wing structures.
+example03.mad This example begins to add a bit of complexity to show the power of MA designer.
+example04.mad Swept wings are no problem.
+example05.mad This example demonstrates how easy it is to create a wing that blends from one airfoil at the root to a completely different airfoil at the tip.
+example06.mad This example shows how easy it is to create a complex curved wing using a spline curve to define the cord relative to the span of the wing.
+example07.mad This example shows how easy it is to create a wing with a curved sweep.
+example08.mad Back to a simpler wing plan, but now lets put the ribs where we want them by entering our own station values.
+example09.mad With a simple wing plan and custom station positions, let's start adding more features to our wing.
+example10.mad We can skin the wing for sheeting. Sheet position at the time of this example is limited, but this example shows typical "D" construction wing sheeting.
+example11.mad Stations! Any feature can start and end at any station. You are the engineer and get to decide what you want, how big, and where it starts and ends.
+example12.mad This example adds flaps and ailerons to a tapered wing.
+example13.mad This example shows how to build a multi-panel, polyhedral wing. In this case the mh43 glider airfoil is chosen. Notice in the Outer wing tab that the panel is "linked" to the "Inner" wing.
