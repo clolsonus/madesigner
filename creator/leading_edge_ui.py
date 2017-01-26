@@ -11,8 +11,9 @@ started: November 2013
 
 import sys
 from PyQt4 import QtGui, QtCore
-#import xml.etree.ElementTree as ET
-import lxml.etree as ET
+
+from props import root, getNode
+
 from combobox_nowheel import QComboBoxNoWheel
 
 
@@ -21,7 +22,6 @@ class LeadingEdgeUI():
         self.valid = True
         self.changefunc = changefunc
         self.container = self.make_page()
-        self.xml = None
 
     def onChange(self):
         self.changefunc()
@@ -97,31 +97,16 @@ class LeadingEdgeUI():
     def get_widget(self):
         return self.container
 
-    def get_value(self, node):
-        e = self.xml.find(node)
-        if e != None and e.text != None:
-            return e.text
-        else:
-            return ""
-
     def parse_xml(self, node):
-        self.xml = node
-        self.edit_size.setText(self.get_value('size'))
-        index = self.edit_start.findText(self.get_value('start-station'))
+        self.edit_size.setText(node.getString('size'))
+        index = self.edit_start.findText(node.getString('start_station'))
         if index != None:
             self.edit_start.setCurrentIndex(index)
-        index = self.edit_end.findText(self.get_value('end-station'))
+        index = self.edit_end.findText(node.getString('end_station'))
         if index != None:
             self.edit_end.setCurrentIndex(index)
 
-    def update_node(self, node, value):
-        e = self.xml.find(node)
-        if e == None:
-            e = ET.SubElement(self.xml, node)
-        e.text = str(value)
-        
     def gen_xml(self, node):
-        self.xml = node
-        self.update_node('size', self.edit_size.text())
-        self.update_node('start-station', self.edit_start.currentText())
-        self.update_node('end-station', self.edit_end.currentText())
+        node.setString('size', self.edit_size.text())
+        node.setString('start_station', self.edit_start.currentText())
+        node.setString('end_station', self.edit_end.currentText())

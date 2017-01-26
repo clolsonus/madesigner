@@ -6,45 +6,64 @@
     <author>Curt Olson</author>
     <email></email>
     <units>in</units>
-    <sheet-width>24</sheet-width>
-    <sheet-height>12</sheet-height>
-    <plans-width>24</plans-width>
-    <plans-height>36</plans-height>
+    <sheet_width>24</sheet_width>
+    <sheet_height>12</sheet_height>
+    <plans_width>24</plans_width>
+    <plans_height>36</plans_height>
   </overview>
   <wing>
     <name>Main</name>
-    <airfoil-root>clarky</airfoil-root>
-    <airfoil-tip></airfoil-tip>
+    <airfoil_root>clarky</airfoil_root>
+    <airfoil_tip></airfoil_tip>
     <span>30</span>
-    <chord-root>10</chord-root>
-    <chord-tip></chord-tip>
-    <chord-curve></chord-curve>
-    <twist></twist>
+    <chord_root>10</chord_root>
+    <chord_tip>8</chord_tip>
+    <chord_curve></chord_curve>
+    <twist>5</twist>
     <sweep></sweep>
-    <sweep-curve></sweep-curve>
+    <sweep_curve></sweep_curve>
     <dihedral>5</dihedral>
     <stations>0 3 6 9 12 15 18 21 24 27 30</stations>
-    <wing-link>none</wing-link>
-    <leading-edge>
+    <wing_link>none</wing_link>
+    <leading_edge>
       <size>0.25</size>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
-    </leading-edge>
-    <trailing-edge>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
+    </leading_edge>
+    <trailing_edge>
       <width>1.0</width>
       <height>0.25</height>
       <shape>Flat Triangle</shape>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
-    </trailing-edge>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
+    </trailing_edge>
     <spar>
       <width>0.25</width>
       <height>0.5</height>
-      <position-ref>Chord %</position-ref>
+      <position_ref>Chord %</position_ref>
       <position>0.33</position>
       <surface>Bottom</surface>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
     </spar>
+    <simple_hole>
+      <style>% Height</style>
+      <size>.5</size>
+      <position_ref>Chord %</position_ref>
+      <position>.15</position>
+      <start_station>Start: 3</start_station>
+      <end_station>End: 18</end_station>
+    </simple_hole>
+    <flap>
+      <width>0.125</width>
+      <height>0.125</height>
+      <position_ref>Chord %</position_ref>
+      <position>.6</position>
+      <at_station></at_station>
+      <slope></slope>
+      <angle>45</angle>
+      <start_station>Start: 12</start_station>
+      <end_station>End: 21</end_station>
+    </flap>
   </wing>
 </design>

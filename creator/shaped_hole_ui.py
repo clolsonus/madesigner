@@ -11,8 +11,9 @@ started: November 2013
 
 import sys
 from PyQt4 import QtGui, QtCore
-#import xml.etree.ElementTree as ET
-import lxml.etree as ET
+
+from props import root, getNode
+
 from combobox_nowheel import QComboBoxNoWheel
 
 
@@ -21,7 +22,6 @@ class ShapedHoleUI():
         self.valid = True
         self.changefunc = changefunc
         self.container = self.make_page()
-        self.xml = None
 
     def onChange(self):
         self.changefunc()
@@ -140,47 +140,32 @@ class ShapedHoleUI():
     def get_widget(self):
         return self.container
 
-    def get_value(self, node):
-        e = self.xml.find(node)
-        if e != None and e.text != None:
-            return e.text
-        else:
-            return ""
-
     def parse_xml(self, node):
-        self.xml = node
-        self.edit_width.setText(self.get_value('material-width'))
-        self.edit_radius.setText(self.get_value('corner-radius'))
-        index = self.edit_pos1ref.findText(self.get_value('position1-ref'))
+        self.edit_width.setText(node.getString('material_width'))
+        self.edit_radius.setText(node.getString('corner_radius'))
+        index = self.edit_pos1ref.findText(node.getString('position1_ref'))
         if index == None:
             index = 1
         self.edit_pos1ref.setCurrentIndex(index)
-        self.edit_pos1.setText(self.get_value('position1'))
-        index = self.edit_pos2ref.findText(self.get_value('position2-ref'))
+        self.edit_pos1.setText(node.getString('position1'))
+        index = self.edit_pos2ref.findText(node.getString('position2_ref'))
         if index == None:
             index = 1
         self.edit_pos2ref.setCurrentIndex(index)
-        self.edit_pos2.setText(self.get_value('position2'))
-        index = self.edit_start.findText(self.get_value('start-station'))
+        self.edit_pos2.setText(node.getString('position2'))
+        index = self.edit_start.findText(node.getString('start_station'))
         if index != None:
             self.edit_start.setCurrentIndex(index)
-        index = self.edit_end.findText(self.get_value('end-station'))
+        index = self.edit_end.findText(node.getString('end_station'))
         if index != None:
             self.edit_end.setCurrentIndex(index)
 
-    def update_node(self, node, value):
-        e = self.xml.find(node)
-        if e == None:
-            e = ET.SubElement(self.xml, node)
-        e.text = str(value)
-        
     def gen_xml(self, node):
-        self.xml = node
-        self.update_node('material-width', self.edit_width.text())
-        self.update_node('corner-radius', self.edit_radius.text())
-        self.update_node('position1-ref', self.edit_pos1ref.currentText())
-        self.update_node('position1', self.edit_pos1.text())
-        self.update_node('position2-ref', self.edit_pos2ref.currentText())
-        self.update_node('position2', self.edit_pos2.text())
-        self.update_node('start-station', self.edit_start.currentText())
-        self.update_node('end-station', self.edit_end.currentText())
+        node.setString('material_width', self.edit_width.text())
+        node.setString('corner_radius', self.edit_radius.text())
+        node.setString('position1_ref', self.edit_pos1ref.currentText())
+        node.setString('position1', self.edit_pos1.text())
+        node.setString('position2_ref', self.edit_pos2ref.currentText())
+        node.setString('position2', self.edit_pos2.text())
+        node.setString('start_station', self.edit_start.currentText())
+        node.setString('end_station', self.edit_end.currentText())

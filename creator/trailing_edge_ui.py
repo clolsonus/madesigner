@@ -11,8 +11,9 @@ started: November 2013
 
 import sys
 from PyQt4 import QtGui, QtCore
-#import xml.etree.ElementTree as ET
-import lxml.etree as ET
+
+from props import root, getNode
+
 from combobox_nowheel import QComboBoxNoWheel
 
 
@@ -21,7 +22,6 @@ class TrailingEdgeUI():
         self.valid = True
         self.changefunc = changefunc
         self.container = self.make_page()
-        self.xml = None
 
     def onChange(self):
         self.changefunc()
@@ -109,38 +109,23 @@ class TrailingEdgeUI():
     def get_widget(self):
         return self.container
 
-    def get_value(self, node):
-        e = self.xml.find(node)
-        if e != None and e.text != None:
-            return e.text
-        else:
-            return ""
-
     def parse_xml(self, node):
-        self.xml = node
-        self.edit_width.setText(self.get_value('width'))
-        self.edit_height.setText(self.get_value('height'))
-        index = self.edit_shape.findText(self.get_value('shape'))
+        self.edit_width.setText(node.getString('width'))
+        self.edit_height.setText(node.getString('height'))
+        index = self.edit_shape.findText(node.getString('shape'))
         if index == None:
             index = 1
         self.edit_shape.setCurrentIndex(index)
-        index = self.edit_start.findText(self.get_value('start-station'))
+        index = self.edit_start.findText(node.getString('start_station'))
         if index != None:
             self.edit_start.setCurrentIndex(index)
-        index = self.edit_end.findText(self.get_value('end-station'))
+        index = self.edit_end.findText(node.getString('end_station'))
         if index != None:
             self.edit_end.setCurrentIndex(index)
 
-    def update_node(self, node, value):
-        e = self.xml.find(node)
-        if e == None:
-            e = ET.SubElement(self.xml, node)
-        e.text = str(value)
-        
     def gen_xml(self, node):
-        self.xml = node
-        self.update_node('width', self.edit_width.text())
-        self.update_node('height', self.edit_height.text())
-        self.update_node('shape', self.edit_shape.currentText())
-        self.update_node('start-station', self.edit_start.currentText())
-        self.update_node('end-station', self.edit_end.currentText())
+        node.setString('width', self.edit_width.text())
+        node.setString('height', self.edit_height.text())
+        node.setString('shape', self.edit_shape.currentText())
+        node.setString('start_station', self.edit_start.currentText())
+        node.setString('end_station', self.edit_end.currentText())

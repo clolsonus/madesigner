@@ -11,8 +11,9 @@ started: November 2013
 
 import sys
 from PyQt4 import QtGui, QtCore
-#import xml.etree.ElementTree as ET
-import lxml.etree as ET
+
+from props import root, getNode
+
 from combobox_nowheel import QComboBoxNoWheel
 
 
@@ -21,7 +22,6 @@ class SimpleHoleUI():
         self.valid = True
         self.changefunc = changefunc
         self.container = self.make_page()
-        self.xml = None
 
     def onChange(self):
         self.changefunc()
@@ -124,43 +124,28 @@ class SimpleHoleUI():
     def get_widget(self):
         return self.container
 
-    def get_value(self, node):
-        e = self.xml.find(node)
-        if e != None and e.text != None:
-            return e.text
-        else:
-            return ""
-
     def parse_xml(self, node):
-        self.xml = node
-        index = self.edit_style.findText(self.get_value('style'))
+        index = self.edit_style.findText(node.getString('style'))
         if index == None:
             index = 1
         self.edit_style.setCurrentIndex(index)
-        self.edit_size.setText(self.get_value('size'))
-        index = self.edit_posref.findText(self.get_value('position-ref'))
+        self.edit_size.setText(node.getString('size'))
+        index = self.edit_posref.findText(node.getString('position_ref'))
         if index == None:
             index = 1
         self.edit_posref.setCurrentIndex(index)
-        self.edit_pos.setText(self.get_value('position'))
-        index = self.edit_start.findText(self.get_value('start-station'))
+        self.edit_pos.setText(node.getString('position'))
+        index = self.edit_start.findText(node.getString('start_station'))
         if index != None:
             self.edit_start.setCurrentIndex(index)
-        index = self.edit_end.findText(self.get_value('end-station'))
+        index = self.edit_end.findText(node.getString('end_station'))
         if index != None:
             self.edit_end.setCurrentIndex(index)
 
-    def update_node(self, node, value):
-        e = self.xml.find(node)
-        if e == None:
-            e = ET.SubElement(self.xml, node)
-        e.text = str(value)
-        
     def gen_xml(self, node):
-        self.xml = node
-        self.update_node('style', self.edit_style.currentText())
-        self.update_node('size', self.edit_size.text())
-        self.update_node('position-ref', self.edit_posref.currentText())
-        self.update_node('position', self.edit_pos.text())
-        self.update_node('start-station', self.edit_start.currentText())
-        self.update_node('end-station', self.edit_end.currentText())
+        node.setString('style', self.edit_style.currentText())
+        node.setString('size', self.edit_size.text())
+        node.setString('position_ref', self.edit_posref.currentText())
+        node.setString('position', self.edit_pos.text())
+        node.setString('start_station', self.edit_start.currentText())
+        node.setString('end_station', self.edit_end.currentText())

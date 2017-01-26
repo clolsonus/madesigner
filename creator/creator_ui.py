@@ -18,10 +18,10 @@ import subprocess
 import distutils.spawn
 import urllib2
 from PyQt4 import QtGui, QtCore
-#import xml.etree.ElementTree as ET
-import lxml.etree as ET
 
-#import jsonpickle
+from props import root, getNode
+import props_xml
+import props_json
 
 from overview import Overview
 from wing_ui import WingUI
@@ -62,8 +62,6 @@ class CreatorUI(QtGui.QWidget):
     
     def __init__(self, filename=""):
         super(CreatorUI, self).__init__()
-        root = ET.Element('design')
-        self.xml = ET.ElementTree(root)
         self.default_title = "Model Aircraft Creator"
         self.wings = []
         self.initUI()
@@ -310,7 +308,7 @@ class CreatorUI(QtGui.QWidget):
         self.wipe_slate()
 
         try:
-            self.xml = ET.parse(filename)
+            props_xml.load(filename, root)
         except:
             error = QtGui.QErrorMessage(self)
             error.showMessage( filename + ": xml parse error:\n" + str(sys.exc_info()[1]) )
@@ -321,11 +319,13 @@ class CreatorUI(QtGui.QWidget):
         self.filename = str(filename)
         self.fileroot, ext = os.path.splitext(self.filename)
 
-        root = self.xml.getroot()
-        node = root.find('overview')
+        node = getNode('/overview')
         self.overview.parse_xml(node)
 
-        for wing_node in root.findall('wing'):
+        root.setLen('wing', 1) # force to be enumerated if not already
+        num_wings = root.getLen('wing')
+        for i in range(num_wings):
+            wing_node = root.getChild('wing[%d]' % i)
             wing = WingUI(changefunc=self.onChange)
             wing.parse_xml(wing_node)
             self.wings.append(wing)

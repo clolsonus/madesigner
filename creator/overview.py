@@ -11,8 +11,9 @@ started: November 2013
 
 import sys
 from PyQt4 import QtGui, QtCore
-#import xml.etree.ElementTree as ET
-import lxml.etree as ET
+
+from props import root, getNode
+
 from combobox_nowheel import QComboBoxNoWheel
 from version import MADversion
 
@@ -20,7 +21,6 @@ class Overview():
     def __init__(self, changefunc):
         self.changefunc = changefunc
         self.container = self.make_page()
-        self.xml = None
         self.version = MADversion()
 
     def onChange(self):
@@ -78,22 +78,14 @@ class Overview():
     def get_widget(self):
         return self.container
 
-    def get_value(self, node):
-        e = self.xml.find(node)
-        if e != None and e.text != None:
-            return e.text
-        else:
-            return ""
-
     def parse_xml(self, node):
-        self.xml = node
-        self.edit_name.setText(self.get_value('name'))
-        self.edit_desc.setText(self.get_value('description'))
-        self.edit_author.setText(self.get_value('author'))
-        self.edit_email.setText(self.get_value('email'))
-        units = self.get_value('units')
-        sheet_w = self.get_value('sheet-width')
-        sheet_h = self.get_value('sheet-height')
+        self.edit_name.setText(node.getString('name'))
+        self.edit_desc.setText(node.getString('description'))
+        self.edit_author.setText(node.getString('author'))
+        self.edit_email.setText(node.getString('email'))
+        units = node.getString('units')
+        sheet_w = node.getString('sheet_width')
+        sheet_h = node.getString('sheet_height')
         if units == "in":
             if sheet_w == "":
                 sheet_w = "24"
@@ -109,8 +101,8 @@ class Overview():
                 sheet_w = "60"
             if sheet_h == "":
                 sheet_h = "30"
-        plans_w = self.get_value('plans-width')
-        plans_h = self.get_value('plans-height')
+        plans_w = node.getString('plans_width')
+        plans_h = node.getString('plans_height')
         if units == "in":
             if plans_w == "":
                 plans_w = "24"
@@ -135,7 +127,7 @@ class Overview():
         self.edit_plans_w.setText(plans_w)
         self.edit_plans_h.setText(plans_h)
         
-        writer_version = self.get_value('MADversion')
+        writer_version = node.getString('MADversion')
         if writer_version == "" or float(writer_version) != self.version.get():
             if writer_version == "":
                 writer_version = "(unknown)"
@@ -152,21 +144,14 @@ class Overview():
         self.edit_plans_w.setText('24')
         self.edit_plans_h.setText('36')
 
-    def update_node(self, node, value):
-        e = self.xml.find(node)
-        if e == None:
-            e = ET.SubElement(self.xml, node)
-        e.text = str(value)
-        
     def gen_xml(self, node):
-        self.xml = node
-        self.update_node('MADversion', str(self.version.get()))
-        self.update_node('name', self.edit_name.text())
-        self.update_node('description', self.edit_desc.toPlainText())
-        self.update_node('author', self.edit_author.text())
-        self.update_node('email', self.edit_email.text())
-        self.update_node('units', self.edit_units.currentText())
-        self.update_node('sheet-width', self.edit_sheet_w.text())
-        self.update_node('sheet-height', self.edit_sheet_h.text())
-        self.update_node('plans-width', self.edit_plans_w.text())
-        self.update_node('plans-height', self.edit_plans_h.text())
+        node.setString('MADversion', str(self.version.get()))
+        node.setString('name', self.edit_name.text())
+        node.setString('description', self.edit_desc.toPlainText())
+        node.setString('author', self.edit_author.text())
+        node.setString('email', self.edit_email.text())
+        node.setString('units', self.edit_units.currentText())
+        node.setString('sheet_width', self.edit_sheet_w.text())
+        node.setString('sheet_height', self.edit_sheet_h.text())
+        node.setString('plans_width', self.edit_plans_w.text())
+        node.setString('plans_height', self.edit_plans_h.text())

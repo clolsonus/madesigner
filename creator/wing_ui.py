@@ -12,8 +12,9 @@ started: November 2013
 import os.path
 import sys
 from PyQt4 import QtGui, QtCore
-#import xml.etree.ElementTree as ET
-import lxml.etree as ET
+
+from props import root, getNode
+
 from combobox_nowheel import QComboBoxNoWheel
 
 from leading_edge_ui import LeadingEdgeUI
@@ -31,7 +32,6 @@ class WingUI():
         self.valid = True
         self.changefunc = changefunc
         self.container = self.make_page(name=name)
-        self.xml = None
         self.wing_link = "none"
         self.leading_edges = []
         self.trailing_edges = []
@@ -391,80 +391,85 @@ class WingUI():
     def get_name(self):
         return self.edit_name.text()
 
-    def get_value(self, node):
-        e = self.xml.find(node)
-        if e != None and e.text != None:
-            return e.text
-        else:
-            return ""
-
     def parse_xml(self, node):
-        self.xml = node
-        self.edit_name.setText(self.get_value('name'))
-        self.edit_airfoil_root.setText(self.get_value('airfoil-root'))
-        self.edit_airfoil_tip.setText(self.get_value('airfoil-tip'))
-        self.edit_span.setText(self.get_value('span'))
-        chord_root = self.get_value('chord-root')
-        chord_tip = self.get_value('chord-tip')
+        self.edit_name.setText(node.getString('name'))
+        self.edit_airfoil_root.setText(node.getString('airfoil_root'))
+        self.edit_airfoil_tip.setText(node.getString('airfoil_tip'))
+        self.edit_span.setText(node.getString('span'))
+        chord_root = node.getString('chord_root')
+        chord_tip = node.getString('chord_tip')
         self.edit_chord_root.setText(chord_root)
         if ( chord_tip != chord_root ):
             self.edit_chord_tip.setText(chord_tip)
-        self.edit_chord_curve.setText(self.get_value('chord-curve'))
-        self.edit_twist.setText(self.get_value('twist'))
-        self.edit_sweep.setText(self.get_value('sweep'))
-        self.edit_sweep_curve.setText(self.get_value('sweep-curve'))
-        self.edit_dihedral.setText(self.get_value('dihedral'))
-        self.edit_stations.setText(self.get_value('stations'))
-        self.wing_link = self.get_value('wing-link')
+        self.edit_chord_curve.setText(node.getString('chord_curve'))
+        self.edit_twist.setText(node.getString('twist'))
+        self.edit_sweep.setText(node.getString('sweep'))
+        self.edit_sweep_curve.setText(node.getString('sweep_curve'))
+        self.edit_dihedral.setText(node.getString('dihedral'))
+        self.edit_stations.setText(node.getString('stations'))
+        self.wing_link = node.getString('wing_link')
 
-        for le_node in node.findall('leading-edge'):
-            self.add_leading_edge(le_node)
-        for te_node in node.findall('trailing-edge'):
-            self.add_trailing_edge(te_node)
-        for spar_node in node.findall('spar'):
-            self.add_spar(spar_node)
-        for stringer_node in node.findall('stringer'):
-            self.add_stringer(stringer_node)
-        for sheet_node in node.findall('sheet'):
-            self.add_sheet(sheet_node)
-        for hole_node in node.findall('simple-hole'):
-            self.add_simple_hole(hole_node)
-        for hole_node in node.findall('shaped-hole'):
-            self.add_shaped_hole(hole_node)
-        for tab_node in node.findall('build-tab'):
-            self.add_build_tab(tab_node)
-        for flap_node in node.findall('flap'):
-            self.add_flap(flap_node)
-
-    def update_node(self, node, value):
-        e = self.xml.find(node)
-        if e == None:
-            e = ET.SubElement(self.xml, node)
-        e.text = str(value)
+        # upgrade old data files
+        if node.hasChild('leading_edge'): node.setLen('leading_edge', 1)
+        if node.hasChild('trailing_edge'): node.setLen('trailing_edge', 1)
+        if node.hasChild('spar'): node.setLen('spar', 1)
+        if node.hasChild('stringer'): node.setLen('stringer', 1)
+        if node.hasChild('sheet'): node.setLen('sheet', 1)
+        if node.hasChild('simple_hole'): node.setLen('simple_hole', 1)
+        if node.hasChild('shaped_hole'): node.setLen('shaped_hole', 1)
+        if node.hasChild('build_tab'): node.setLen('build_tab', 1)
+        if node.hasChild('flap'): node.setLen('flap', 1)
         
+        num = node.getLen('leading_edge')
+        for i in range(num):
+            self.add_leading_edge(node.getChild('leading_edge[%d]' % i))
+        num = node.getLen('trailing_edge')
+        for i in range(num):
+            self.add_trailing_edge(node.getChild('trailing_edge[%d]' % i))
+        num = node.getLen('spar')
+        for i in range(num):
+            self.add_spar(node.getChild('spar[%d]' % i))
+        num = node.getLen('stringer')
+        for i in range(num):
+            self.add_stringer(node.getChild('stringer[%d]' % i))
+        num = node.getLen('sheet')
+        for i in range(num):
+            self.add_sheet(node.getChild('sheet[%d]' % i))
+        num = node.getLen('simple_hole')
+        for i in range(num):
+            self.add_simple_hole(node.getChild('simple_hole[%d]' % i))
+        num = node.getLen('shaped_hole')
+        for i in range(num):
+            self.add_shaped_hole(node.getChild('shaped_hole[%d]' % i))
+        num = node.getLen('build_tab')
+        for i in range(num):
+            self.add_build_tab(node.getChild('build_tab[%d]' % i))
+        num = node.getLen('flap')
+        for i in range(num):
+            self.add_flap(node.getChild('flap[%d]' % i))
+
     def gen_xml(self, node):
-        self.xml = node
-        self.update_node('name', self.edit_name.text())
-        self.update_node('airfoil-root', self.edit_airfoil_root.text())
-        self.update_node('airfoil-tip', self.edit_airfoil_tip.text())
-        self.update_node('span', self.edit_span.text())
-        self.update_node('chord-root', self.edit_chord_root.text())
-        self.update_node('chord-tip', self.edit_chord_tip.text())
-        self.update_node('chord-curve', self.edit_chord_curve.text())
-        self.update_node('twist', self.edit_twist.text())
-        self.update_node('sweep', self.edit_sweep.text())
-        self.update_node('sweep-curve', self.edit_sweep_curve.text())
-        self.update_node('dihedral', self.edit_dihedral.text())
-        self.update_node('stations', self.edit_stations.text())
-        self.update_node('wing-link', self.edit_wing_link.currentText())
+        node.setString('name', self.edit_name.text())
+        node.setString('airfoil_root', self.edit_airfoil_root.text())
+        node.setString('airfoil_tip', self.edit_airfoil_tip.text())
+        node.setString('span', self.edit_span.text())
+        node.setString('chord_root', self.edit_chord_root.text())
+        node.setString('chord_tip', self.edit_chord_tip.text())
+        node.setString('chord_curve', self.edit_chord_curve.text())
+        node.setString('twist', self.edit_twist.text())
+        node.setString('sweep', self.edit_sweep.text())
+        node.setString('sweep_curve', self.edit_sweep_curve.text())
+        node.setString('dihedral', self.edit_dihedral.text())
+        node.setString('stations', self.edit_stations.text())
+        node.setString('wing_link', self.edit_wing_link.currentText())
 
         for le in self.leading_edges:
             if le.valid:
-                subnode = ET.SubElement(node, 'leading-edge')
+                subnode = ET.SubElement(node, 'leading_edge')
                 le.gen_xml(subnode)
         for te in self.trailing_edges:
             if te.valid:
-                subnode = ET.SubElement(node, 'trailing-edge')
+                subnode = ET.SubElement(node, 'trailing_edge')
                 te.gen_xml(subnode)
         for spar in self.spars:
             if spar.valid:
@@ -480,15 +485,15 @@ class WingUI():
                 sheet.gen_xml(subnode)
         for hole in self.simple_holes:
             if hole.valid:
-                subnode = ET.SubElement(node, 'simple-hole')
+                subnode = ET.SubElement(node, 'simple_hole')
                 hole.gen_xml(subnode)
         for hole in self.shaped_holes:
             if hole.valid:
-                subnode = ET.SubElement(node, 'shaped-hole')
+                subnode = ET.SubElement(node, 'shaped_hole')
                 hole.gen_xml(subnode)
         for tab in self.build_tabs:
             if tab.valid:
-                subnode = ET.SubElement(node, 'build-tab')
+                subnode = ET.SubElement(node, 'build_tab')
                 tab.gen_xml(subnode)
         for flap in self.flaps:
             if flap.valid:

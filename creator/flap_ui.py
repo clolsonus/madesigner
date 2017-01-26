@@ -11,8 +11,9 @@ started: November 2013
 
 import sys
 from PyQt4 import QtGui, QtCore
-#import xml.etree.ElementTree as ET
-import lxml.etree as ET
+
+from props import root, getNode
+
 from combobox_nowheel import QComboBoxNoWheel
 
 
@@ -21,7 +22,6 @@ class FlapUI():
         self.valid = True
         self.changefunc = changefunc
         self.container = self.make_page()
-        self.xml = None
 
     def onChange(self):
         self.changefunc()
@@ -149,46 +149,31 @@ class FlapUI():
     def get_widget(self):
         return self.container
 
-    def get_value(self, node):
-        e = self.xml.find(node)
-        if e != None and e.text != None:
-            return e.text
-        else:
-            return ""
-
     def parse_xml(self, node):
-        self.xml = node
-        self.edit_width.setText(self.get_value('width'))
-        self.edit_height.setText(self.get_value('height'))
-        index = self.edit_posref.findText(self.get_value('position-ref'))
+        self.edit_width.setText(node.getString('width'))
+        self.edit_height.setText(node.getString('height'))
+        index = self.edit_posref.findText(node.getString('position_ref'))
         if index == None:
             index = 1
         self.edit_posref.setCurrentIndex(index)
-        self.edit_pos.setText(self.get_value('position'))
-        self.edit_atstation.setText(self.get_value('at-station'))
-        self.edit_slope.setText(self.get_value('slope'))
-        self.edit_angle.setText(self.get_value('angle'))
-        index = self.edit_start.findText(self.get_value('start-station'))
+        self.edit_pos.setText(node.getString('position'))
+        self.edit_atstation.setText(node.getString('at_station'))
+        self.edit_slope.setText(node.getString('slope'))
+        self.edit_angle.setText(node.getString('angle'))
+        index = self.edit_start.findText(node.getString('start_station'))
         if index != None:
             self.edit_start.setCurrentIndex(index)
-        index = self.edit_end.findText(self.get_value('end-station'))
+        index = self.edit_end.findText(node.getString('end_station'))
         if index != None:
             self.edit_end.setCurrentIndex(index)
 
-    def update_node(self, node, value):
-        e = self.xml.find(node)
-        if e == None:
-            e = ET.SubElement(self.xml, node)
-        e.text = str(value)
-        
     def gen_xml(self, node):
-        self.xml = node
-        self.update_node('width', self.edit_width.text())
-        self.update_node('height', self.edit_height.text())
-        self.update_node('position-ref', self.edit_posref.currentText())
-        self.update_node('position', self.edit_pos.text())
-        self.update_node('at-station', self.edit_atstation.text())
-        self.update_node('slope', self.edit_slope.text())
-        self.update_node('angle', self.edit_angle.text())
-        self.update_node('start-station', self.edit_start.currentText())
-        self.update_node('end-station', self.edit_end.currentText())
+        node.setString('width', self.edit_width.text())
+        node.setString('height', self.edit_height.text())
+        node.setString('position_ref', self.edit_posref.currentText())
+        node.setString('position', self.edit_pos.text())
+        node.setString('at_station', self.edit_atstation.text())
+        node.setString('slope', self.edit_slope.text())
+        node.setString('angle', self.edit_angle.text())
+        node.setString('start_station', self.edit_start.currentText())
+        node.setString('end_station', self.edit_end.currentText())
