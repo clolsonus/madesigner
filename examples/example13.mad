@@ -6,90 +6,90 @@
     <author>Curt Olson</author>
     <email></email>
     <units>in</units>
-    <sheet-width>24</sheet-width>
-    <sheet-height>12</sheet-height>
-    <plans-width>24</plans-width>
-    <plans-height>36</plans-height>
+    <sheet_width>24</sheet_width>
+    <sheet_height>12</sheet_height>
+    <plans_width>24</plans_width>
+    <plans_height>36</plans_height>
   </overview>
   <wing>
     <name>Inner</name>
-    <airfoil-root>mh43</airfoil-root>
-    <airfoil-tip></airfoil-tip>
+    <airfoil_root>mh43</airfoil_root>
+    <airfoil_tip></airfoil_tip>
     <span>35</span>
-    <chord-root>10</chord-root>
-    <chord-tip>9</chord-tip>
-    <chord-curve></chord-curve>
+    <chord_root>10</chord_root>
+    <chord_tip>9</chord_tip>
+    <chord_curve></chord_curve>
     <twist></twist>
     <sweep></sweep>
-    <sweep-curve></sweep-curve>
+    <sweep_curve></sweep_curve>
     <dihedral>5</dihedral>
     <stations>0 1 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 24 35</stations>
-    <wing-link>none</wing-link>
-    <leading-edge>
+    <wing_link>none</wing_link>
+    <leading_edge>
       <size>0.09375</size>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
-    </leading-edge>
-    <trailing-edge>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
+    </leading_edge>
+    <trailing_edge>
       <width>0.75</width>
       <height>0.125</height>
       <shape>Flat Triangle</shape>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
-    </trailing-edge>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
+    </trailing_edge>
     <spar>
       <width>0.125</width>
       <height>0.25</height>
-      <position-ref>Abs Pos</position-ref>
+      <position_ref>Abs Pos</position_ref>
       <position>0.0</position>
       <surface>Top</surface>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
     </spar>
     <spar>
       <width>0.125</width>
       <height>0.25</height>
-      <position-ref>Abs Pos</position-ref>
+      <position_ref>Abs Pos</position_ref>
       <position>0.0</position>
       <surface>Bottom</surface>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
     </spar>
     <spar>
       <width>0.125</width>
       <height>0.125</height>
-      <position-ref>Chord %</position-ref>
+      <position_ref>Chord %</position_ref>
       <position>0.60</position>
       <surface>Top</surface>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
     </spar>
     <spar>
       <width>0.125</width>
       <height>0.125</height>
-      <position-ref>Chord %</position-ref>
+      <position_ref>Chord %</position_ref>
       <position>0.60</position>
       <surface>Bottom</surface>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
     </spar>
     <stringer>
       <width>0.125</width>
       <height>0.125</height>
-      <position-ref>Chord %</position-ref>
+      <position_ref>Chord %</position_ref>
       <position>0.125</position>
       <surface>Top</surface>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
     </stringer>
     <stringer>
       <width>0.125</width>
       <height>0.125</height>
-      <position-ref>Chord %</position-ref>
+      <position_ref>Chord %</position_ref>
       <position>0.125</position>
       <surface>Bottom</surface>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
     </stringer>
     <sheet>
       <depth>0.03125</depth>
@@ -97,89 +97,89 @@
       <xmode>End Position</xmode>
       <xend>2.5</xend>
       <surface>Top</surface>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
     </sheet>
   </wing>
   <wing>
     <name>Outer</name>
-    <airfoil-root>mh43</airfoil-root>
-    <airfoil-tip></airfoil-tip>
+    <airfoil_root>mh43</airfoil_root>
+    <airfoil_tip></airfoil_tip>
     <span>21</span>
-    <chord-root>9</chord-root>
-    <chord-tip>6</chord-tip>
-    <chord-curve></chord-curve>
+    <chord_root>9</chord_root>
+    <chord_tip>6</chord_tip>
+    <chord_curve></chord_curve>
     <twist></twist>
     <sweep></sweep>
-    <sweep-curve></sweep-curve>
+    <sweep_curve></sweep_curve>
     <dihedral>15</dihedral>
     <stations>0 1 3 5 7 9 11 13 15 17 19 20 21</stations>
-    <wing-link>Inner</wing-link>
-    <leading-edge>
+    <wing_link>Inner</wing_link>
+    <leading_edge>
       <size>0.09375</size>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
-    </leading-edge>
-    <trailing-edge>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
+    </leading_edge>
+    <trailing_edge>
       <width>0.75</width>
       <height>0.125</height>
       <shape>Flat Triangle</shape>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
-    </trailing-edge>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
+    </trailing_edge>
     <spar>
       <width>0.125</width>
       <height>0.25</height>
-      <position-ref>Abs Pos</position-ref>
+      <position_ref>Abs Pos</position_ref>
       <position>0</position>
       <surface>Top</surface>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
     </spar>
     <spar>
       <width>0.125</width>
       <height>0.25</height>
-      <position-ref>Abs Pos</position-ref>
+      <position_ref>Abs Pos</position_ref>
       <position>0</position>
       <surface>Bottom</surface>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
     </spar>
     <spar>
       <width>0.125</width>
       <height>0.125</height>
-      <position-ref>Chord %</position-ref>
+      <position_ref>Chord %</position_ref>
       <position>0.60</position>
       <surface>Top</surface>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
     </spar>
     <spar>
       <width>0.125</width>
       <height>0.125</height>
-      <position-ref>Chord %</position-ref>
+      <position_ref>Chord %</position_ref>
       <position>0.60</position>
       <surface>Bottom</surface>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
     </spar>
     <stringer>
       <width>0.125</width>
       <height>0.125</height>
-      <position-ref>Chord %</position-ref>
+      <position_ref>Chord %</position_ref>
       <position>0.125</position>
       <surface>Top</surface>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
     </stringer>
     <stringer>
       <width>0.125</width>
       <height>0.125</height>
-      <position-ref>Chord %</position-ref>
+      <position_ref>Chord %</position_ref>
       <position>0.125</position>
       <surface>Bottom</surface>
-      <start-station>Start: Inner</start-station>
-      <end-station>End: Outer</end-station>
+      <start_station>Start: Inner</start_station>
+      <end_station>End: Outer</end_station>
     </stringer>
   </wing>
 </design>

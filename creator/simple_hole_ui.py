@@ -124,7 +124,7 @@ class SimpleHoleUI():
     def get_widget(self):
         return self.container
 
-    def parse_xml(self, node):
+    def load(self, node):
         index = self.edit_style.findText(node.getString('style'))
         if index == None:
             index = 1
@@ -142,7 +142,7 @@ class SimpleHoleUI():
         if index != None:
             self.edit_end.setCurrentIndex(index)
 
-    def gen_xml(self, node):
+    def save(self, node):
         node.setString('style', self.edit_style.currentText())
         node.setString('size', self.edit_size.text())
         node.setString('position_ref', self.edit_posref.currentText())

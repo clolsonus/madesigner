@@ -78,7 +78,7 @@ class Overview():
     def get_widget(self):
         return self.container
 
-    def parse_xml(self, node):
+    def load(self, node):
         self.edit_name.setText(node.getString('name'))
         self.edit_desc.setText(node.getString('description'))
         self.edit_author.setText(node.getString('author'))
@@ -144,7 +144,7 @@ class Overview():
         self.edit_plans_w.setText('24')
         self.edit_plans_h.setText('36')
 
-    def gen_xml(self, node):
+    def save(self, node):
         node.setString('MADversion', str(self.version.get()))
         node.setString('name', self.edit_name.text())
         node.setString('description', self.edit_desc.toPlainText())

@@ -97,7 +97,7 @@ class LeadingEdgeUI():
     def get_widget(self):
         return self.container
 
-    def parse_xml(self, node):
+    def load(self, node):
         self.edit_size.setText(node.getString('size'))
         index = self.edit_start.findText(node.getString('start_station'))
         if index != None:
@@ -106,7 +106,7 @@ class LeadingEdgeUI():
         if index != None:
             self.edit_end.setCurrentIndex(index)
 
-    def gen_xml(self, node):
+    def save(self, node):
         node.setString('size', self.edit_size.text())
         node.setString('start_station', self.edit_start.currentText())
         node.setString('end_station', self.edit_end.currentText())

@@ -320,14 +320,14 @@ class CreatorUI(QtGui.QWidget):
         self.fileroot, ext = os.path.splitext(self.filename)
 
         node = getNode('/overview')
-        self.overview.parse_xml(node)
+        self.overview.load(node)
 
         root.setLen('wing', 1) # force to be enumerated if not already
         num_wings = root.getLen('wing')
         for i in range(num_wings):
             wing_node = root.getChild('wing[%d]' % i)
             wing = WingUI(changefunc=self.onChange)
-            wing.parse_xml(wing_node)
+            wing.load(wing_node)
             self.wings.append(wing)
             self.tabs.addTab( wing.get_widget(), "Wing: " + wing.get_name() )
         self.rebuildWingLists()
@@ -396,13 +396,13 @@ class CreatorUI(QtGui.QWidget):
 
         # overview
         node = ET.SubElement(root, 'overview')
-        self.overview.gen_xml(node)
+        self.overview.save(node)
 
         # wings
         for wing in self.wings:
             if wing.valid:
                 node = ET.SubElement(root, 'wing')
-                wing.gen_xml(node)
+                wing.save(node)
 
         try:
             self.xml.write(self.filename, encoding="us-ascii",

@@ -140,7 +140,7 @@ class ShapedHoleUI():
     def get_widget(self):
         return self.container
 
-    def parse_xml(self, node):
+    def load(self, node):
         self.edit_width.setText(node.getString('material_width'))
         self.edit_radius.setText(node.getString('corner_radius'))
         index = self.edit_pos1ref.findText(node.getString('position1_ref'))
@@ -160,7 +160,7 @@ class ShapedHoleUI():
         if index != None:
             self.edit_end.setCurrentIndex(index)
 
-    def gen_xml(self, node):
+    def save(self, node):
         node.setString('material_width', self.edit_width.text())
         node.setString('corner_radius', self.edit_radius.text())
         node.setString('position1_ref', self.edit_pos1ref.currentText())

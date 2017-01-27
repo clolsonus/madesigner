@@ -131,7 +131,7 @@ class BuildTabUI():
     def get_widget(self):
         return self.container
 
-    def parse_xml(self, node):
+    def load(self, node):
         self.edit_width.setText(node.getString('width'))
         self.edit_ypad.setText(node.getString('ypad'))
         index = self.edit_posref.findText(node.getString('position_ref'))
@@ -150,7 +150,7 @@ class BuildTabUI():
         if index != None:
             self.edit_end.setCurrentIndex(index)
 
-    def gen_xml(self, node):
+    def save(self, node):
         node.setString('width', self.edit_width.text())
         node.setString('ypad', self.edit_ypad.text())
         node.setString('position_ref', self.edit_posref.currentText())

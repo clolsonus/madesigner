@@ -127,7 +127,7 @@ class SheetUI():
     def get_widget(self):
         return self.container
 
-    def parse_xml(self, node):
+    def load(self, node):
         self.edit_depth.setText(node.getString('depth'))
         self.edit_xstart.setText(node.getString('xstart'))
         index = self.edit_xmode.findText(node.getString('xmode'))
@@ -146,7 +146,7 @@ class SheetUI():
         if index != None:
             self.edit_end.setCurrentIndex(index)
 
-    def gen_xml(self, node):
+    def save(self, node):
         node.setString('depth', self.edit_depth.text())
         node.setString('xstart', self.edit_xstart.text())
         node.setString('xmode', self.edit_xmode.currentText())

@@ -135,7 +135,7 @@ class SparUI():
     def get_widget(self):
         return self.container
 
-    def parse_xml(self, node):
+    def load(self, node):
         self.edit_width.setText(node.getString('width'))
         self.edit_height.setText(node.getString('height'))
         index = self.edit_posref.findText(node.getString('position_ref'))
@@ -154,7 +154,7 @@ class SparUI():
         if index != None:
             self.edit_end.setCurrentIndex(index)
 
-    def gen_xml(self, node):
+    def save(self, node):
         node.setString('width', self.edit_width.text())
         node.setString('height', self.edit_height.text())
         node.setString('position_ref', self.edit_posref.currentText())

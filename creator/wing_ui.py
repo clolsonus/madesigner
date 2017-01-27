@@ -141,7 +141,7 @@ class WingUI():
         leading_edge = LeadingEdgeUI(self.changefunc)
         leading_edge.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
-            leading_edge.parse_xml(xml_node)
+            leading_edge.load(xml_node)
         self.leading_edges.append(leading_edge)
         self.layout_le.addWidget( leading_edge.get_widget() )
         self.changefunc()
@@ -150,7 +150,7 @@ class WingUI():
         trailing_edge = TrailingEdgeUI(self.changefunc)
         trailing_edge.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
-            trailing_edge.parse_xml(xml_node)
+            trailing_edge.load(xml_node)
         self.trailing_edges.append(trailing_edge)
         self.layout_te.addWidget( trailing_edge.get_widget() )
         self.changefunc()
@@ -159,7 +159,7 @@ class WingUI():
         spar = SparUI(self.changefunc)
         spar.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
-            spar.parse_xml(xml_node)
+            spar.load(xml_node)
         self.spars.append(spar)
         self.layout_spars.addWidget( spar.get_widget() )
         self.changefunc()
@@ -168,7 +168,7 @@ class WingUI():
         stringer = SparUI(self.changefunc)
         stringer.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
-            stringer.parse_xml(xml_node)
+            stringer.load(xml_node)
         self.stringers.append(stringer)
         self.layout_stringers.addWidget( stringer.get_widget() )
         self.changefunc()
@@ -177,7 +177,7 @@ class WingUI():
         sheet = SheetUI(self.changefunc)
         sheet.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
-            sheet.parse_xml(xml_node)
+            sheet.load(xml_node)
         self.sheeting.append(sheet)
         self.layout_sheeting.addWidget( sheet.get_widget() )
         self.changefunc()
@@ -186,7 +186,7 @@ class WingUI():
         hole = SimpleHoleUI(self.changefunc)
         hole.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
-            hole.parse_xml(xml_node)
+            hole.load(xml_node)
         self.simple_holes.append(hole)
         self.layout_simple_holes.addWidget( hole.get_widget() )
         self.changefunc()
@@ -195,7 +195,7 @@ class WingUI():
         hole = ShapedHoleUI(self.changefunc)
         hole.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
-            hole.parse_xml(xml_node)
+            hole.load(xml_node)
         self.shaped_holes.append(hole)
         self.layout_shaped_holes.addWidget( hole.get_widget() )
         self.changefunc()
@@ -204,7 +204,7 @@ class WingUI():
         tab = BuildTabUI(self.changefunc)
         tab.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
-            tab.parse_xml(xml_node)
+            tab.load(xml_node)
         self.build_tabs.append(tab)
         self.layout_build_tabs.addWidget( tab.get_widget() )
         self.changefunc()
@@ -213,7 +213,7 @@ class WingUI():
         flap = FlapUI(self.changefunc)
         flap.rebuild_stations(self.edit_stations.text())
         if xml_node != None:
-            flap.parse_xml(xml_node)
+            flap.load(xml_node)
         self.flaps.append(flap)
         self.layout_flaps.addWidget( flap.get_widget() )
         self.changefunc()
@@ -391,7 +391,7 @@ class WingUI():
     def get_name(self):
         return self.edit_name.text()
 
-    def parse_xml(self, node):
+    def load(self, node):
         self.edit_name.setText(node.getString('name'))
         self.edit_airfoil_root.setText(node.getString('airfoil_root'))
         self.edit_airfoil_tip.setText(node.getString('airfoil_tip'))
@@ -448,7 +448,7 @@ class WingUI():
         for i in range(num):
             self.add_flap(node.getChild('flap[%d]' % i))
 
-    def gen_xml(self, node):
+    def save(self, node):
         node.setString('name', self.edit_name.text())
         node.setString('airfoil_root', self.edit_airfoil_root.text())
         node.setString('airfoil_tip', self.edit_airfoil_tip.text())
@@ -466,38 +466,38 @@ class WingUI():
         for le in self.leading_edges:
             if le.valid:
                 subnode = ET.SubElement(node, 'leading_edge')
-                le.gen_xml(subnode)
+                le.save(subnode)
         for te in self.trailing_edges:
             if te.valid:
                 subnode = ET.SubElement(node, 'trailing_edge')
-                te.gen_xml(subnode)
+                te.save(subnode)
         for spar in self.spars:
             if spar.valid:
                 subnode = ET.SubElement(node, 'spar')
-                spar.gen_xml(subnode)
+                spar.save(subnode)
         for stringer in self.stringers:
             if stringer.valid:
                 subnode = ET.SubElement(node, 'stringer')
-                stringer.gen_xml(subnode)
+                stringer.save(subnode)
         for sheet in self.sheeting:
             if sheet.valid:
                 subnode = ET.SubElement(node, 'sheet')
-                sheet.gen_xml(subnode)
+                sheet.save(subnode)
         for hole in self.simple_holes:
             if hole.valid:
                 subnode = ET.SubElement(node, 'simple_hole')
-                hole.gen_xml(subnode)
+                hole.save(subnode)
         for hole in self.shaped_holes:
             if hole.valid:
                 subnode = ET.SubElement(node, 'shaped_hole')
-                hole.gen_xml(subnode)
+                hole.save(subnode)
         for tab in self.build_tabs:
             if tab.valid:
                 subnode = ET.SubElement(node, 'build_tab')
-                tab.gen_xml(subnode)
+                tab.save(subnode)
         for flap in self.flaps:
             if flap.valid:
                 subnode = ET.SubElement(node, 'flap')
-                flap.gen_xml(subnode)
+                flap.save(subnode)
 
 
