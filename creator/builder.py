@@ -492,6 +492,7 @@ class Builder():
             wing = self.parse_wing(wing_node)
             self.wings.append(wing)
 
+        # generate AC3D model
         if len(self.wings):
             ac = lib.ac3d.AC3D( self.fileroot )
             ac.gen_headers( "airframe", 2 )
@@ -503,7 +504,16 @@ class Builder():
                         tip = self.wings[i].get_tip_pos()
                 wing.build_ac3d( ac, xoffset=tip[1], yoffset=tip[2] )
             ac.close()
-
+            
+        # generate FreeCAD model
+        if len(self.wings):
+            for wing in self.wings:
+                tip = [ 0.0, 0.0, 0.0 ]
+                if wing.link_name != None and wing.link_name != "none":
+                    i = self.find_wing_by_name( wing.link_name )
+                    if i >= 0:
+                        tip = self.wings[i].get_tip_pos()
+                wing.build_freecad( xoffset=tip[1], yoffset=tip[2] )
 
 def usage():
     print "Usage: " + sys.argv[0] + " design.mad"

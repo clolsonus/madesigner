@@ -1,10 +1,3 @@
-#!python
-
-__author__ = "Curtis L. Olson < curtolson {at} flightgear {dot} org >"
-__url__ = "http://gallinazo.flightgear.org"
-__version__ = "1.0"
-__license__ = "GPL v2"
-
 
 import copy
 import math
