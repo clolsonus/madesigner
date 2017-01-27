@@ -12,18 +12,6 @@
         "units": "in"
     }, 
     "wing": [
-        {}, 
-        {}, 
-        {}, 
-        {}, 
-        {}, 
-        {}, 
-        {}, 
-        {}, 
-        {}, 
-        {}, 
-        {}, 
-        {}, 
         {
             "airfoil_root": "", 
             "airfoil_tip": "", 
@@ -48,7 +36,7 @@
                     "at_station": "", 
                     "end_station": "", 
                     "height": "0.125", 
-                    "position": "0.60", 
+                    "position": "0.6", 
                     "position_ref": "", 
                     "slope": "None", 
                     "start_station": "", 

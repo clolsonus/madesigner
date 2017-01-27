@@ -400,10 +400,12 @@ class CreatorUI(QtGui.QWidget):
         self.overview.save(node)
 
         # wings
-        for i, wing in enumerate(self.wings):
+        i = 0
+        for wing in self.wings:
             if wing.valid:
                 node = design.getChild('wing[%d]' % i, True)
                 wing.save(node)
+                i += 1
 
         try:
             props_json.save(self.filename, design)

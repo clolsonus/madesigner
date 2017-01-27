@@ -12,7 +12,6 @@
         "units": "in"
     }, 
     "wing": [
-        {}, 
         {
             "airfoil_root": "clarky", 
             "airfoil_tip": "None", 

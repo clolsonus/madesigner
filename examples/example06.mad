@@ -12,12 +12,6 @@
         "units": "in"
     }, 
     "wing": [
-        {}, 
-        {}, 
-        {}, 
-        {}, 
-        {}, 
-        {}, 
         {
             "airfoil_root": "", 
             "airfoil_tip": "", 

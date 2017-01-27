@@ -452,41 +452,67 @@ class WingUI():
         node.setString('stations', self.edit_stations.text())
         node.setString('wing_link', self.edit_wing_link.currentText())
 
-        for i, le in enumerate(self.leading_edges):
+        i = 0
+        for le in self.leading_edges:
             if le.valid:
                 subnode = node.getChild('leading_edge[%d]' % i, True)
                 le.save(subnode)
-        for i, te in enumerate(self.trailing_edges):
+                i += 1
+
+        i = 0
+        for te in self.trailing_edges:
             if te.valid:
                 subnode = node.getChild('trailing_edge[%d]' % i, True)
                 te.save(subnode)
-        for i, spar in enumerate(self.spars):
+                i += 1
+                
+        i = 0
+        for spar in self.spars:
             if spar.valid:
                 subnode = node.getChild('spar[%d]' % i, True)
                 spar.save(subnode)
-        for i, stringer in enumerate(self.stringers):
+                i += 1
+                
+        i = 0
+        for stringer in self.stringers:
             if stringer.valid:
                 subnode = node.getChild('stringer[%d]' % i, True)
                 stringer.save(subnode)
-        for i, sheet in enumerate(self.sheeting):
+                i += 1
+                
+        i = 0
+        for sheet in self.sheeting:
             if sheet.valid:
                 subnode = node.getChild('sheet[%d]' % i, True)
                 sheet.save(subnode)
-        for i, hole in enumerate(self.simple_holes):
+                i += 1
+                
+        i = 0
+        for hole in self.simple_holes:
             if hole.valid:
                 subnode = node.getChild('simple_hole[%d]' % i, True)
                 hole.save(subnode)
-        for i, hole in enumerate(self.shaped_holes):
+                i += 1
+                
+        i = 0
+        for hole in self.shaped_holes:
             if hole.valid:
                 subnode = node.getChild('shaped_hole[%d]' % i, True)
                 hole.save(subnode)
-        for i, tab in enumerate(self.build_tabs):
+                i += 1
+                
+        i = 0
+        for tab in self.build_tabs:
             if tab.valid:
                 subnode = node.getChild('build_tab[%d]' % i, True)
                 tab.save(subnode)
-        for i, flap in enumerate(self.flaps):
+                i += 1
+                
+        i = 0
+        for flap in self.flaps:
             if flap.valid:
                 subnode = node.getChild('flap[%d]' % i, True)
                 flap.save(subnode)
+                i += 1
 
 
