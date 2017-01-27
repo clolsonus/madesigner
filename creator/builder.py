@@ -110,15 +110,15 @@ class Builder():
         
     def parse_overview(self, node):
         self.units = node.getString('units')
-        self.sheet_w = myfloat(node, 'sheet-width')
-        self.sheet_h = myfloat(node, 'sheet-height')
-        self.plans_w = myfloat(node, 'plans-width')
-        self.plans_h = myfloat(node, 'plans-height')
+        self.sheet_w = myfloat(node, 'sheet_width')
+        self.sheet_h = myfloat(node, 'sheet_height')
+        self.plans_w = myfloat(node, 'plans_width')
+        self.plans_h = myfloat(node, 'plans_height')
 
     def parse_leading_edge(self, wing, node):
         size = myfloat(node, 'size')
-        junk, startstr = node.getString('start-station').split()
-        junk, endstr = node.getString('end-station').split()
+        junk, startstr = node.getString('start_station').split()
+        junk, endstr = node.getString('end_station').split()
         if startstr == "Inner" or startstr == "":
             start = None
         else:
@@ -133,8 +133,8 @@ class Builder():
         width = myfloat(node, 'width')
         height = myfloat(node, 'height')
         shape = node.getString('shape')
-        junk, startstr = node.getString('start-station').split()
-        junk, endstr = node.getString('end-station').split()
+        junk, startstr = node.getString('start_station').split()
+        junk, endstr = node.getString('end_station').split()
         if startstr == "Inner" or startstr == "":
             start = None
         else:
@@ -150,7 +150,7 @@ class Builder():
     def parse_stringer(self, wing, node):
         width = myfloat(node, 'width')
         height = myfloat(node, 'height')
-        position_ref = node.getString('position-ref')
+        position_ref = node.getString('position_ref')
         position_val = myfloat(node, 'position')
         percent = None
         front = None
@@ -166,8 +166,8 @@ class Builder():
             xpos = position_val
         surface = node.getString('surface').lower()
         #orientation = node.getString('orientation').lower()
-        junk, startstr = node.getString('start-station').split()
-        junk, endstr = node.getString('end-station').split()
+        junk, startstr = node.getString('start_station').split()
+        junk, endstr = node.getString('end_station').split()
         if startstr == "Inner" or startstr == "":
             start = None
         else:
@@ -181,7 +181,7 @@ class Builder():
     def parse_spar(self, wing, node):
         width = myfloat(node, 'width')
         height = myfloat(node, 'height')
-        position_ref = node.getString('position-ref')
+        position_ref = node.getString('position_ref')
         position_val = myfloat(node, 'position')
         percent = None
         front = None
@@ -197,8 +197,8 @@ class Builder():
             xpos = position_val
         surface = node.getString('surface').lower()
         #orientation = node.getString('orientation').lower()
-        junk, startstr = node.getString('start-station').split()
-        junk, endstr = node.getString('end-station').split()
+        junk, startstr = node.getString('start_station').split()
+        junk, endstr = node.getString('end_station').split()
         if startstr == "Inner" or startstr == "":
             start = None
         else:
@@ -221,8 +221,8 @@ class Builder():
         elif xmode == "End Position":
             xend = dist
         surface = node.getString('surface').lower()
-        junk, startstr = node.getString('start-station').split()
-        junk, endstr = node.getString('end-station').split()
+        junk, startstr = node.getString('start_station').split()
+        junk, endstr = node.getString('end_station').split()
         if startstr == "Inner" or startstr == "":
             start = None
         else:
@@ -237,7 +237,7 @@ class Builder():
     def parse_simple_hole(self, wing, node):
         style = node.getString('style')
         size = myfloat(node, 'size')
-        position_ref = node.getString('position-ref')
+        position_ref = node.getString('position_ref')
         position_val = myfloat(node, 'position')
         percent = None
         front = None
@@ -251,8 +251,8 @@ class Builder():
             rear = position_val
         elif position_ref == "Abs Pos":
             xpos = position_val
-        junk, startstr = node.getString('start-station').split()
-        junk, endstr = node.getString('end-station').split()
+        junk, startstr = node.getString('start_station').split()
+        junk, endstr = node.getString('end_station').split()
         if startstr == "Inner" or startstr == "":
             start = None
         else:
@@ -266,10 +266,10 @@ class Builder():
         wing.add_simple_hole(style=style, size=size, pos1=pos, start_station=start, end_station=end, part="wing")
 
     def parse_shaped_hole(self, wing, node):
-        width = myfloat(node, 'material-width')
-        radius = myfloat(node, 'corner-radius')
+        width = myfloat(node, 'material_width')
+        radius = myfloat(node, 'corner_radius')
 
-        position1_ref = node.getString('position1-ref')
+        position1_ref = node.getString('position1_ref')
         position1_val = myfloat(node, 'position1')
         percent = None
         front = None
@@ -285,7 +285,7 @@ class Builder():
             xpos = position1_val
         pos1=lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
 
-        position2_ref = node.getString('position2-ref')
+        position2_ref = node.getString('position2_ref')
         position2_val = myfloat(node, 'position2')
         percent = None
         front = None
@@ -301,8 +301,8 @@ class Builder():
             xpos = position2_val
         pos2=lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
 
-        junk, startstr = node.getString('start-station').split()
-        junk, endstr = node.getString('end-station').split()
+        junk, startstr = node.getString('start_station').split()
+        junk, endstr = node.getString('end_station').split()
         if startstr == "Inner" or startstr == "":
             start = None
         else:
@@ -317,7 +317,7 @@ class Builder():
     def parse_build_tab(self, wing, node):
         width = myfloat(node, 'width')
         ypad = myfloat(node, 'ypad')
-        position_ref = node.getString('position-ref')
+        position_ref = node.getString('position_ref')
         position_val = myfloat(node, 'position')
         percent = None
         front = None
@@ -332,8 +332,8 @@ class Builder():
         elif position_ref == "Abs Pos":
             xpos = position_val
         surface = node.getString('surface').lower()
-        junk, startstr = node.getString('start-station').split()
-        junk, endstr = node.getString('end-station').split()
+        junk, startstr = node.getString('start_station').split()
+        junk, endstr = node.getString('end_station').split()
         if startstr == "Inner" or startstr == "":
             start = None
         else:
@@ -347,7 +347,7 @@ class Builder():
     def parse_flap(self, wing, node):
         width = myfloat(node, 'width')
         height = myfloat(node, 'height')
-        position_ref = node.getString('position-ref')
+        position_ref = node.getString('position_ref')
         position_val = myfloat(node, 'position')
         percent = None
         front = None
@@ -361,7 +361,7 @@ class Builder():
             rear = position_val
         elif position_ref == "Abs Pos":
             xpos = position_val
-        start_text = node.getString('start-station')
+        start_text = node.getString('start_station')
         if start_text == "":
             print "Invalid start station for flap"
             return
@@ -369,8 +369,8 @@ class Builder():
         if start_str == "Inner" or start_str == "":
             start = None
         else:
-            start = myfloat(start_str)
-        end_text = node.getString('end-station')
+            start = float(start_str)
+        end_text = node.getString('end_station')
         if end_text == "":
             print "Invalid end station for flap"
             return
@@ -378,8 +378,8 @@ class Builder():
         if end_str == "Outer" or end_str == "":
             end = None
         else:
-            end = myfloat(end_str)
-        atstation = myfloat(node, 'at-station')
+            end = float(end_str)
+        atstation = myfloat(node, 'at_station')
         slope = myfloat(node, 'slope')
         angle = myfloat(node, 'angle')
         pos = lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos, atstation=atstation, slope=slope)
@@ -407,8 +407,8 @@ class Builder():
         wing.airfoil_resample = self.airfoil_resample
         wing.circle_points=self.circle_points
         wing.name = node.getString('name')
-        airfoil_root = node.getString('airfoil-root')
-        airfoil_tip = node.getString('airfoil-tip')
+        airfoil_root = node.getString('airfoil_root')
+        airfoil_tip = node.getString('airfoil_tip')
         if airfoil_tip == "":
             airfoil_tip = None
         wing.load_airfoils( airfoil_root, airfoil_tip )
@@ -416,42 +416,41 @@ class Builder():
         station_list = map( float, str(node.getString('stations')).split())
         wing.set_stations( station_list )
         wing.twist = myfloat(node, 'twist')
-        sweep_curve = self.make_curve( node.getString('sweep-curve') )
+        sweep_curve = self.make_curve( node.getString('sweep_curve') )
         if ( len(sweep_curve) >= 2 ):
             wing.set_sweep_curve( sweep_curve )
         else:
             wing.set_sweep_angle( myfloat(node, 'sweep') )
-        chord_curve = self.make_curve( node.getString('chord-curve') )
+        chord_curve = self.make_curve( node.getString('chord_curve') )
         if ( len(chord_curve) >= 2 ):
             wing.set_taper_curve( chord_curve )
         else:
-            chord_root = myfloat(node, 'chord-root')
-            chord_tip = myfloat(node, 'chord-tip')
+            chord_root = myfloat(node, 'chord_root')
+            chord_tip = myfloat(node, 'chord_tip')
             wing.set_chord( chord_root, chord_tip )
         wing.dihedral = myfloat(node, 'dihedral')
-        wing.link_name = node.getString('wing-link')
+        wing.link_name = node.getString('wing_link')
 
         # parse flaps first so we can use this info to partition the
         # trailing edge and possibly other structures too
         for i in range(node.getLen('flap')):
             self.parse_flap(wing, node.getChild('flap[%d]' % i))
-
-        for le_node in node.findall('leading-edge'):
-            self.parse_leading_edge(wing, le_node)
-        for te_node in node.findall('trailing-edge'):
-            self.parse_trailing_edge(wing, te_node)
-        for spar_node in node.findall('spar'):
-            self.parse_spar(wing, spar_node)
-        for stringer_node in node.findall('stringer'):
-            self.parse_stringer(wing, stringer_node)
-        for sheet_node in node.findall('sheet'):
-            self.parse_sheet(wing, sheet_node)
-        for hole_node in node.findall('simple-hole'):
-            self.parse_simple_hole(wing, hole_node)
-        for hole_node in node.findall('shaped-hole'):
-            self.parse_shaped_hole(wing, hole_node)
-        for tab_node in node.findall('build-tab'):
-            self.parse_build_tab(wing, tab_node)
+        for i in range(node.getLen('leading_edge')):
+            self.parse_leading_edge(wing, node.getChild('leading_edge[%d]' % i))
+        for i in range(node.getLen('trailing_edge')):
+            self.parse_trailing_edge(wing, node.getChild('trailing_edge[%d]' % i))
+        for i in range(node.getLen('spar')):
+            self.parse_spar(wing, node.getChild('spar[%d]' % i))
+        for i in range(node.getLen('stringer')):
+            self.parse_stringer(wing, node.getChild('stringer[%d]' % i))
+        for i in range(node.getLen('sheet')):
+            self.parse_sheet(wing, node.getChild('sheet[%d]' % i))
+        for i in range(node.getLen('simple_hole')):
+            self.parse_simple_hole(wing, node.getChild('simple_hole[%d]' % i))
+        for i in range(node.getLen('shaped_hole')):
+            self.parse_shaped_hole(wing, node.getChild('shaped_hole[%d]' % i))
+        for i in range(node.getLen('build_tab')):
+            self.parse_build_tab(wing, node.getChild('build_tab[%d]' % i))
 
         wing.build()
         wing.layout_parts_sheets( self.sheet_w, self.sheet_h, units=self.units,
