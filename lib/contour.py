@@ -646,7 +646,7 @@ class Contour:
     def cutout_sweep(self, surf="top", xstart=0.0, xend=None, xdist=None,
                      ysize=0.0, pos=None, nudge=0.0):
         #print "ysize = " + str(ysize)
-        print "xstart = " + str(xstart) + " xend = " + str(xend) + " xdist = " + str(xdist)
+        #print "xstart = " + str(xstart) + " xend = " + str(xend) + " xdist = " + str(xdist)
         if self.poly == None:
             self.make_poly()
         flush = self.project_contour(surf=surf, xstart=xstart,
