@@ -421,7 +421,7 @@ class Contour:
         print "xpos = " + str(xpos)
         print "ypos = " + str(ypos)
         if ypos == None:
-            return None
+            return ()
 
         # make, position, and orient the cutout
         angle = 0
