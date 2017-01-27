@@ -1,185 +1,218 @@
-<design>
-  <overview>
-    <MADversion>0.5</MADversion>
-    <name>Example 13</name>
-    <description>This example shows how to build a multi-panel, polyhedral wing.  In this case the mh43 glider airfoil is chosen.  Notice in the Outer wing tab that the panel is "linked" to the "Inner" wing.</description>
-    <author>Curt Olson</author>
-    <email></email>
-    <units>in</units>
-    <sheet_width>24</sheet_width>
-    <sheet_height>12</sheet_height>
-    <plans_width>24</plans_width>
-    <plans_height>36</plans_height>
-  </overview>
-  <wing>
-    <name>Inner</name>
-    <airfoil_root>mh43</airfoil_root>
-    <airfoil_tip></airfoil_tip>
-    <span>35</span>
-    <chord_root>10</chord_root>
-    <chord_tip>9</chord_tip>
-    <chord_curve></chord_curve>
-    <twist></twist>
-    <sweep></sweep>
-    <sweep_curve></sweep_curve>
-    <dihedral>5</dihedral>
-    <stations>0 1 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 24 35</stations>
-    <wing_link>none</wing_link>
-    <leading_edge>
-      <size>0.09375</size>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </leading_edge>
-    <trailing_edge>
-      <width>0.75</width>
-      <height>0.125</height>
-      <shape>Flat Triangle</shape>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </trailing_edge>
-    <spar>
-      <width>0.125</width>
-      <height>0.25</height>
-      <position_ref>Abs Pos</position_ref>
-      <position>0.0</position>
-      <surface>Top</surface>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </spar>
-    <spar>
-      <width>0.125</width>
-      <height>0.25</height>
-      <position_ref>Abs Pos</position_ref>
-      <position>0.0</position>
-      <surface>Bottom</surface>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </spar>
-    <spar>
-      <width>0.125</width>
-      <height>0.125</height>
-      <position_ref>Chord %</position_ref>
-      <position>0.60</position>
-      <surface>Top</surface>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </spar>
-    <spar>
-      <width>0.125</width>
-      <height>0.125</height>
-      <position_ref>Chord %</position_ref>
-      <position>0.60</position>
-      <surface>Bottom</surface>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </spar>
-    <stringer>
-      <width>0.125</width>
-      <height>0.125</height>
-      <position_ref>Chord %</position_ref>
-      <position>0.125</position>
-      <surface>Top</surface>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </stringer>
-    <stringer>
-      <width>0.125</width>
-      <height>0.125</height>
-      <position_ref>Chord %</position_ref>
-      <position>0.125</position>
-      <surface>Bottom</surface>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </stringer>
-    <sheet>
-      <depth>0.03125</depth>
-      <xstart>-2.5</xstart>
-      <xmode>End Position</xmode>
-      <xend>2.5</xend>
-      <surface>Top</surface>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </sheet>
-  </wing>
-  <wing>
-    <name>Outer</name>
-    <airfoil_root>mh43</airfoil_root>
-    <airfoil_tip></airfoil_tip>
-    <span>21</span>
-    <chord_root>9</chord_root>
-    <chord_tip>6</chord_tip>
-    <chord_curve></chord_curve>
-    <twist></twist>
-    <sweep></sweep>
-    <sweep_curve></sweep_curve>
-    <dihedral>15</dihedral>
-    <stations>0 1 3 5 7 9 11 13 15 17 19 20 21</stations>
-    <wing_link>Inner</wing_link>
-    <leading_edge>
-      <size>0.09375</size>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </leading_edge>
-    <trailing_edge>
-      <width>0.75</width>
-      <height>0.125</height>
-      <shape>Flat Triangle</shape>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </trailing_edge>
-    <spar>
-      <width>0.125</width>
-      <height>0.25</height>
-      <position_ref>Abs Pos</position_ref>
-      <position>0</position>
-      <surface>Top</surface>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </spar>
-    <spar>
-      <width>0.125</width>
-      <height>0.25</height>
-      <position_ref>Abs Pos</position_ref>
-      <position>0</position>
-      <surface>Bottom</surface>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </spar>
-    <spar>
-      <width>0.125</width>
-      <height>0.125</height>
-      <position_ref>Chord %</position_ref>
-      <position>0.60</position>
-      <surface>Top</surface>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </spar>
-    <spar>
-      <width>0.125</width>
-      <height>0.125</height>
-      <position_ref>Chord %</position_ref>
-      <position>0.60</position>
-      <surface>Bottom</surface>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </spar>
-    <stringer>
-      <width>0.125</width>
-      <height>0.125</height>
-      <position_ref>Chord %</position_ref>
-      <position>0.125</position>
-      <surface>Top</surface>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </stringer>
-    <stringer>
-      <width>0.125</width>
-      <height>0.125</height>
-      <position_ref>Chord %</position_ref>
-      <position>0.125</position>
-      <surface>Bottom</surface>
-      <start_station>Start: Inner</start_station>
-      <end_station>End: Outer</end_station>
-    </stringer>
-  </wing>
-</design>
+{
+    "overview": {
+        "MADversion": "0.5", 
+        "author": "Curt Olson", 
+        "description": "This example shows how to build a multi-panel, polyhedral wing.  In this case the mh43 glider airfoil is chosen.  Notice in the Outer wing tab that the panel is \"linked\" to the \"Inner\" wing.", 
+        "email": "None", 
+        "name": "Example 13", 
+        "plans_height": "36", 
+        "plans_width": "24", 
+        "sheet_height": "12", 
+        "sheet_width": "24", 
+        "units": "in"
+    }, 
+    "wing": [
+        {}, 
+        {}, 
+        {}, 
+        {}, 
+        {}, 
+        {}, 
+        {}, 
+        {}, 
+        {}, 
+        {}, 
+        {}, 
+        {}, 
+        {}, 
+        {
+            "airfoil_root": "mh43", 
+            "airfoil_tip": "None", 
+            "chord_curve": "None", 
+            "chord_root": "10", 
+            "chord_tip": "9", 
+            "dihedral": "5", 
+            "leading_edge": [
+                {
+                    "end_station": "End: Outer", 
+                    "size": "0.09375", 
+                    "start_station": "Start: Inner"
+                }
+            ], 
+            "name": "Inner", 
+            "sheet": [
+                {
+                    "depth": "0.03125", 
+                    "end_station": "End: Outer", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Top", 
+                    "xend": "2.5", 
+                    "xmode": "End Position", 
+                    "xstart": "-2.5"
+                }
+            ], 
+            "span": "35", 
+            "spar": [
+                {
+                    "end_station": "End: Outer", 
+                    "height": "0.25", 
+                    "position": "0.0", 
+                    "position_ref": "Abs Pos", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Top", 
+                    "width": "0.125"
+                }, 
+                {
+                    "end_station": "End: Outer", 
+                    "height": "0.25", 
+                    "position": "0.0", 
+                    "position_ref": "Abs Pos", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Bottom", 
+                    "width": "0.125"
+                }, 
+                {
+                    "end_station": "End: Outer", 
+                    "height": "0.125", 
+                    "position": "0.60", 
+                    "position_ref": "Chord %", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Top", 
+                    "width": "0.125"
+                }, 
+                {
+                    "end_station": "End: Outer", 
+                    "height": "0.125", 
+                    "position": "0.60", 
+                    "position_ref": "Chord %", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Bottom", 
+                    "width": "0.125"
+                }
+            ], 
+            "stations": "0 1 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 24 35", 
+            "stringer": [
+                {
+                    "end_station": "End: Outer", 
+                    "height": "0.125", 
+                    "position": "0.125", 
+                    "position_ref": "Chord %", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Top", 
+                    "width": "0.125"
+                }, 
+                {
+                    "end_station": "End: Outer", 
+                    "height": "0.125", 
+                    "position": "0.125", 
+                    "position_ref": "Chord %", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Bottom", 
+                    "width": "0.125"
+                }
+            ], 
+            "sweep": "None", 
+            "sweep_curve": "None", 
+            "trailing_edge": [
+                {
+                    "end_station": "End: Outer", 
+                    "height": "0.125", 
+                    "shape": "Flat Triangle", 
+                    "start_station": "Start: Inner", 
+                    "width": "0.75"
+                }
+            ], 
+            "twist": "None", 
+            "wing_link": "none"
+        }, 
+        {
+            "airfoil_root": "mh43", 
+            "airfoil_tip": "None", 
+            "chord_curve": "None", 
+            "chord_root": "9", 
+            "chord_tip": "6", 
+            "dihedral": "15", 
+            "leading_edge": [
+                {
+                    "end_station": "End: Outer", 
+                    "size": "0.09375", 
+                    "start_station": "Start: Inner"
+                }
+            ], 
+            "name": "Outer", 
+            "span": "21", 
+            "spar": [
+                {
+                    "end_station": "End: Outer", 
+                    "height": "0.25", 
+                    "position": "0", 
+                    "position_ref": "Abs Pos", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Top", 
+                    "width": "0.125"
+                }, 
+                {
+                    "end_station": "End: Outer", 
+                    "height": "0.25", 
+                    "position": "0", 
+                    "position_ref": "Abs Pos", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Bottom", 
+                    "width": "0.125"
+                }, 
+                {
+                    "end_station": "End: Outer", 
+                    "height": "0.125", 
+                    "position": "0.60", 
+                    "position_ref": "Chord %", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Top", 
+                    "width": "0.125"
+                }, 
+                {
+                    "end_station": "End: Outer", 
+                    "height": "0.125", 
+                    "position": "0.60", 
+                    "position_ref": "Chord %", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Bottom", 
+                    "width": "0.125"
+                }
+            ], 
+            "stations": "0 1 3 5 7 9 11 13 15 17 19 20 21", 
+            "stringer": [
+                {
+                    "end_station": "End: Outer", 
+                    "height": "0.125", 
+                    "position": "0.125", 
+                    "position_ref": "Chord %", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Top", 
+                    "width": "0.125"
+                }, 
+                {
+                    "end_station": "End: Outer", 
+                    "height": "0.125", 
+                    "position": "0.125", 
+                    "position_ref": "Chord %", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Bottom", 
+                    "width": "0.125"
+                }
+            ], 
+            "sweep": "None", 
+            "sweep_curve": "None", 
+            "trailing_edge": [
+                {
+                    "end_station": "End: Outer", 
+                    "height": "0.125", 
+                    "shape": "Flat Triangle", 
+                    "start_station": "Start: Inner", 
+                    "width": "0.75"
+                }
+            ], 
+            "twist": "None", 
+            "wing_link": "Inner"
+        }
+    ]
+}

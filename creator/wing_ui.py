@@ -452,41 +452,41 @@ class WingUI():
         node.setString('stations', self.edit_stations.text())
         node.setString('wing_link', self.edit_wing_link.currentText())
 
-        for le in self.leading_edges:
+        for i, le in enumerate(self.leading_edges):
             if le.valid:
-                subnode = ET.SubElement(node, 'leading_edge')
+                subnode = node.getChild('leading_edge[%d]' % i, True)
                 le.save(subnode)
-        for te in self.trailing_edges:
+        for i, te in enumerate(self.trailing_edges):
             if te.valid:
-                subnode = ET.SubElement(node, 'trailing_edge')
+                subnode = node.getChild('trailing_edge[%d]' % i, True)
                 te.save(subnode)
-        for spar in self.spars:
+        for i, spar in enumerate(self.spars):
             if spar.valid:
-                subnode = ET.SubElement(node, 'spar')
+                subnode = node.getChild('spar[%d]' % i, True)
                 spar.save(subnode)
-        for stringer in self.stringers:
+        for i, stringer in enumerate(self.stringers):
             if stringer.valid:
-                subnode = ET.SubElement(node, 'stringer')
+                subnode = node.getChild('stringer[%d]' % i, True)
                 stringer.save(subnode)
-        for sheet in self.sheeting:
+        for i, sheet in enumerate(self.sheeting):
             if sheet.valid:
-                subnode = ET.SubElement(node, 'sheet')
+                subnode = node.getChild('sheet[%d]' % i, True)
                 sheet.save(subnode)
-        for hole in self.simple_holes:
+        for i, hole in enumerate(self.simple_holes):
             if hole.valid:
-                subnode = ET.SubElement(node, 'simple_hole')
+                subnode = node.getChild('simple_hole[%d]' % i, True)
                 hole.save(subnode)
-        for hole in self.shaped_holes:
+        for i, hole in enumerate(self.shaped_holes):
             if hole.valid:
-                subnode = ET.SubElement(node, 'shaped_hole')
+                subnode = node.getChild('shaped_hole[%d]' % i, True)
                 hole.save(subnode)
-        for tab in self.build_tabs:
+        for i, tab in enumerate(self.build_tabs):
             if tab.valid:
-                subnode = ET.SubElement(node, 'build_tab')
+                subnode = node.getChild('build_tab[%d]' % i, True)
                 tab.save(subnode)
-        for flap in self.flaps:
+        for i, flap in enumerate(self.flaps):
             if flap.valid:
-                subnode = ET.SubElement(node, 'flap')
+                subnode = node.getChild('flap[%d]' % i, True)
                 flap.save(subnode)
 
 

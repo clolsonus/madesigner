@@ -308,13 +308,15 @@ class CreatorUI(QtGui.QWidget):
         self.wipe_slate()
 
         design = PropertyNode()
-        try:
-            props_xml.load(filename, design)
-            design.pretty_print()
-        except:
+        if props_json.load(filename, design):
+            print "json format: successful"
+        elif props_xml.load(filename, design):
+            print "xml format: successful"
+        else:
             error = QtGui.QErrorMessage(self)
-            error.showMessage( filename + ": xml parse error:\n" + str(sys.exc_info()[1]) )
+            error.showMessage( filename + ": load failed" )
             return
+        # design.pretty_print()
 
         self.setWindowTitle( self.default_title + " - " + fileroot )
 
@@ -388,24 +390,23 @@ class CreatorUI(QtGui.QWidget):
             else:
                 self.filename = filename
                 self.fileroot, ext = os.path.splitext(self.filename)
+                # print self.fileroot, ext
 
-        # create a new xml root
-        root = ET.Element('design')
-        self.xml = ET.ElementTree(root)
+        # create a new design root
+        design = PropertyNode()
 
         # overview
-        node = ET.SubElement(root, 'overview')
+        node = design.getChild('overview', True)
         self.overview.save(node)
 
         # wings
-        for wing in self.wings:
+        for i, wing in enumerate(self.wings):
             if wing.valid:
-                node = ET.SubElement(root, 'wing')
+                node = design.getChild('wing[%d]' % i, True)
                 wing.save(node)
 
         try:
-            self.xml.write(self.filename, encoding="us-ascii",
-                           xml_declaration=False, pretty_print=True)
+            props_json.save(self.filename, design)
         except:
             print "error saving file"
             return
