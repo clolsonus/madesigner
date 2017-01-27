@@ -12,8 +12,6 @@ started: November 2013
 import sys
 from PyQt4 import QtGui, QtCore
 
-from props import root, getNode
-
 from combobox_nowheel import QComboBoxNoWheel
 from version import MADversion
 

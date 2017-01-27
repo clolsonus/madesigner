@@ -13,8 +13,6 @@ import os.path
 import sys
 from PyQt4 import QtGui, QtCore
 
-from props import root, getNode
-
 from combobox_nowheel import QComboBoxNoWheel
 
 from leading_edge_ui import LeadingEdgeUI
@@ -420,32 +418,23 @@ class WingUI():
         if node.hasChild('build_tab'): node.setLen('build_tab', 1)
         if node.hasChild('flap'): node.setLen('flap', 1)
         
-        num = node.getLen('leading_edge')
-        for i in range(num):
+        for i in range(node.getLen('leading_edge')):
             self.add_leading_edge(node.getChild('leading_edge[%d]' % i))
-        num = node.getLen('trailing_edge')
-        for i in range(num):
+        for i in range(node.getLen('trailing_edge')):
             self.add_trailing_edge(node.getChild('trailing_edge[%d]' % i))
-        num = node.getLen('spar')
-        for i in range(num):
+        for i in range(node.getLen('spar')):
             self.add_spar(node.getChild('spar[%d]' % i))
-        num = node.getLen('stringer')
-        for i in range(num):
+        for i in range(node.getLen('stringer')):
             self.add_stringer(node.getChild('stringer[%d]' % i))
-        num = node.getLen('sheet')
-        for i in range(num):
+        for i in range(node.getLen('sheet')):
             self.add_sheet(node.getChild('sheet[%d]' % i))
-        num = node.getLen('simple_hole')
-        for i in range(num):
+        for i in range(node.getLen('simple_hole')):
             self.add_simple_hole(node.getChild('simple_hole[%d]' % i))
-        num = node.getLen('shaped_hole')
-        for i in range(num):
+        for i in range(node.getLen('shaped_hole')):
             self.add_shaped_hole(node.getChild('shaped_hole[%d]' % i))
-        num = node.getLen('build_tab')
-        for i in range(num):
+        for i in range(node.getLen('build_tab')):
             self.add_build_tab(node.getChild('build_tab[%d]' % i))
-        num = node.getLen('flap')
-        for i in range(num):
+        for i in range(node.getLen('flap')):
             self.add_flap(node.getChild('flap[%d]' % i))
 
     def save(self, node):

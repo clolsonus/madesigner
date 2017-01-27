@@ -19,7 +19,7 @@ import distutils.spawn
 import urllib2
 from PyQt4 import QtGui, QtCore
 
-from props import root, getNode
+from props import PropertyNode
 import props_xml
 import props_json
 
@@ -307,8 +307,10 @@ class CreatorUI(QtGui.QWidget):
 
         self.wipe_slate()
 
+        design = PropertyNode()
         try:
-            props_xml.load(filename, root)
+            props_xml.load(filename, design)
+            design.pretty_print()
         except:
             error = QtGui.QErrorMessage(self)
             error.showMessage( filename + ": xml parse error:\n" + str(sys.exc_info()[1]) )
@@ -319,13 +321,13 @@ class CreatorUI(QtGui.QWidget):
         self.filename = str(filename)
         self.fileroot, ext = os.path.splitext(self.filename)
 
-        node = getNode('/overview')
+        node = design.getChild('overview', True)
         self.overview.load(node)
 
-        root.setLen('wing', 1) # force to be enumerated if not already
-        num_wings = root.getLen('wing')
+        design.setLen('wing', 1) # force to be enumerated if not already
+        num_wings = design.getLen('wing')
         for i in range(num_wings):
-            wing_node = root.getChild('wing[%d]' % i)
+            wing_node = design.getChild('wing[%d]' % i)
             wing = WingUI(changefunc=self.onChange)
             wing.load(wing_node)
             self.wings.append(wing)
@@ -386,9 +388,6 @@ class CreatorUI(QtGui.QWidget):
             else:
                 self.filename = filename
                 self.fileroot, ext = os.path.splitext(self.filename)
-
-        #pickle = jsonpickle.encode(self)
-        #print str(pickle)
 
         # create a new xml root
         root = ET.Element('design')
