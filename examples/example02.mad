@@ -3,7 +3,7 @@
         "MADversion": "0.5", 
         "author": "Curt Olson", 
         "description": "Beginning to add typical wing structures.\n* add top and bottom spars\n* add stringers", 
-        "email": "None", 
+        "email": "", 
         "name": "Example 2", 
         "plans_height": "36", 
         "plans_width": "24", 
@@ -80,9 +80,9 @@
                     "width": "0.2"
                 }
             ], 
-            "sweep": "None", 
+            "sweep": "", 
             "sweep_curve": "", 
-            "twist": "None", 
+            "twist": "", 
             "wing_link": "none"
         }
     ]

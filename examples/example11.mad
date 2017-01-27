@@ -3,7 +3,7 @@
         "MADversion": "0.5", 
         "author": "Curt Olson", 
         "description": "Stations!  Any feature can start and end at any station.  You are the engineer and get to decide what you want, how big, and where it starts and ends.", 
-        "email": "None", 
+        "email": "", 
         "name": "Example 11", 
         "plans_height": "36", 
         "plans_width": "24", 
@@ -89,7 +89,7 @@
                     "width": "0.15"
                 }
             ], 
-            "sweep": "None", 
+            "sweep": "", 
             "sweep_curve": "", 
             "twist": "5", 
             "wing_link": "none"

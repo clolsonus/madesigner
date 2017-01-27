@@ -3,7 +3,7 @@
         "MADversion": "0.5", 
         "author": "Curt Olson", 
         "description": "A very simple example", 
-        "email": "None", 
+        "email": "", 
         "name": "Example 1", 
         "plans_height": "36", 
         "plans_width": "24", 
@@ -14,20 +14,20 @@
     "wing": [
         {
             "airfoil_root": "clarky", 
-            "airfoil_tip": "None", 
-            "chord_curve": "None", 
+            "airfoil_tip": "", 
+            "chord_curve": "", 
             "chord_root": "10", 
             "chord_tip": "8", 
             "dihedral": "5", 
             "flap": [
                 {
                     "angle": "45", 
-                    "at_station": "None", 
+                    "at_station": "", 
                     "end_station": "End: 21", 
                     "height": "0.125", 
                     "position": "0.6", 
                     "position_ref": "Chord %", 
-                    "slope": "None", 
+                    "slope": "", 
                     "start_station": "Start: 12", 
                     "width": "0.125"
                 }
@@ -63,8 +63,8 @@
                 }
             ], 
             "stations": "0 3 6 9 12 15 18 21 24 27 30", 
-            "sweep": "None", 
-            "sweep_curve": "None", 
+            "sweep": "", 
+            "sweep_curve": "", 
             "trailing_edge": [
                 {
                     "end_station": "End: Outer", 

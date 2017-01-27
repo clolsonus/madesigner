@@ -3,7 +3,7 @@
         "MADversion": "0.5", 
         "author": "Curt Olson", 
         "description": "This example shows how easy it is to create a wing with a curved sweep.\nSweep curves are specified using the same syntax as chord/taper curves.\nWhy would you do this?  I don't know, but imagine how much work it would be to design this with a cad program!", 
-        "email": "None", 
+        "email": "", 
         "name": "Example 7", 
         "plans_height": "36", 
         "plans_width": "24", 
@@ -80,7 +80,7 @@
                     "width": "0.2"
                 }
             ], 
-            "sweep": "None", 
+            "sweep": "", 
             "sweep_curve": "", 
             "twist": "5", 
             "wing_link": "none"

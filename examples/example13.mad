@@ -3,7 +3,7 @@
         "MADversion": "0.5", 
         "author": "Curt Olson", 
         "description": "This example shows how to build a multi-panel, polyhedral wing.  In this case the mh43 glider airfoil is chosen.  Notice in the Outer wing tab that the panel is \"linked\" to the \"Inner\" wing.", 
-        "email": "None", 
+        "email": "", 
         "name": "Example 13", 
         "plans_height": "36", 
         "plans_width": "24", 
@@ -14,8 +14,8 @@
     "wing": [
         {
             "airfoil_root": "mh43", 
-            "airfoil_tip": "None", 
-            "chord_curve": "None", 
+            "airfoil_tip": "", 
+            "chord_curve": "", 
             "chord_root": "10", 
             "chord_tip": "9", 
             "dihedral": "5", 
@@ -98,8 +98,8 @@
                     "width": "0.125"
                 }
             ], 
-            "sweep": "None", 
-            "sweep_curve": "None", 
+            "sweep": "", 
+            "sweep_curve": "", 
             "trailing_edge": [
                 {
                     "end_station": "End: Outer", 
@@ -109,13 +109,13 @@
                     "width": "0.75"
                 }
             ], 
-            "twist": "None", 
+            "twist": "", 
             "wing_link": "none"
         }, 
         {
             "airfoil_root": "mh43", 
-            "airfoil_tip": "None", 
-            "chord_curve": "None", 
+            "airfoil_tip": "", 
+            "chord_curve": "", 
             "chord_root": "9", 
             "chord_tip": "6", 
             "dihedral": "15", 
@@ -187,8 +187,8 @@
                     "width": "0.125"
                 }
             ], 
-            "sweep": "None", 
-            "sweep_curve": "None", 
+            "sweep": "", 
+            "sweep_curve": "", 
             "trailing_edge": [
                 {
                     "end_station": "End: Outer", 
@@ -198,7 +198,7 @@
                     "width": "0.75"
                 }
             ], 
-            "twist": "None", 
+            "twist": "", 
             "wing_link": "Inner"
         }
     ]

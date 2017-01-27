@@ -3,7 +3,7 @@
         "MADversion": "0.5", 
         "author": "Curt Olson", 
         "description": "This example shows how easy it is to create a complex curved wing using a spline curve to define the cord relative to the span of the wing.\nCurves are specified as pairs of (station, value) with as many points as you wish to use.\nIn the example the chord is 10\" at station 0 (the root), 12\" at station 10 (10 inches out) and 6\" at station 30 (the tip) and then blended smoothly in between.", 
-        "email": "None", 
+        "email": "", 
         "name": "Example 6", 
         "plans_height": "36", 
         "plans_width": "24", 
@@ -80,7 +80,7 @@
                     "width": "0.2"
                 }
             ], 
-            "sweep": "None", 
+            "sweep": "", 
             "sweep_curve": "", 
             "twist": "5", 
             "wing_link": "none"

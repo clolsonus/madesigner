@@ -3,7 +3,7 @@
         "MADversion": "0.5", 
         "author": "Curt Olson", 
         "description": "We can skin the wing for sheeting.  Sheet position at the time of this example is limited, but this example shows typical \"D\" construction wing sheeting.", 
-        "email": "None", 
+        "email": "", 
         "name": "Example 10", 
         "plans_height": "36", 
         "plans_width": "24", 
@@ -100,7 +100,7 @@
                     "width": "0.2"
                 }
             ], 
-            "sweep": "None", 
+            "sweep": "", 
             "sweep_curve": "", 
             "twist": "5", 
             "wing_link": "none"

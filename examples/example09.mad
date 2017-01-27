@@ -3,7 +3,7 @@
         "MADversion": "0.5", 
         "author": "Curt Olson", 
         "description": "With a simple wing plan and custom station  positions, let's start adding more features to our wing.\n* a simple round hole\n* a shaped hole\n* a build tab for assisting with build alignment", 
-        "email": "None", 
+        "email": "", 
         "name": "Example 9", 
         "plans_height": "36", 
         "plans_width": "24", 
@@ -80,7 +80,7 @@
                     "width": "0.2"
                 }
             ], 
-            "sweep": "None", 
+            "sweep": "", 
             "sweep_curve": "", 
             "twist": "5", 
             "wing_link": "none"

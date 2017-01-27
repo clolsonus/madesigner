@@ -3,7 +3,7 @@
         "MADversion": "0.5", 
         "author": "Curt Olson", 
         "description": "This example demonstrates how easy it is to create a wing that blends from one airfoil at the root to a completely different airfoil at the tip.\n* demonstrate airfoil blending\n- add sweep\n- add straight taper\n- add twist (washout)\n- add top and bottom spars\n- add stringers", 
-        "email": "None", 
+        "email": "", 
         "name": "Example 5", 
         "plans_height": "36", 
         "plans_width": "24", 

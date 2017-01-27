@@ -3,7 +3,7 @@
         "MADversion": "0.5", 
         "author": "Curt Olson", 
         "description": "Back to a simpler wing plan, but now lets put the ribs where we want them by entering our own station values.", 
-        "email": "None", 
+        "email": "", 
         "name": "Example 8", 
         "plans_height": "36", 
         "plans_width": "24", 
@@ -80,7 +80,7 @@
                     "width": "0.2"
                 }
             ], 
-            "sweep": "None", 
+            "sweep": "", 
             "sweep_curve": "", 
             "twist": "5", 
             "wing_link": "none"

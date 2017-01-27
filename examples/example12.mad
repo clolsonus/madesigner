@@ -3,7 +3,7 @@
         "MADversion": "0.5", 
         "author": "Curt Olson", 
         "description": "This example adds flaps and ailerons to a tapered wing.", 
-        "email": "None", 
+        "email": "", 
         "name": "Example 12", 
         "plans_height": "36", 
         "plans_width": "24", 
@@ -27,7 +27,7 @@
                     "height": "0.125", 
                     "position": "0.55", 
                     "position_ref": "", 
-                    "slope": "None", 
+                    "slope": "", 
                     "start_station": "", 
                     "width": "0.25"
                 }, 
@@ -38,7 +38,7 @@
                     "height": "0.125", 
                     "position": "0.6", 
                     "position_ref": "", 
-                    "slope": "None", 
+                    "slope": "", 
                     "start_station": "", 
                     "width": "0.25"
                 }
@@ -86,7 +86,7 @@
                     "width": "0.2"
                 }
             ], 
-            "sweep": "None", 
+            "sweep": "", 
             "sweep_curve": "", 
             "twist": "5", 
             "wing_link": "none"

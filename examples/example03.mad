@@ -3,7 +3,7 @@
         "MADversion": "0.5", 
         "author": "Curt Olson", 
         "description": "This example begins to add a bit of complexity to show the power of MA designer.\n* add straight taper\n* add twist (washout)\n- add top and bottom spars\n- add stringers", 
-        "email": "None", 
+        "email": "", 
         "name": "Example 3", 
         "plans_height": "36", 
         "plans_width": "24", 
@@ -80,7 +80,7 @@
                     "width": "0.2"
                 }
             ], 
-            "sweep": "None", 
+            "sweep": "", 
             "sweep_curve": "", 
             "twist": "5", 
             "wing_link": "none"
