@@ -25,6 +25,12 @@ import lib.ac3d
 import lib.contour
 from lib.wing import Wing
 
+def myfloat(node, name):
+    val = node.getString(name)
+    if val == '' or val == 'None':
+        return 0.0
+    else:
+        return float(val)
 
 class Builder():
 
@@ -104,13 +110,13 @@ class Builder():
         
     def parse_overview(self, node):
         self.units = node.getString('units')
-        self.sheet_w = node.getFloat('sheet-width')
-        self.sheet_h = node.getFloat('sheet-height')
-        self.plans_w = node.getFloat('plans-width')
-        self.plans_h = node.getFloat('plans-height')
+        self.sheet_w = myfloat(node, 'sheet-width')
+        self.sheet_h = myfloat(node, 'sheet-height')
+        self.plans_w = myfloat(node, 'plans-width')
+        self.plans_h = myfloat(node, 'plans-height')
 
     def parse_leading_edge(self, wing, node):
-        size = node.getFloat('size')
+        size = myfloat(node, 'size')
         junk, startstr = node.getString('start-station').split()
         junk, endstr = node.getString('end-station').split()
         if startstr == "Inner" or startstr == "":
@@ -124,8 +130,8 @@ class Builder():
         wing.add_leading_edge(size=size, start_station=start, end_station=end, part="wing")
 
     def parse_trailing_edge(self, wing, node):
-        width = node.getFloat('width')
-        height = node.getFloat('height')
+        width = myfloat(node, 'width')
+        height = myfloat(node, 'height')
         shape = node.getString('shape')
         junk, startstr = node.getString('start-station').split()
         junk, endstr = node.getString('end-station').split()
@@ -142,10 +148,10 @@ class Builder():
             wing.add_trailing_edge(width=width, height=height, shape=shape, start_station=p[0], end_station=p[1], part=p[2])
 
     def parse_stringer(self, wing, node):
-        width = node.getFloat('width')
-        height = node.getFloat('height')
+        width = myfloat(node, 'width')
+        height = myfloat(node, 'height')
         position_ref = node.getString('position-ref')
-        position_val = node.getFloat('position')
+        position_val = myfloat(node, 'position')
         percent = None
         front = None
         rear = None
@@ -173,10 +179,10 @@ class Builder():
         wing.add_stringer(surf=surface, orientation="tangent", percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ysize=height, start_station=start, end_station=end, part="wing")
 
     def parse_spar(self, wing, node):
-        width = node.getFloat('width')
-        height = node.getFloat('height')
+        width = myfloat(node, 'width')
+        height = myfloat(node, 'height')
         position_ref = node.getString('position-ref')
-        position_val = node.getFloat('position')
+        position_val = myfloat(node, 'position')
         percent = None
         front = None
         rear = None
@@ -204,10 +210,10 @@ class Builder():
         wing.add_spar(surf=surface, orientation="vertical", percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ysize=height, start_station=start, end_station=end, part="wing")
 
     def parse_sheet(self, wing, node):
-        depth = node.getFloat('depth')
-        xstart = node.getFloat('xstart')
+        depth = myfloat(node, 'depth')
+        xstart = myfloat(node, 'xstart')
         xmode = node.getString('xmode')
-        dist = node.getFloat('xend')
+        dist = myfloat(node, 'xend')
         xend = None
         xdist = None
         if xmode == "Sheet Width":
@@ -230,9 +236,9 @@ class Builder():
 
     def parse_simple_hole(self, wing, node):
         style = node.getString('style')
-        size = node.getFloat('size')
+        size = myfloat(node, 'size')
         position_ref = node.getString('position-ref')
-        position_val = node.getFloat('position')
+        position_val = myfloat(node, 'position')
         percent = None
         front = None
         rear = None
@@ -260,11 +266,11 @@ class Builder():
         wing.add_simple_hole(style=style, size=size, pos1=pos, start_station=start, end_station=end, part="wing")
 
     def parse_shaped_hole(self, wing, node):
-        width = node.getFloat('material-width')
-        radius = node.getFloat('corner-radius')
+        width = myfloat(node, 'material-width')
+        radius = myfloat(node, 'corner-radius')
 
         position1_ref = node.getString('position1-ref')
-        position1_val = node.getFloat('position1')
+        position1_val = myfloat(node, 'position1')
         percent = None
         front = None
         rear = None
@@ -280,7 +286,7 @@ class Builder():
         pos1=lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
 
         position2_ref = node.getString('position2-ref')
-        position2_val = node.getFloat('position2')
+        position2_val = myfloat(node, 'position2')
         percent = None
         front = None
         rear = None
@@ -309,10 +315,10 @@ class Builder():
         wing.add_shaped_hole(pos1=pos1, pos2=pos2, material_width=width, radius=radius, start_station=start, end_station=end, part="wing")
 
     def parse_build_tab(self, wing, node):
-        width = node.getFloat('width')
-        ypad = node.getFloat('ypad')
+        width = myfloat(node, 'width')
+        ypad = myfloat(node, 'ypad')
         position_ref = node.getString('position-ref')
-        position_val = node.getFloat('position')
+        position_val = myfloat(node, 'position')
         percent = None
         front = None
         rear = None
@@ -339,10 +345,10 @@ class Builder():
         wing.add_build_tab(surf=surface, percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ypad=ypad, start_station=start, end_station=end, part="wing")
 
     def parse_flap(self, wing, node):
-        width = node.getFloat('width')
-        height = node.getFloat('height')
+        width = myfloat(node, 'width')
+        height = myfloat(node, 'height')
         position_ref = node.getString('position-ref')
-        position_val = node.getFloat('position')
+        position_val = myfloat(node, 'position')
         percent = None
         front = None
         rear = None
@@ -373,9 +379,9 @@ class Builder():
             end = None
         else:
             end = myfloat(end_str)
-        atstation = node.getFloat('at-station')
-        slope = node.getFloat('slope')
-        angle = node.getFloat('angle')
+        atstation = myfloat(node, 'at-station')
+        slope = myfloat(node, 'slope')
+        angle = myfloat(node, 'angle')
         pos = lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos, atstation=atstation, slope=slope)
         size = ( width, height )
         wing.add_flap( start_station=start, end_station=end, pos=pos, type="builtup", angle=angle, edge_stringer_size=size)
@@ -406,30 +412,29 @@ class Builder():
         if airfoil_tip == "":
             airfoil_tip = None
         wing.load_airfoils( airfoil_root, airfoil_tip )
-        wing.span = node.getFloat('span')
+        wing.span = myfloat(node, 'span')
         station_list = map( float, str(node.getString('stations')).split())
         wing.set_stations( station_list )
-        wing.twist = node.getFloat('twist')
+        wing.twist = myfloat(node, 'twist')
         sweep_curve = self.make_curve( node.getString('sweep-curve') )
         if ( len(sweep_curve) >= 2 ):
             wing.set_sweep_curve( sweep_curve )
         else:
-            print node.getString('sweep')
-            wing.set_sweep_angle( node.getFloat('sweep') )
+            wing.set_sweep_angle( myfloat(node, 'sweep') )
         chord_curve = self.make_curve( node.getString('chord-curve') )
         if ( len(chord_curve) >= 2 ):
             wing.set_taper_curve( chord_curve )
         else:
-            chord_root = node.getFloat('chord-root')
-            chord_tip = node.getFloat('chord-tip')
+            chord_root = myfloat(node, 'chord-root')
+            chord_tip = myfloat(node, 'chord-tip')
             wing.set_chord( chord_root, chord_tip )
-        wing.dihedral = node.getFloat('dihedral')
+        wing.dihedral = myfloat(node, 'dihedral')
         wing.link_name = node.getString('wing-link')
 
         # parse flaps first so we can use this info to partition the
         # trailing edge and possibly other structures too
-        for flap_node in node.findall('flap'):
-            self.parse_flap(wing, flap_node)
+        for i in range(node.getLen('flap')):
+            self.parse_flap(wing, node.getChild('flap[%d]' % i))
 
         for le_node in node.findall('leading-edge'):
             self.parse_leading_edge(wing, le_node)
