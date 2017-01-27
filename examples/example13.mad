@@ -61,7 +61,7 @@
                 {
                     "end_station": "End: Outer", 
                     "height": "0.125", 
-                    "position": "0.60", 
+                    "position": "0.6", 
                     "position_ref": "Chord %", 
                     "start_station": "Start: Inner", 
                     "surface": "Top", 
@@ -70,7 +70,7 @@
                 {
                     "end_station": "End: Outer", 
                     "height": "0.125", 
-                    "position": "0.60", 
+                    "position": "0.6", 
                     "position_ref": "Chord %", 
                     "start_station": "Start: Inner", 
                     "surface": "Bottom", 
@@ -150,7 +150,7 @@
                 {
                     "end_station": "End: Outer", 
                     "height": "0.125", 
-                    "position": "0.60", 
+                    "position": "0.6", 
                     "position_ref": "Chord %", 
                     "start_station": "Start: Inner", 
                     "surface": "Top", 
@@ -159,7 +159,7 @@
                 {
                     "end_station": "End: Outer", 
                     "height": "0.125", 
-                    "position": "0.60", 
+                    "position": "0.6", 
                     "position_ref": "Chord %", 
                     "start_station": "Start: Inner", 
                     "surface": "Bottom", 

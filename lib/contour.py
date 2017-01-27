@@ -567,6 +567,7 @@ class Contour:
             if angle > 360:
                 angle -= 360
         r0 = self.rotate_point( (0, ysize), angle )
+        #print 'r0:', r0, 'orig:', orig
         pt = ( r0[0] + orig[0], r0[1] + orig[1] )
         return pt
 
@@ -589,8 +590,10 @@ class Contour:
         # make the exact sweep base line
         dist = 0.0
         xpos = xstart
+        #print 'xpos:', xpos, 'curve:', curve
         ypos = self.simple_interp(curve, xstart)
-        shape.append( (xpos, ypos) )
+        if ypos:
+            shape.append( (xpos, ypos) )
         index = spline.binsearch(curve, xpos)
         if curve[index][0] <= xpos:
             index += 1
@@ -605,7 +608,8 @@ class Contour:
                 dist += next_dist
                 xpos = nextpt[0]
                 ypos = nextpt[1]
-                shape.append( (xpos, ypos) )
+                if ypos:
+                    shape.append( (xpos, ypos) )
                 index += 1
             else:
                 done = True
@@ -619,17 +623,21 @@ class Contour:
             dx = nextpt[0] - xpos
             xpos += dx * pct
             ypos = self.simple_interp(curve, xpos)
-            shape.append( (xpos, ypos) )
+            if ypos:
+                shape.append( (xpos, ypos) )
         elif index < n and xend and xpos < xend:
             xpos = xend
             ypos = self.simple_interp(curve, xpos)
-            shape.append( (xpos, ypos) )
+            if ypos:
+                shape.append( (xpos, ypos) )
 
         # project the sweep line at the specified thickness
         result = []
+        #print 'shape:', shape
         for p in shape:
             index = spline.binsearch(curve, p[0])
             slope = slopes[index]
+            #print 'p:', p
             proj = self.project_point(p, ysize, surf, slope)
             result.append(proj)
 
@@ -638,18 +646,18 @@ class Contour:
     def cutout_sweep(self, surf="top", xstart=0.0, xend=None, xdist=None,
                      ysize=0.0, pos=None, nudge=0.0):
         #print "ysize = " + str(ysize)
-        #print "xstart = " + str(xstart) + " xend = " + str(xend) + " xdist = " + str(xdist)
+        print "xstart = " + str(xstart) + " xend = " + str(xend) + " xdist = " + str(xdist)
         if self.poly == None:
             self.make_poly()
-        flush = self.project_contour(surf=surf, xstart=xstart, \
-                                        xend=xend, xdist=xdist, \
-                                        ysize=0.0)
-        surf1 = self.project_contour(surf=surf, xstart=xstart, \
-                                         xend=xend, xdist=xdist, \
-                                         ysize=-ysize)
-        surf2 = self.project_contour(surf=surf, xstart=xstart, \
-                                         xend=xend, xdist=xdist, \
-                                         ysize=ysize)
+        flush = self.project_contour(surf=surf, xstart=xstart,
+                                     xend=xend, xdist=xdist,
+                                     ysize=0.0)
+        surf1 = self.project_contour(surf=surf, xstart=xstart,
+                                     xend=xend, xdist=xdist,
+                                     ysize=-ysize)
+        surf2 = self.project_contour(surf=surf, xstart=xstart,
+                                     xend=xend, xdist=xdist,
+                                     ysize=ysize)
         surf1.reverse()
         shape = surf1 + surf2
         mask = Polygon.Polygon(shape)
