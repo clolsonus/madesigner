@@ -160,32 +160,20 @@ some of the actual capabilities available right now?
 
 # Road Map
 
-This is a hobby project in my spare time so I am trying to measure my
-efforts and balance good forward progress with feature complete
-design.  My design process is "iterative" and based on trying to push
-a couple real world examples through from start to finish.  When I run
-up against something I missed I will cycle back and add that feature
-and push it downstream through the whole process.  Hopefully
-eventually arriving at a useable system that doesn't do everything for
-everyone, but does a lot from start to finish.
+This is a personal hobby project so there is no hard time line for
+future development effort.
 
-Initially I have made good progress on basic airfoil manipulation and
-cutting out notches and holes required for real world construction.
+- My next focus is on FreeCAD.  FreeCAD offers a python library with a
+  full suite of 3d cad functionality.  I would like to use this to
+  construct the structure geometry and then output in a format that
+  can be imported into any CAD software for further manipulation.
 
-Next up I will look at laying out the wing plan from the top down and
-drawing the wing from the front/side view.  I would like to be able to
-output full size plan sheets for those with a plotter big enough to
-handle them.
+- I would like to extend the code to implement a fuselage structure so
+  that more complete designs can be attained.
 
-Also, it is important to me to be able to lay out all the individual
-parts onto part sheets so they can be cut out by a laser cutter or cnc
-router.  That is the key to this whole project -- not only designing
-the plans, but doing it in a way that the parts can be quickly and
-accurately produced, and then easily assembled.
-
-Also on my radar screen is applying all these core capabilities to
-fuselage design and construction.  The shapes are different between a
-wing and a fuselage, but much of the process is analogous.
+- I would like to add some helper functions to autogenerate more of
+  the internal structure based on larger user preferences.
+  I.e. generate a D-tube wing structure on top of the given layout.
 
 
 # Frequently Asked Questions
