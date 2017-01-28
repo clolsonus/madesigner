@@ -916,6 +916,7 @@ class Structure:
     def build_freecad(self, xoffset=0.0, yoffset=0.0):
         # make parts
         for rib in self.right_ribs:
-            freecad.make_object("wing rib", rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
-
-        # assemble into a compound?
+            part = freecad.make_object("wing rib", rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
+            freecad.add_object(part)
+            
+        freecad.view_structure()

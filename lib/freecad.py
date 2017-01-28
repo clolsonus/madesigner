@@ -8,6 +8,8 @@ import FreeCAD
 import Part
 from FreeCAD import Base
 
+structure = Part.Compound
+
 def make_object(name, poly, thickness, pos, nudge):
     norm = Base.Vector(0,thickness,0)
     object = None
@@ -31,7 +33,13 @@ def make_object(name, poly, thickness, pos, nudge):
                 object = object.fuse(shape)
             else:
                 object = shape
-    object.exportStl('junk.stl')
+    return object
+
+def add_object(part):
+    structure.add(part)
+
+def view_structure():
+    structure.exportStl('junk.stl')
     command = ['osgviewer', 'junk.stl']
     pid = subprocess.Popen(command).pid
     print "spawned osgviewer with pid = " + str(pid)
