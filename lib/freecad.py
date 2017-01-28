@@ -8,27 +8,29 @@ import FreeCAD
 import Part
 from FreeCAD import Base
 
-structure = Part.Compound
+#myDocument = FreeCAD.newDocument("Document Name")
+parts = []
 
 def make_object(name, poly, thickness, pos, nudge):
+    print pos
     norm = Base.Vector(0,thickness,0)
     object = None
     for i in range(len(poly)):
         pts = []
         for p in poly.contour(i):
-            pts.append( Base.Vector(p[0], 0.0, p[1]) )
+            pts.append( Base.Vector(p[0]+pos[1], 0.0+pos[0], p[1]+pos[2]) )
         # close the loop
         pts.append( pts[0] )
-        print 'pts:', pts
+        #print 'pts:', pts
         seg = Part.makePolygon( pts )
         face = Part.Face(seg)
         shape = face.extrude(norm)
         if poly.isHole(i):
-            print 'hole:', poly.contour(i)
+            #print 'hole:', poly.contour(i)
             if object:
                 object = object.cut(shape)
         else:
-            print 'outline:', poly.contour(i)
+            #print 'outline:', poly.contour(i)
             if object:
                 object = object.fuse(shape)
             else:
@@ -36,10 +38,21 @@ def make_object(name, poly, thickness, pos, nudge):
     return object
 
 def add_object(part):
-    structure.add(part)
+    #myDocument.Objects.append(part)
+    parts.append(part)
 
 def view_structure():
-    structure.exportStl('junk.stl')
+    # merge all the faces from all the parts into a compound
+    faces = []
+    for part in parts:
+        print part
+        faces.extend(part.Faces)
+    compound = Part.Compound(faces)
+
+    # export to stl
+    compound.exportStl('junk.stl')
+
+    # view stl
     command = ['osgviewer', 'junk.stl']
     pid = subprocess.Popen(command).pid
     print "spawned osgviewer with pid = " + str(pid)
