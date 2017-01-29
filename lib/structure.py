@@ -918,5 +918,16 @@ class Structure:
         for rib in self.right_ribs:
             part = freecad.make_object("wing rib", rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
             freecad.add_object(part)
+
+        for rib in self.left_ribs:
+            part = freecad.make_object("wing rib", rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
+            freecad.add_object(part)
             
+        if len(self.spars):
+            for spar in self.spars:
+                if spar.side == "left":
+                    part = freecad.make_extrusion("spar", spar.points,
+                                                  spar.side=="left")
+                    freecad.add_object(part)
+
         freecad.view_structure()

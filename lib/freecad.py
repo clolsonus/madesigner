@@ -11,6 +11,21 @@ from FreeCAD import Base
 #myDocument = FreeCAD.newDocument("Document Name")
 parts = []
 
+def make_extrusion(name, points, side="left"):
+    wires = []
+    for section in points:
+        pts = []
+        for pt in section:
+            print "%.2f %.2f %.2f" % (pt[0], pt[1], pt[2])
+            pts.append( Base.Vector(pt[0], pt[1], pt[2]) )
+        print
+        pts.append(Base.Vector(pts[0])) # close loop
+        wire = Part.makePolygon(pts)
+        wires.append(wire)
+    loft = Part.makeLoft(wires, True)
+    return loft
+            
+
 def make_object(name, poly, thickness, pos, nudge):
     print pos
     norm = Base.Vector(0,thickness,0)
@@ -45,7 +60,6 @@ def view_structure():
     # merge all the faces from all the parts into a compound
     faces = []
     for part in parts:
-        print part
         faces.extend(part.Faces)
     compound = Part.Compound(faces)
 
