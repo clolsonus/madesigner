@@ -9,6 +9,7 @@ import Part
 from FreeCAD import Base
 
 myDocument = FreeCAD.newDocument("Document Name")
+myGroup = myDocument.addObject("App::DocumentObjectGroup","Group1")
 parts = []
 
 def make_extrusion(name, points, side="left"):
@@ -53,6 +54,7 @@ def make_object(name, poly, thickness, pos, nudge):
 
 def add_object(part):
     p = myDocument.addObject("Part::Feature", "some part")
+    myGroup.addObject(p)
     p.Shape = part
     parts.append(part)
 
