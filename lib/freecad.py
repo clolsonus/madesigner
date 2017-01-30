@@ -8,7 +8,7 @@ import FreeCAD
 import Part
 from FreeCAD import Base
 
-#myDocument = FreeCAD.newDocument("Document Name")
+myDocument = FreeCAD.newDocument("Document Name")
 parts = []
 
 def make_extrusion(name, points, side="left"):
@@ -16,9 +16,8 @@ def make_extrusion(name, points, side="left"):
     for section in points:
         pts = []
         for pt in section:
-            print "%.2f %.2f %.2f" % (pt[0], pt[1], pt[2])
+            #print "%.2f %.2f %.2f" % (pt[0], pt[1], pt[2])
             pts.append( Base.Vector(pt[0], pt[1], pt[2]) )
-        print
         pts.append(Base.Vector(pts[0])) # close loop
         wire = Part.makePolygon(pts)
         wires.append(wire)
@@ -53,7 +52,8 @@ def make_object(name, poly, thickness, pos, nudge):
     return object
 
 def add_object(part):
-    #myDocument.Objects.append(part)
+    p = myDocument.addObject("Part::Feature", "some part")
+    p.Shape = part
     parts.append(part)
 
 def view_structure():
@@ -70,3 +70,6 @@ def view_structure():
     command = ['osgviewer', 'junk.stl']
     pid = subprocess.Popen(command).pid
     print "spawned osgviewer with pid = " + str(pid)
+
+    # save our document
+    myDocument.saveAs("test.FCStd")
