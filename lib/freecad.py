@@ -26,7 +26,7 @@ def make_extrusion(name, points):
     return loft
             
 
-def make_object(name, poly, thickness, pos, nudge):
+def make_object(poly, thickness, pos, nudge):
     print pos
     norm = Base.Vector(0,thickness,0)
     object = None
@@ -52,9 +52,9 @@ def make_object(name, poly, thickness, pos, nudge):
                 object = shape
     return object
 
-def add_object(part):
-    p = myDocument.addObject("Part::Feature", "some part")
-    myGroup.addObject(p)
+def add_object(doc, group, name, part):
+    p = doc.addObject("Part::Feature", name)
+    group.addObject(p)
     p.Shape = part
     parts.append(part)
 
@@ -72,6 +72,4 @@ def view_structure():
     command = ['osgviewer', 'junk.stl']
     pid = subprocess.Popen(command).pid
     print "spawned osgviewer with pid = " + str(pid)
-
-    # save our document
-    myDocument.saveAs("test.FCStd")
+    
