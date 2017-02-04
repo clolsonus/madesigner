@@ -22,6 +22,12 @@ import contour
 import freecad
 import layout
 
+# path to your FreeCAD.so or FreeCAD.dll file
+FREECADPATH = '/usr/lib64/freecad/lib'
+sys.path.append(FREECADPATH)
+import FreeCAD
+import Part
+from FreeCAD import Base
 
 # rotate a point about (xdist, 0)
 def rotate_point( pt, xdist, angle ):
@@ -914,20 +920,52 @@ class Structure:
                     ac.make_extrusion("spar", spar.points, spar.side=="left")
 
     def build_freecad(self, xoffset=0.0, yoffset=0.0):
+        right_ref = Base.Vector(0, xoffset, yoffset)
+        left_ref = Base.Vector(0, -xoffset, yoffset)
+        right_rot = Base.Rotation(Base.Vector(1, 0, 0), self.dihedral)
+        right_pl = FreeCAD.Placement(right_ref, right_rot)
+        left_rot = Base.Rotation(Base.Vector(1, 0, 0), -self.dihedral)
+        left_pl = FreeCAD.Placement(left_ref, left_rot)
+        
         # make parts
         for rib in self.right_ribs:
             part = freecad.make_object("wing rib", rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
+            part.Placement = right_pl
             freecad.add_object(part)
 
         for rib in self.left_ribs:
             part = freecad.make_object("wing rib", rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
+            part.Placement = left_pl
             freecad.add_object(part)
-            
-        if len(self.spars):
-            for spar in self.spars:
-                if spar.side == "left":
-                    part = freecad.make_extrusion("spar", spar.points,
-                                                  spar.side=="left")
-                    freecad.add_object(part)
+
+        for te in self.trailing_edges:
+            if te.side == "left":
+                part = freecad.make_extrusion("trailing edge", te.points)
+                part.Placement = left_pl
+                freecad.add_object(part)
+            if te.side == "right":
+                part = freecad.make_extrusion("trailing edge", te.points)
+                part.Placement = right_pl
+                freecad.add_object(part)
+                
+        for le in self.leading_edges:
+            if le.side == "left":
+                part = freecad.make_extrusion("leading edge", le.points)
+                part.Placement = left_pl
+                freecad.add_object(part)
+            if le.side == "right":
+                part = freecad.make_extrusion("leading edge", le.points)
+                part.Placement = right_pl
+                freecad.add_object(part)
+                
+        for spar in self.spars:
+            if spar.side == "left":
+                part = freecad.make_extrusion("spar", spar.points)
+                part.Placement = left_pl
+                freecad.add_object(part)
+            if spar.side == "right":
+                part = freecad.make_extrusion("spar", spar.points)
+                part.Placement = right_pl
+                freecad.add_object(part)
 
         freecad.view_structure()

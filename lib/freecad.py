@@ -12,7 +12,7 @@ myDocument = FreeCAD.newDocument("Document Name")
 myGroup = myDocument.addObject("App::DocumentObjectGroup","Group1")
 parts = []
 
-def make_extrusion(name, points, side="left"):
+def make_extrusion(name, points):
     wires = []
     for section in points:
         pts = []
