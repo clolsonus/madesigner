@@ -919,70 +919,66 @@ class Structure:
                 if spar.side == "left":
                     ac.make_extrusion("spar", spar.points, spar.side=="left")
 
-    def build_freecad(self, xoffset=0.0, yoffset=0.0):
-        myDocument = FreeCAD.newDocument("Document Name")
-        shortKit = myDocument.addObject("App::DocumentObjectGroup","Short Kit")
-        stock = myDocument.addObject("App::DocumentObjectGroup","Stock")
-
+    def build_freecad(self, doc, xoffset=0.0, yoffset=0.0):
+        doc.make_extra_group('Wing_' + self.name)
+        
         right_ref = Base.Vector(0, xoffset, yoffset)
         left_ref = Base.Vector(0, -xoffset, yoffset)
         right_rot = Base.Rotation(Base.Vector(1, 0, 0), self.dihedral)
         right_pl = FreeCAD.Placement(right_ref, right_rot)
         left_rot = Base.Rotation(Base.Vector(1, 0, 0), -self.dihedral)
         left_pl = FreeCAD.Placement(left_ref, left_rot)
-        
+
         # make parts
         for rib in self.right_ribs:
-            part = freecad.make_object(rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
+            part = doc.make_object(rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
             part.Placement = right_pl
-            freecad.add_object(myDocument, shortKit, "rib", part)
+            doc.add_object("kit", "rib", part)
 
         for rib in self.left_ribs:
-            part = freecad.make_object(rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
+            part = doc.make_object(rib.contour.poly, rib.thickness, rib.pos, rib.nudge)
             part.Placement = left_pl
-            freecad.add_object(myDocument, shortKit, "rib", part)
+            doc.add_object("kit", "rib", part)
 
+        print "before trailing edge"
         for te in self.trailing_edges:
             if te.side == "left":
-                part = freecad.make_extrusion("trailing edge", te.points)
+                part = doc.make_extrusion("trailing edge", te.points)
                 part.Placement = left_pl
-                freecad.add_object(myDocument, stock, "trailing edge", part)
+                doc.add_object('stock', "trailing edge", part)
             if te.side == "right":
-                part = freecad.make_extrusion("trailing edge", te.points)
+                part = doc.make_extrusion("trailing edge", te.points)
                 part.Placement = right_pl
-                freecad.add_object(myDocument, stock, "trailing edge", part)
+                doc.add_object('stock', "trailing edge", part)
+        print "after trailing edge"
                 
         for le in self.leading_edges:
             if le.side == "left":
-                part = freecad.make_extrusion("leading edge", le.points)
+                part = doc.make_extrusion("leading edge", le.points)
                 part.Placement = left_pl
-                freecad.add_object(myDocument, stock, "leading edge", part)
+                doc.add_object('stock', "leading edge", part)
             if le.side == "right":
-                part = freecad.make_extrusion("leading edge", le.points)
+                part = doc.make_extrusion("leading edge", le.points)
                 part.Placement = right_pl
-                freecad.add_object(myDocument, stock, "leading edge", part)
+                doc.add_object('stock', "leading edge", part)
                 
         for spar in self.spars:
             if spar.side == "left":
-                part = freecad.make_extrusion("spar", spar.points)
+                part = doc.make_extrusion("spar", spar.points)
                 part.Placement = left_pl
-                freecad.add_object(myDocument, stock, "spar", part)
+                doc.add_object('stock', "spar", part)
             if spar.side == "right":
-                part = freecad.make_extrusion("spar", spar.points)
+                part = doc.make_extrusion("spar", spar.points)
                 part.Placement = right_pl
-                freecad.add_object(myDocument, stock, "spar", part)
+                doc.add_object('stock', "spar", part)
 
         for stringer in self.stringers:
             if stringer.side == "left":
-                part = freecad.make_extrusion("stringer", stringer.points)
+                part = doc.make_extrusion("stringer", stringer.points)
                 part.Placement = left_pl
-                freecad.add_object(myDocument, stock, "stringer", part)
+                doc.add_object('stock', "stringer", part)
             if stringer.side == "right":
-                part = freecad.make_extrusion("stringer", stringer.points)
+                part = doc.make_extrusion("stringer", stringer.points)
                 part.Placement = right_pl
-                freecad.add_object(myDocument, stock, "stringer", part)
+                doc.add_object('stock', "stringer", part)
 
-        # save our document
-        myDocument.saveAs("test.FCStd")
-        
-        freecad.view_structure()

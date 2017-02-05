@@ -8,68 +8,96 @@ import FreeCAD
 import Part
 from FreeCAD import Base
 
-myDocument = FreeCAD.newDocument("Document Name")
-myGroup = myDocument.addObject("App::DocumentObjectGroup","Group1")
-parts = []
+class GenFreeCAD():
+    def __init__(self):
+        self.doc = None
+        self.all_group = None
+        self.kit_group = None
+        self.stock_group = None
+        self.extra_group = None
 
-def make_extrusion(name, points):
-    wires = []
-    for section in points:
-        pts = []
-        for pt in section:
-            #print "%.2f %.2f %.2f" % (pt[0], pt[1], pt[2])
-            pts.append( Base.Vector(pt[0], pt[1], pt[2]) )
-        pts.append(Base.Vector(pts[0])) # close loop
-        wire = Part.makePolygon(pts)
-        wires.append(wire)
-    loft = Part.makeLoft(wires, True)
-    return loft
-            
+    def start_model(self, name):
+        self.doc = FreeCAD.newDocument(name)
+        self.kit_group = self.doc.addObject("App::DocumentObjectGroup", "Kit")
+        self.stock_group = self.doc.addObject("App::DocumentObjectGroup", "Stock")
+        self.all_group = self.doc.addObject("App::DocumentObjectGroup", "All")
 
-def make_object(poly, thickness, pos, nudge):
-    print pos
-    norm = Base.Vector(0,thickness,0)
-    object = None
-    for i in range(len(poly)):
-        pts = []
-        for p in poly.contour(i):
-            pts.append( Base.Vector(p[0]+pos[1], 0.0+pos[0], p[1]+pos[2]) )
-        # close the loop
-        pts.append( pts[0] )
-        #print 'pts:', pts
-        seg = Part.makePolygon( pts )
-        face = Part.Face(seg)
-        shape = face.extrude(norm)
-        if poly.isHole(i):
-            #print 'hole:', poly.contour(i)
-            if object:
-                object = object.cut(shape)
-        else:
-            #print 'outline:', poly.contour(i)
-            if object:
-                object = object.fuse(shape)
+    def save_model(self, name):
+        self.doc.saveAs("test.FCStd")
+
+    def make_extrusion(self, name, points):
+        wires = []
+        for section in points:
+            pts = []
+            for pt in section:
+                print "%.2f %.2f %.2f" % (pt[0], pt[1], pt[2])
+                pts.append( Base.Vector(pt[0], pt[1], pt[2]) )
+            pts.append(Base.Vector(pts[0])) # close loop
+            wire = Part.makePolygon(pts)
+            wires.append(wire)
+        loft = Part.makeLoft(wires, True)
+        return loft
+
+    def make_object(self, poly, thickness, pos, nudge):
+        print pos
+        norm = Base.Vector(0,thickness,0)
+        object = None
+        for i in range(len(poly)):
+            pts = []
+            for p in poly.contour(i):
+                pts.append( Base.Vector(p[0]+pos[1], 0.0+pos[0], p[1]+pos[2]) )
+            # close the loop
+            pts.append( pts[0] )
+            #print 'pts:', pts
+            seg = Part.makePolygon( pts )
+            face = Part.Face(seg)
+            shape = face.extrude(norm)
+            if poly.isHole(i):
+                #print 'hole:', poly.contour(i)
+                if object:
+                    object = object.cut(shape)
             else:
-                object = shape
-    return object
+                #print 'outline:', poly.contour(i)
+                if object:
+                    object = object.fuse(shape)
+                else:
+                    object = shape
+        return object
 
-def add_object(doc, group, name, part):
-    p = doc.addObject("Part::Feature", name)
-    group.addObject(p)
-    p.Shape = part
-    parts.append(part)
+    # make a new group and return it
+    def make_extra_group(self, name):
+        print "in extra_group()"
+        self.extra_group = self.doc.addObject("App::DocumentObjectGroup", name)
 
-def view_structure():
-    # merge all the faces from all the parts into a compound
-    faces = []
-    for part in parts:
-        faces.extend(part.Faces)
-    compound = Part.Compound(faces)
+    def add_object(self, group, name, part):
+        p = self.doc.addObject("Part::Feature", name)
+        p.Shape = part
+        if group == 'kit':
+            self.kit_group.addObject(p)
+        elif group == 'stock':
+            self.stock_group.addObject(p)
+        self.all_group.addObject(p)
+        if self.extra_group:
+            self.extra_group.addObject(p)
 
-    # export to stl
-    compound.exportStl('junk.stl')
+    def view_stl(self):
+        # merge all the faces from all the parts into a compound
+        face_list = []
 
-    # view stl
-    command = ['osgviewer', 'junk.stl']
-    pid = subprocess.Popen(command).pid
-    print "spawned osgviewer with pid = " + str(pid)
-    
+        #for part in parts:
+        #    faces.extend(part.Faces)
+
+        for part in self.all_group.Group:
+            shape = part.Shape
+            faces = shape.Faces
+            face_list.extend(faces)
+
+        compound = Part.Compound(face_list)
+
+        # export to stl
+        compound.exportStl('junk.stl')
+
+        # view stl
+        command = ['osgviewer', 'junk.stl']
+        pid = subprocess.Popen(command).pid
+        print "spawned osgviewer with pid = " + str(pid)

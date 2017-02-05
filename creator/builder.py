@@ -22,6 +22,7 @@ from props import PropertyNode
 import props_json
 
 import lib.ac3d
+import lib.freecad
 import lib.contour
 from lib.wing import Wing
 
@@ -493,19 +494,22 @@ class Builder():
             self.wings.append(wing)
 
         # generate AC3D model
-        if len(self.wings):
-            ac = lib.ac3d.AC3D( self.fileroot )
-            ac.gen_headers( "airframe", 2 )
-            for wing in self.wings:
-                tip = [ 0.0, 0.0, 0.0 ]
-                if wing.link_name != None and wing.link_name != "none":
-                    i = self.find_wing_by_name( wing.link_name )
-                    if i >= 0:
-                        tip = self.wings[i].get_tip_pos()
-                wing.build_ac3d( ac, xoffset=tip[1], yoffset=tip[2] )
-            ac.close()
+        # if len(self.wings):
+        #     ac = lib.ac3d.AC3D( self.fileroot )
+        #     ac.gen_headers( "airframe", 2 )
+        #     for wing in self.wings:
+        #         tip = [ 0.0, 0.0, 0.0 ]
+        #         if wing.link_name != None and wing.link_name != "none":
+        #             i = self.find_wing_by_name( wing.link_name )
+        #             if i >= 0:
+        #                 tip = self.wings[i].get_tip_pos()
+        #         wing.build_ac3d( ac, xoffset=tip[1], yoffset=tip[2] )
+        #     ac.close()
             
         # generate FreeCAD model
+        doc = lib.freecad.GenFreeCAD()
+        doc.start_model("my document")
+        print doc
         if len(self.wings):
             for wing in self.wings:
                 tip = [ 0.0, 0.0, 0.0 ]
@@ -513,7 +517,9 @@ class Builder():
                     i = self.find_wing_by_name( wing.link_name )
                     if i >= 0:
                         tip = self.wings[i].get_tip_pos()
-                wing.build_freecad( xoffset=tip[1], yoffset=tip[2] )
+                wing.build_freecad( doc, xoffset=tip[1], yoffset=tip[2] )
+        doc.view_stl()
+        doc.save_model("name");
 
 def usage():
     print "Usage: " + sys.argv[0] + " design.mad"
