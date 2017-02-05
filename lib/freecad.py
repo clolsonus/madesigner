@@ -30,7 +30,7 @@ class GenFreeCAD():
         for section in points:
             pts = []
             for pt in section:
-                print "%.2f %.2f %.2f" % (pt[0], pt[1], pt[2])
+                # print "%.2f %.2f %.2f" % (pt[0], pt[1], pt[2])
                 pts.append( Base.Vector(pt[0], pt[1], pt[2]) )
             pts.append(Base.Vector(pts[0])) # close loop
             wire = Part.makePolygon(pts)
@@ -39,13 +39,14 @@ class GenFreeCAD():
         return loft
 
     def make_object(self, poly, thickness, pos, nudge):
-        print pos
+        #print pos
+        halfw = thickness * 0.5
         norm = Base.Vector(0,thickness,0)
         object = None
         for i in range(len(poly)):
             pts = []
             for p in poly.contour(i):
-                pts.append( Base.Vector(p[0]+pos[1], 0.0+pos[0], p[1]+pos[2]) )
+                pts.append( Base.Vector(p[0]+pos[1], -halfw-nudge+pos[0], p[1]+pos[2]) )
             # close the loop
             pts.append( pts[0] )
             #print 'pts:', pts
@@ -66,7 +67,6 @@ class GenFreeCAD():
 
     # make a new group and return it
     def make_extra_group(self, name):
-        print "in extra_group()"
         self.extra_group = self.doc.addObject("App::DocumentObjectGroup", name)
 
     def add_object(self, group, name, part):

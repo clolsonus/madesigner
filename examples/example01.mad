@@ -46,7 +46,7 @@
                     "position": "0.15", 
                     "position_ref": "Chord %", 
                     "size": "0.5", 
-                    "start_station": "Start: 3", 
+                    "start_station": "Start: 0", 
                     "style": "% Height"
                 }
             ], 

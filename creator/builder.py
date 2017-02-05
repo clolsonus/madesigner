@@ -118,32 +118,33 @@ class Builder():
 
     def parse_leading_edge(self, wing, node):
         size = myfloat(node, 'size')
-        junk, startstr = node.getString('start_station').split()
-        junk, endstr = node.getString('end_station').split()
-        if startstr == "Inner" or startstr == "":
+        tokens = node.getString('start_station').split()
+        print 'le:', len(tokens), tokens
+        if len(tokens) == 2 and tokens[1] != 'Inner':
+            start = float(tokens[1])
+        else:
             start = None
+        tokens = node.getString('end_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Outer':
+            end = float(tokens[1])
         else:
-            start = float(startstr)
-        if endstr == "Outer" or endstr == "":
             end = None
-        else:
-            end = float(endstr)
         wing.add_leading_edge(size=size, start_station=start, end_station=end, part="wing")
 
     def parse_trailing_edge(self, wing, node):
         width = myfloat(node, 'width')
         height = myfloat(node, 'height')
         shape = node.getString('shape')
-        junk, startstr = node.getString('start_station').split()
-        junk, endstr = node.getString('end_station').split()
-        if startstr == "Inner" or startstr == "":
+        tokens = node.getString('start_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Inner':
+            start = float(tokens[1])
+        else:
             start = None
+        tokens = node.getString('end_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Outer':
+            end = float(tokens[1])
         else:
-            start = float(startstr)
-        if endstr == "Outer" or endstr == "":
             end = None
-        else:
-            end = float(endstr)
         parts = self.split_for_flaps(wing, start, end)
         for p in parts: 
             wing.add_trailing_edge(width=width, height=height, shape=shape, start_station=p[0], end_station=p[1], part=p[2])
@@ -166,17 +167,16 @@ class Builder():
         elif position_ref == "Abs Pos":
             xpos = position_val
         surface = node.getString('surface').lower()
-        #orientation = node.getString('orientation').lower()
-        junk, startstr = node.getString('start_station').split()
-        junk, endstr = node.getString('end_station').split()
-        if startstr == "Inner" or startstr == "":
+        tokens = node.getString('start_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Inner':
+            start = float(tokens[1])
+        else:
             start = None
+        tokens = node.getString('end_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Outer':
+            end = float(tokens[1])
         else:
-            start = float(startstr)
-        if endstr == "Outer" or endstr == "":
             end = None
-        else:
-            end = float(endstr)
         wing.add_stringer(surf=surface, orientation="tangent", percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ysize=height, start_station=start, end_station=end, part="wing")
 
     def parse_spar(self, wing, node):
@@ -197,17 +197,16 @@ class Builder():
         elif position_ref == "Abs Pos":
             xpos = position_val
         surface = node.getString('surface').lower()
-        #orientation = node.getString('orientation').lower()
-        junk, startstr = node.getString('start_station').split()
-        junk, endstr = node.getString('end_station').split()
-        if startstr == "Inner" or startstr == "":
+        tokens = node.getString('start_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Inner':
+            start = float(tokens[1])
+        else:
             start = None
+        tokens = node.getString('end_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Outer':
+            end = float(tokens[1])
         else:
-            start = float(startstr)
-        if endstr == "Outer" or endstr == "":
             end = None
-        else:
-            end = float(endstr)
         wing.add_spar(surf=surface, orientation="vertical", percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ysize=height, start_station=start, end_station=end, part="wing")
 
     def parse_sheet(self, wing, node):
@@ -222,16 +221,16 @@ class Builder():
         elif xmode == "End Position":
             xend = dist
         surface = node.getString('surface').lower()
-        junk, startstr = node.getString('start_station').split()
-        junk, endstr = node.getString('end_station').split()
-        if startstr == "Inner" or startstr == "":
+        tokens = node.getString('start_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Inner':
+            start = float(tokens[1])
+        else:
             start = None
+        tokens = node.getString('end_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Outer':
+            end = float(tokens[1])
         else:
-            start = float(startstr)
-        if endstr == "Outer" or endstr == "":
             end = None
-        else:
-            end = float(endstr)
         #print str(surface) + " " + str(xstart) + " " + str(xend) + " " + str(xdist) + " " + str(depth) + " " + str(start) + " " + str(end)
         wing.add_sheeting(surf=surface, xstart=xstart, xend=xend, xdist=xdist, ysize=depth, start_station=start, end_station=end, part="wing")
 
@@ -252,17 +251,16 @@ class Builder():
             rear = position_val
         elif position_ref == "Abs Pos":
             xpos = position_val
-        junk, startstr = node.getString('start_station').split()
-        junk, endstr = node.getString('end_station').split()
-        if startstr == "Inner" or startstr == "":
+        tokens = node.getString('start_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Inner':
+            start = float(tokens[1])
+        else:
             start = None
+        tokens = node.getString('end_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Outer':
+            end = float(tokens[1])
         else:
-            start = float(startstr)
-        if endstr == "Outer" or endstr == "":
             end = None
-        else:
-            end = float(endstr)
-
         pos=lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
         wing.add_simple_hole(style=style, size=size, pos1=pos, start_station=start, end_station=end, part="wing")
 
@@ -302,16 +300,16 @@ class Builder():
             xpos = position2_val
         pos2=lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
 
-        junk, startstr = node.getString('start_station').split()
-        junk, endstr = node.getString('end_station').split()
-        if startstr == "Inner" or startstr == "":
+        tokens = node.getString('start_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Inner':
+            start = float(tokens[1])
+        else:
             start = None
+        tokens = node.getString('end_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Outer':
+            end = float(tokens[1])
         else:
-            start = float(startstr)
-        if endstr == "Outer" or endstr == "":
             end = None
-        else:
-            end = float(endstr)
 
         wing.add_shaped_hole(pos1=pos1, pos2=pos2, material_width=width, radius=radius, start_station=start, end_station=end, part="wing")
 
@@ -333,16 +331,16 @@ class Builder():
         elif position_ref == "Abs Pos":
             xpos = position_val
         surface = node.getString('surface').lower()
-        junk, startstr = node.getString('start_station').split()
-        junk, endstr = node.getString('end_station').split()
-        if startstr == "Inner" or startstr == "":
+        tokens = node.getString('start_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Inner':
+            start = float(tokens[1])
+        else:
             start = None
+        tokens = node.getString('end_station').split()
+        if len(tokens) == 2 and tokens[1] != 'Outer':
+            end = float(tokens[1])
         else:
-            start = float(startstr)
-        if endstr == "Outer" or endstr == "":
             end = None
-        else:
-            end = float(endstr)
         wing.add_build_tab(surf=surface, percent=percent, front=front, rear=rear, xpos=xpos, xsize=width, ypad=ypad, start_station=start, end_station=end, part="wing")
 
     def parse_flap(self, wing, node):
@@ -509,7 +507,6 @@ class Builder():
         # generate FreeCAD model
         doc = lib.freecad.GenFreeCAD()
         doc.start_model("my document")
-        print doc
         if len(self.wings):
             for wing in self.wings:
                 tip = [ 0.0, 0.0, 0.0 ]

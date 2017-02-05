@@ -595,11 +595,13 @@ class Structure:
         for hole in self.holes:
             if self.match_station(hole.start_station, hole.end_station, lat_dist):
                 if hole.type == "simple":
+                    print 'hole:', lat_dist
                     xpos = rib.contour.get_xpos(hole.pos1,
                                                 station=rib.pos[0],
                                                 sweep=rib.pos[1])
                     ty = rib.contour.simple_interp(rib.contour.top, xpos)
                     by = rib.contour.simple_interp(rib.contour.bottom, xpos)
+                    print 'xpos:', xpos, ty, by
                     if ty == None or by == None:
                         continue
                     ypos = (ty + by) * 0.5
@@ -609,6 +611,7 @@ class Structure:
                         radius = (ty - by) * hole.size * 0.5
                     if radius < 0.0:
                         radius = 0.0
+                    print 'ok'
                     rib.contour.cut_hole( xpos, ypos, radius,
                                           points=self.circle_points )
                 elif hole.type == "shaped":
@@ -940,7 +943,6 @@ class Structure:
             part.Placement = left_pl
             doc.add_object("kit", "rib", part)
 
-        print "before trailing edge"
         for te in self.trailing_edges:
             if te.side == "left":
                 part = doc.make_extrusion("trailing edge", te.points)
@@ -950,7 +952,6 @@ class Structure:
                 part = doc.make_extrusion("trailing edge", te.points)
                 part.Placement = right_pl
                 doc.add_object('stock', "trailing edge", part)
-        print "after trailing edge"
                 
         for le in self.leading_edges:
             if le.side == "left":
