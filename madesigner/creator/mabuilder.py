@@ -21,6 +21,8 @@ import numpy
 from props import PropertyNode
 import props_json
 
+print sys.path
+
 import lib.ac3d
 import lib.freecad
 import lib.contour

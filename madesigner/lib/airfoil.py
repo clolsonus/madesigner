@@ -24,7 +24,8 @@ class Airfoil(Contour):
     def __init__(self, name = "", samples = 0, use_spline = False):
         Contour.__init__(self)
         # locate airfoils data path relative to top level script
-        datapath = os.path.split(os.path.abspath(sys.argv[0]))[0] + "/data"
+        rootpath = os.path.split(os.path.abspath(sys.argv[0]))[0]
+        datapath = os.path.join(rootpath, 'airfoils')
         self.datapath = datapath
         self.name = ""
         self.description = ""
@@ -38,7 +39,7 @@ class Airfoil(Contour):
 
     def load(self, base, samples = 0, use_spline = False):
         self.name = base
-        path = self.datapath + "/airfoils/" + base + ".dat"
+        path = os.path.join(self.datapath, base + ".dat")
         top = True
         dist = 0.0
         dlast = 0.0

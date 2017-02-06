@@ -10,7 +10,7 @@ setup( name = 'madesigner',
        url = 'http://madesigner.flightgear.org',
        # package_dir = {'': 'src'},
        # packages = [ 'lib' ],
-       packages = [ 'madesigner', 'madesigner.creator', 'madesigner.lib' ]
-       # scripts = [ 'src/madesigner/creator.py' ],
-       # package_data = {'madesigner': ['data/airfoils/*.dat']},
+       packages = [ 'madesigner.creator', 'madesigner.lib' ],
+       scripts = [ 'madesigner/creator.py' ],
+       #package_data = {'madesigner': ['airfoils/*.dat']},
        )

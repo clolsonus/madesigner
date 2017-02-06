@@ -25,9 +25,8 @@ import props_json
 
 from overview import Overview
 from wing_ui import WingUI
-from builder import Builder
+from creator.mabuilder import Builder
 from version import MADversion
-
 
 # Check if our version is the latest
 class CheckVersion(QtCore.QThread):

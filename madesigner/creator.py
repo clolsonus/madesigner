@@ -14,7 +14,7 @@ started edited: November 2013
 import os.path
 import sys
 from PyQt4 import QtGui, QtCore
-from creator.creator_ui import CreatorUI
+from madesigner.creator.creator_ui import CreatorUI
 
 def usage():
     print "Usage: " + sys.argv[0] + " [design.mad]"
