@@ -16,6 +16,7 @@ import os.path
 import time
 import subprocess
 import distutils.spawn
+from pkg_resources import resource_listdir, resource_stream
 import urllib2
 from PyQt4 import QtGui, QtCore
 
@@ -133,8 +134,8 @@ class CreatorUI(QtGui.QWidget):
         open.clicked.connect(self.open_home)
         file_layout.addWidget(open)
 
-        open = QtGui.QPushButton('Open Examples...')
-        open.clicked.connect(self.open_examples)
+        open = QtGui.QPushButton('Load Example...')
+        open.clicked.connect(self.load_example)
         file_layout.addWidget(open)
 
         save = QtGui.QPushButton('Save')
@@ -292,6 +293,7 @@ class CreatorUI(QtGui.QWidget):
             wing.delete_self()
         self.clean = True
 
+    # load from a filename
     def load(self, filename):
         if filename == "":
             # new empty design
@@ -304,23 +306,29 @@ class CreatorUI(QtGui.QWidget):
             # invalid/nonexistent filename
             return
 
+        self.filename = str(filename)
+        self.fileroot, ext = os.path.splitext(self.filename)
+
+        f = open(filename, 'r')
+        stream = f.read()
+        f.close()
+
+        self.loads(stream, fileroot)
+
+    # load from a stream (string)
+    def loads(self, stream, fileroot):
         self.wipe_slate()
 
         design = PropertyNode()
-        if props_json.load(filename, design):
-            print "json format: successful"
-        elif props_xml.load(filename, design):
-            print "xml format: successful"
+        if props_json.loads(stream, design, ""):
+            print "json parse successful"
         else:
             error = QtGui.QErrorMessage(self)
-            error.showMessage( filename + ": load failed" )
-            return
+            error.showMessage( "json parse failed" )
+            return False
         # design.pretty_print()
 
         self.setWindowTitle( self.default_title + " - " + fileroot )
-
-        self.filename = str(filename)
-        self.fileroot, ext = os.path.splitext(self.filename)
 
         node = design.getChild('overview', True)
         self.overview.load(node)
@@ -369,10 +377,27 @@ class CreatorUI(QtGui.QWidget):
         startdir = os.path.expanduser("~")
         self.open(startdir)
 
-    def open_examples(self):
-        app_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
-        startdir = os.path.abspath(app_path + "/examples")
-        self.open(startdir)
+    def load_example(self):
+        #app_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
+        #startdir = os.path.abspath(app_path + "/examples")
+        #self.open(startdir)
+        items = []
+        for res in resource_listdir('madgui', 'examples'):
+            name, ext = os.path.splitext(res)
+            if ext == '.mad':
+                items.append(name)
+        items.sort()            # make pretty
+        item, ok = QtGui.QInputDialog.getItem(self, "Examples", "Select an Example:", items, 0, False)
+        print ok, item
+        if ok:
+            self.filename = None
+            self.fileroot = None
+            example_res = os.path.join('examples', str(item) + ".mad")
+            print example_res
+            f = resource_stream('madgui', example_res)
+            stream = f.read()
+            print stream
+            self.loads(stream, item)
 
     def setFileName(self):
         startdir = os.path.expanduser("~/newdesign.mad")
