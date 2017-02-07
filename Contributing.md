@@ -3,7 +3,7 @@
 Contributions are welcome, but please contact me and work with me up
 front.  At the time of writing this note, the entire code base is
 developed by me (Curt Olson) and I have a large emotional investment
-in it.  I will be cautious and scheptical if someone drops a big pull
+in it.  I will be cautious and skeptical if someone drops a big pull
 request out of the blue.
 
 I understand I can't do everything alone, and I'm not the only person

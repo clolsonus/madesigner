@@ -15,7 +15,7 @@ for you.
   between them.
 * Supports separate root and tip chords, sweep, twist, and dihedral.
 * Automatic flap/aileron control surface structures and cutouts.
-* Supports multiple wing planels linked together (ex: a polyhedral glider wing)
+* Supports multiple wing panels linked together (ex: a polyhedral glider wing)
 * Generates an STL (3d format) of entire finished wing structure
   including dihedral, twist, all stringers and stock, control surface
   cutouts, lightening holes.  Useful for a final sanity check before
@@ -40,9 +40,9 @@ for you.
 * Cut outs
   - Flush/tangent stringer cutouts.
   - Best fit leading edge diamond cutout.
-  - Best fit trailing edge cutouts supporing symmetric or triangle stock.
+  - Best fit trailing edge cutouts supporting symmetric or triangle stock.
   - Spar cutouts with 'twist' built in for self aligning structures.
-  - Simple round lighteining holes.
+  - Simple round lightening holes.
   - Shaped lightening holes.
 * Add ons:
   - Optionally generate top or bottom build tabs to help with building
@@ -69,7 +69,7 @@ More recently that has been a big push to "open source" the production
 of hardware.  Others can summarize what this means better than I can,
 but "open source" fabrication includes open-source designs,
 open-source manufacturing machines, open-source 3d models.  There is
-still a cost to physically produce a part and distrubute it, but the
+still a cost to physically produce a part and distribute it, but the
 goal is to apply community open-source development and improvement
 techniques to part design and production.  The end goal is to lower
 costs and make the whole process more accessible and more possible for
@@ -97,16 +97,16 @@ all the "hard" or "curvey" parts; full size plans; 3d cutaway models
 that you can spin around and look inside of; and even an assembly
 manual with practical build tips could all be fully automated.
 
-Even though a basic "cooky cutter" design can be produced quickly, the
+Even though a basic "cookie cutter" design can be produced quickly, the
 designer can spend time up front adjusting their aircraft, engineering
 the structures, selecting materials, adjusting the lines and the
-proportions, personalizing it, making engineering tradeoffs, and
+proportions, personalizing it, making engineering trade offs, and
 ultimately making the design entirely their own.
 
 # Motivation
 
 While are most airplane wings built as straight planks or straight
-sweeps even though we know that an eliptical design is the most
+sweeps even though we know that an elliptical design is the most
 efficient and most beautiful?  The answer is that curved wings are
 very complex to design and build.  Imagine every rib is a difference
 size with different cutouts for stringers and control surfaces.  That
@@ -166,9 +166,9 @@ some of the actual capabilities available right now?
   original shape as close as possible while minimizing the amount of
   sanding required to finish the wing.
 
-  In other words, for a fully symetrical airfoil (like a NACA0015) the
+  In other words, for a fully symmetrical airfoil (like a NACA0015) the
   square leading edge stock will be rotated exactly 45 degrees.  But
-  in a flat bottom or semisymetrical airfoil, the square stock might
+  in a flat bottom or semi-symmetrical airfoil, the square stock might
   be rotated 50-60 degrees for a better fit with the leading edge.
 
 - Cut in notches for stringers and spars.  Any size notch can be cut.
