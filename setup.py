@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-print find_packages('madesigner')
+#print find_packages('madesigner')
 
 setup( name = 'madesigner',
        version = '2.0',
@@ -13,6 +13,6 @@ setup( name = 'madesigner',
        package_dir = {'': 'madesigner'},
        packages = find_packages('madesigner'),
        scripts = [ 'madesigner/creator.py' ],
-       #package_data = {'madesigner': ['airfoils/*.dat']},
+       package_data = { 'madlib': ['airfoils/*.dat'] },
        )
 

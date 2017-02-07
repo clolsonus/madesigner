@@ -14,6 +14,8 @@ import string
 import re
 import Polygon
 
+from pkg_resources import resource_stream
+
 from contour import Contour
 import spline
 
@@ -23,10 +25,6 @@ class Airfoil(Contour):
 
     def __init__(self, name = "", samples = 0, use_spline = False):
         Contour.__init__(self)
-        # locate airfoils data path relative to top level script
-        rootpath = os.path.split(os.path.abspath(sys.argv[0]))[0]
-        datapath = os.path.join(rootpath, 'airfoils')
-        self.datapath = datapath
         self.name = ""
         self.description = ""
         # parametric representation of the airfoil dist along surface
@@ -39,18 +37,22 @@ class Airfoil(Contour):
 
     def load(self, base, samples = 0, use_spline = False):
         self.name = base
-        path = os.path.join(self.datapath, base + ".dat")
         top = True
         dist = 0.0
         dlast = 0.0
         xlast = None
         ylast = None
-        f = fileinput.input(path)
+        # this 'pkg_resources' approach to lets us read airfoil data
+        # out of a compressed egg install
+        airfoil_res = os.path.join('airfoils', base + ".dat")
+        f = resource_stream('madlib', airfoil_res)
+        is_first_line = True
         for line in f:
-            #print line
+            # print 'line:', line
             line = line.strip()
-            if f.isfirstline():
+            if is_first_line:
                 self.description = string.join(line.split())
+                is_first_line = False
                 continue
             xa, ya = line.split()
             if ya == "......" or ya == ".......":
