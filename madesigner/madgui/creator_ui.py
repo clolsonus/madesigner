@@ -18,7 +18,14 @@ import subprocess
 import distutils.spawn
 from pkg_resources import resource_listdir, resource_stream
 import urllib2
-from PyQt4 import QtGui, QtCore
+
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import (QApplication, QWidget,
+                             QHBoxLayout, QVBoxLayout, QFrame, QFormLayout,
+                             QPushButton, QTabWidget, QGroupBox,
+                             QLineEdit, QTextEdit, QLabel, QScrollArea,
+                             QInputDialog, QMenu, QMessageBox)
+from PyQt5.QtGui import QCursor
 
 from props import PropertyNode
 import props_xml
@@ -58,7 +65,7 @@ class CheckVersion(QtCore.QThread):
         return
 
 
-class CreatorUI(QtGui.QWidget):
+class CreatorUI(QWidget):
     
     def __init__(self, filename=""):
         super(CreatorUI, self).__init__()
@@ -70,14 +77,14 @@ class CreatorUI(QtGui.QWidget):
         self.load(filename)
         self.clean = True
 
-        # version checking task
-        self.checkversion = CheckVersion()
-        self.connect( self.checkversion, QtCore.SIGNAL("update(QString)"),
-                      self.version_message )
-        self.checkversion.start()
+        # version checking task (fixme)
+        # self.checkversion = CheckVersion()
+        # self.connect( self.checkversion, QtCore.SIGNAL("update(QString)"),
+        #               self.version_message )
+        # self.checkversion.start()
 
     def version_message(self, text):
-        reply = QtGui.QMessageBox.question(self, 'Version Check', 'A new version of MAdesigner (v' + text + ') is available.<br><a href="http://mirrors.ibiblio.org/flightgear/ftp/MAdesigner">Click here to download it.</A>', QtGui.QMessageBox.Ok)
+        reply = QMessageBox.question(self, 'Version Check', 'A new version of MAdesigner (v' + text + ') is available.<br><a href="http://mirrors.ibiblio.org/flightgear/ftp/MAdesigner">Click here to download it.</A>', QMessageBox.Ok)
 
     def onChange(self):
         #print "parent onChange() called!"
@@ -117,73 +124,73 @@ class CreatorUI(QtGui.QWidget):
     def initUI(self):               
         self.setWindowTitle( self.default_title )
 
-        layout = QtGui.QVBoxLayout()
+        layout = QVBoxLayout()
         self.setLayout(layout)
 
         # 'File' button bar
-        file_group = QtGui.QFrame()
+        file_group = QFrame()
         layout.addWidget(file_group)
-        file_layout = QtGui.QHBoxLayout()
+        file_layout = QHBoxLayout()
         file_group.setLayout( file_layout )
 
-        new = QtGui.QPushButton('New')
+        new = QPushButton('New')
         new.clicked.connect(self.new_design)
         file_layout.addWidget(new)
 
-        open = QtGui.QPushButton('Open...')
+        open = QPushButton('Open...')
         open.clicked.connect(self.open_home)
         file_layout.addWidget(open)
 
-        open = QtGui.QPushButton('Load Example...')
+        open = QPushButton('Load Example...')
         open.clicked.connect(self.load_example)
         file_layout.addWidget(open)
 
-        save = QtGui.QPushButton('Save')
+        save = QPushButton('Save')
         save.clicked.connect(self.save)
         file_layout.addWidget(save)
 
-        saveas = QtGui.QPushButton('Save As...')
+        saveas = QPushButton('Save As...')
         saveas.clicked.connect(self.saveas)
         file_layout.addWidget(saveas)
 
-        quit = QtGui.QPushButton('Quit')
+        quit = QPushButton('Quit')
         quit.clicked.connect(self.quit)
         file_layout.addWidget(quit)
 
         file_layout.addStretch(1)
 
         # Main work area
-        self.tabs = QtGui.QTabWidget()
+        self.tabs = QTabWidget()
         layout.addWidget( self.tabs )
 
         self.overview = Overview(changefunc=self.onChange)
         self.tabs.addTab( self.overview.get_widget(), "Overview" );
 
         # 'Command' button bar
-        cmd_group = QtGui.QFrame()
+        cmd_group = QFrame()
         layout.addWidget(cmd_group)
-        cmd_layout = QtGui.QHBoxLayout()
+        cmd_layout = QHBoxLayout()
         cmd_group.setLayout( cmd_layout )
 
-        cmd_layout.addWidget( QtGui.QLabel("<b>Design Tools:</b> ") )
+        cmd_layout.addWidget( QLabel("<b>Design Tools:</b> ") )
 
-        add_wing = QtGui.QPushButton('Add Wing...')
+        add_wing = QPushButton('Add Wing...')
         add_wing.clicked.connect(self.add_wing)
         cmd_layout.addWidget(add_wing)
   
-        #add_fuse = QtGui.QPushButton('Add Fuselage...')
+        #add_fuse = QPushButton('Add Fuselage...')
         #add_fuse.clicked.connect(self.add_fuse)
         #cmd_layout.addWidget(add_fuse)
   
-        fast_build = QtGui.QPushButton('Fast Build...')
+        fast_build = QPushButton('Fast Build...')
         fast_build.clicked.connect(self.build_fast)
         cmd_layout.addWidget(fast_build)
   
-        detail_build = QtGui.QPushButton('Detail Build...')
+        detail_build = QPushButton('Detail Build...')
         detail_build.clicked.connect(self.build_detail)
         cmd_layout.addWidget(detail_build)
   
-        view3d = QtGui.QPushButton('View 3D')
+        view3d = QPushButton('View 3D')
         view3d.clicked.connect(self.view3d)
         cmd_layout.addWidget(view3d)
   
@@ -208,29 +215,29 @@ class CreatorUI(QtGui.QWidget):
 
     def build_fast(self):
         if not self.isClean():
-            reply = QtGui.QMessageBox.question(self, "The design has been modified.", "You must save before a build.", QtGui.QMessageBox.Save | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
-            if reply == QtGui.QMessageBox.Save:
+            reply = QMessageBox.question(self, "The design has been modified.", "You must save before a build.", QMessageBox.Save | QMessageBox.Cancel, QMessageBox.Save)
+            if reply == QMessageBox.Save:
                 self.save()
-            elif reply == QtGui.QMessageBox.Cancel:
+            elif reply == QMessageBox.Cancel:
                 return
 
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
+        QApplication.setOverrideCursor(QCursor(QtCore.Qt.WaitCursor))
         build = Builder(filename=self.filename, airfoil_resample=25,
                         circle_points=8, nest_speed="fast")
-        QtGui.QApplication.restoreOverrideCursor()
+        QApplication.restoreOverrideCursor()
 
     def build_detail(self):
         if not self.isClean():
-            reply = QtGui.QMessageBox.question(self, "The design has been modified.", "You must save before a build.", QtGui.QMessageBox.Save | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
-            if reply == QtGui.QMessageBox.Save:
+            reply = QMessageBox.question(self, "The design has been modified.", "You must save before a build.", QMessageBox.Save | QMessageBox.Cancel, QMessageBox.Save)
+            if reply == QMessageBox.Save:
                 self.save()
-            elif reply == QtGui.QMessageBox.Cancel:
+            elif reply == QMessageBox.Cancel:
                 return
 
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
+        QApplication.setOverrideCursor(QCursor(QtCore.Qt.WaitCursor))
         build = Builder(filename=self.filename, airfoil_resample=1000,
                         circle_points=32, nest_speed="nice")
-        QtGui.QApplication.restoreOverrideCursor()
+        QApplication.restoreOverrideCursor()
 
     def view3d(self):
         viewer = "osgviewer"
@@ -246,24 +253,24 @@ class CreatorUI(QtGui.QWidget):
             result = os.path.isfile(viewer) or os.path.isfile(viewerexe)
 
         if not result:
-            error = QtGui.QErrorMessage(self)
+            error = QErrorMessage(self)
             error.showMessage( "Cannot find " + viewer + " in path.  Perhaps it needs to be installed?" )
             return
             
         madfile = self.fileroot + ".mad"
         if not os.path.exists(madfile):
-            error = QtGui.QErrorMessage(self)
+            error = QErrorMessage(self)
             error.showMessage( "No '.mad' file ... please save your design with a file name." )
             return 
 
         if not self.isClean():
-            error = QtGui.QErrorMessage(self)
+            error = QErrorMessage(self)
             error.showMessage( "The design has been modified.  You must <b>Build</b> it before viewing the 3d structure." )
             return 
 
         acfile = self.fileroot + ".ac"
         if not os.path.exists(acfile):
-            error = QtGui.QErrorMessage(self)
+            error = QErrorMessage(self)
             error.showMessage( "Design needs to be 'built'; click ok to continue." )
             #self.build_fast()
             return
@@ -271,7 +278,7 @@ class CreatorUI(QtGui.QWidget):
         madtime = os.path.getmtime(madfile)
         actime = os.path.getmtime(acfile)
         if madtime > actime:
-            error = QtGui.QErrorMessage(self)
+            error = QErrorMessage(self)
             error.showMessage( "Design needs to be 'built'; click ok to continue." )
             #self.build_fast()
             return
@@ -323,7 +330,7 @@ class CreatorUI(QtGui.QWidget):
         if props_json.loads(stream, design, ""):
             print "json parse successful"
         else:
-            error = QtGui.QErrorMessage(self)
+            error = QErrorMessage(self)
             error.showMessage( "json parse failed" )
             return False
         # design.pretty_print()
@@ -346,27 +353,27 @@ class CreatorUI(QtGui.QWidget):
     def new_design(self):
         # wipe the current design (by command or before loading a new design)
         if not self.isClean():
-            reply = QtGui.QMessageBox.question(self, "The design has been modified.", "Do you want to save your changes?", QtGui.QMessageBox.Save | QtGui.QMessageBox.No | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
+            reply = QMessageBox.question(self, "The design has been modified.", "Do you want to save your changes?", QMessageBox.Save | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Save)
             #print "response = " + str(reply)
-            if reply == QtGui.QMessageBox.Save:
+            if reply == QMessageBox.Save:
                 self.save()
-            elif reply == QtGui.QMessageBox.Cancel:
+            elif reply == QMessageBox.Cancel:
                 return
 
         self.wipe_slate()
 
     def open(self, startdir=None):
         if not self.isClean():
-            reply = QtGui.QMessageBox.question(self, "The design has been modified.", "Do you want to save your changes?", QtGui.QMessageBox.Save | QtGui.QMessageBox.No | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
+            reply = QMessageBox.question(self, "The design has been modified.", "Do you want to save your changes?", QMessageBox.Save | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Save)
             #print "response = " + str(reply)
-            if reply == QtGui.QMessageBox.Save:
+            if reply == QMessageBox.Save:
                 self.save()
-            elif reply == QtGui.QMessageBox.Cancel:
+            elif reply == QMessageBox.Cancel:
                 return
 
         if startdir == None:
             startdir = os.path.expanduser("~")
-        filename = QtGui.QFileDialog.getOpenFileName(self, "Open File",
+        filename = QFileDialog.getOpenFileName(self, "Open File",
                                                      startdir,
                                                      "MAdesigner (*.mad)")
         if ( filename == "" ):
@@ -387,7 +394,7 @@ class CreatorUI(QtGui.QWidget):
             if ext == '.mad':
                 items.append(name)
         items.sort()            # make pretty
-        item, ok = QtGui.QInputDialog.getItem(self, "Examples", "Select an Example:", items, 0, False)
+        item, ok = QInputDialog.getItem(self, "Examples", "Select an Example:", items, 0, False)
         print ok, item
         if ok:
             self.filename = None
@@ -401,7 +408,7 @@ class CreatorUI(QtGui.QWidget):
 
     def setFileName(self):
         startdir = os.path.expanduser("~/newdesign.mad")
-        return QtGui.QFileDialog.getSaveFileName(self, "Save File",
+        return QFileDialog.getSaveFileName(self, "Save File",
                                                  startdir,
                                                  "MAdesigner (*.mad)")
 
@@ -454,11 +461,11 @@ class CreatorUI(QtGui.QWidget):
 
     def quit(self):
         if not self.isClean():
-            reply = QtGui.QMessageBox.question(self, "The design has been modified.", "Do you want to save your changes?", QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Save)
+            reply = QMessageBox.question(self, "The design has been modified.", "Do you want to save your changes?", QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Save)
             #print "response = " + str(reply)
-            if reply == QtGui.QMessageBox.Save:
+            if reply == QMessageBox.Save:
                 self.save()
-            elif reply == QtGui.QMessageBox.Cancel:
+            elif reply == QMessageBox.Cancel:
                 return
 
         QtCore.QCoreApplication.instance().quit()

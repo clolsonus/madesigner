@@ -10,7 +10,12 @@ started: November 2013
 """
 
 import sys
-from PyQt4 import QtGui, QtCore
+
+from PyQt5.QtWidgets import (QWidget,
+                             QHBoxLayout, QVBoxLayout, QFrame, QFormLayout,
+                             QPushButton, QTabWidget, QGroupBox,
+                             QLineEdit, QTextEdit, QLabel, QScrollArea,
+                             QInputDialog, QMenu)
 
 from combobox_nowheel import QComboBoxNoWheel
 
@@ -51,22 +56,22 @@ class FlapUI():
             self.valid = False
 
     def make_page(self):
-        page = QtGui.QFrame()
-        layout = QtGui.QVBoxLayout()
+        page = QFrame()
+        layout = QVBoxLayout()
         page.setLayout( layout )
 
-        line1 = QtGui.QFrame()
-        layout1 = QtGui.QHBoxLayout()
+        line1 = QFrame()
+        layout1 = QHBoxLayout()
         line1.setLayout( layout1 )
         layout.addWidget( line1 )
 
-        line2 = QtGui.QFrame()
-        layout2 = QtGui.QHBoxLayout()
+        line2 = QFrame()
+        layout2 = QHBoxLayout()
         line2.setLayout( layout2 )
         layout.addWidget( line2 )
 
-        line3 = QtGui.QFrame()
-        layout3 = QtGui.QHBoxLayout()
+        line3 = QFrame()
+        layout3 = QHBoxLayout()
         line3.setLayout( layout3 )
         layout.addWidget( line3 )
 
@@ -88,11 +93,11 @@ class FlapUI():
 
         layout1.addStretch(1)
 
-        delete = QtGui.QPushButton('Delete')
+        delete = QPushButton('Delete')
         delete.clicked.connect(self.delete_self)
         layout1.addWidget(delete)
   
-        layout2.addWidget( QtGui.QLabel("<b>Pos:</b> ") )
+        layout2.addWidget( QLabel("<b>Pos:</b> ") )
 
         self.edit_posref = QComboBoxNoWheel()
         self.edit_posref.addItem("Chord %")
@@ -102,40 +107,40 @@ class FlapUI():
         self.edit_posref.currentIndexChanged.connect(self.onChange)
         layout2.addWidget(self.edit_posref)
 
-        self.edit_pos = QtGui.QLineEdit()
+        self.edit_pos = QLineEdit()
         self.edit_pos.setFixedWidth(50)
         self.edit_pos.textChanged.connect(self.onChange)
         layout2.addWidget( self.edit_pos )
 
-        layout2.addWidget( QtGui.QLabel("<b>At Station:</b> ") )
-        self.edit_atstation = QtGui.QLineEdit()
+        layout2.addWidget( QLabel("<b>At Station:</b> ") )
+        self.edit_atstation = QLineEdit()
         self.edit_atstation.setFixedWidth(50)
         self.edit_atstation.textChanged.connect(self.onChange)
         layout2.addWidget( self.edit_atstation )
 
-        layout2.addWidget( QtGui.QLabel("<b>Slope:</b> ") )
-        self.edit_slope = QtGui.QLineEdit()
+        layout2.addWidget( QLabel("<b>Slope:</b> ") )
+        self.edit_slope = QLineEdit()
         self.edit_slope.setFixedWidth(50)
         self.edit_slope.textChanged.connect(self.onChange)
         layout2.addWidget( self.edit_slope )
 
         layout2.addStretch(1)
 
-        layout3.addWidget( QtGui.QLabel("<b>Edge Stringer W x H:</b> ") )
+        layout3.addWidget( QLabel("<b>Edge Stringer W x H:</b> ") )
 
-        self.edit_width = QtGui.QLineEdit()
+        self.edit_width = QLineEdit()
         self.edit_width.setFixedWidth(50)
         self.edit_width.textChanged.connect(self.onChange)
         layout3.addWidget( self.edit_width )
 
-        self.edit_height = QtGui.QLineEdit()
+        self.edit_height = QLineEdit()
         self.edit_height.setFixedWidth(50)
         self.edit_height.textChanged.connect(self.onChange)
         layout3.addWidget( self.edit_height )
 
-        layout3.addWidget( QtGui.QLabel("<b>Hinge Cutout Angle:</b> ") )
+        layout3.addWidget( QLabel("<b>Hinge Cutout Angle:</b> ") )
 
-        self.edit_angle = QtGui.QLineEdit()
+        self.edit_angle = QLineEdit()
         self.edit_angle.setFixedWidth(50)
         self.edit_angle.textChanged.connect(self.onChange)
         layout3.addWidget( self.edit_angle )

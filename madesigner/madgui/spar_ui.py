@@ -10,7 +10,12 @@ started: November 2013
 """
 
 import sys
-from PyQt4 import QtGui, QtCore
+
+from PyQt5.QtWidgets import (QWidget,
+                             QHBoxLayout, QVBoxLayout, QFrame, QFormLayout,
+                             QPushButton, QTabWidget, QGroupBox,
+                             QLineEdit, QTextEdit, QLabel, QScrollArea,
+                             QInputDialog, QMenu)
 
 from combobox_nowheel import QComboBoxNoWheel
 
@@ -51,28 +56,28 @@ class SparUI():
             self.valid = False
 
     def make_page(self):
-        page = QtGui.QFrame()
-        layout = QtGui.QVBoxLayout()
+        page = QFrame()
+        layout = QVBoxLayout()
         page.setLayout( layout )
 
-        line1 = QtGui.QFrame()
-        layout1 = QtGui.QHBoxLayout()
+        line1 = QFrame()
+        layout1 = QHBoxLayout()
         line1.setLayout( layout1 )
         layout.addWidget( line1 )
 
-        line2 = QtGui.QFrame()
-        layout2 = QtGui.QHBoxLayout()
+        line2 = QFrame()
+        layout2 = QHBoxLayout()
         line2.setLayout( layout2 )
         layout.addWidget( line2 )
 
-        layout1.addWidget( QtGui.QLabel("<b>W x H:</b> ") )
+        layout1.addWidget( QLabel("<b>W x H:</b> ") )
 
-        self.edit_width = QtGui.QLineEdit()
+        self.edit_width = QLineEdit()
         self.edit_width.setFixedWidth(50)
         self.edit_width.textChanged.connect(self.onChange)
         layout1.addWidget( self.edit_width )
 
-        self.edit_height = QtGui.QLineEdit()
+        self.edit_height = QLineEdit()
         self.edit_height.setFixedWidth(50)
         self.edit_height.textChanged.connect(self.onChange)
         layout1.addWidget( self.edit_height )
@@ -101,11 +106,11 @@ class SparUI():
 
         layout1.addStretch(1)
 
-        delete = QtGui.QPushButton('Delete')
+        delete = QPushButton('Delete')
         delete.clicked.connect(self.delete_self)
         layout1.addWidget(delete)
   
-        layout2.addWidget( QtGui.QLabel("<b>Pos:</b> ") )
+        layout2.addWidget( QLabel("<b>Pos:</b> ") )
 
         self.edit_posref = QComboBoxNoWheel()
         self.edit_posref.addItem("Chord %")
@@ -115,7 +120,7 @@ class SparUI():
         self.edit_posref.currentIndexChanged.connect(self.onChange)
         layout2.addWidget(self.edit_posref)
 
-        self.edit_pos = QtGui.QLineEdit()
+        self.edit_pos = QLineEdit()
         self.edit_pos.setFixedWidth(50)
         self.edit_pos.textChanged.connect(self.onChange)
         layout2.addWidget( self.edit_pos )

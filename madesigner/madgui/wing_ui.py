@@ -11,7 +11,12 @@ started: November 2013
 
 import os.path
 import sys
-from PyQt4 import QtGui, QtCore
+
+from PyQt5.QtWidgets import (QWidget,
+                             QHBoxLayout, QVBoxLayout, QFrame, QFormLayout,
+                             QPushButton, QTabWidget, QGroupBox,
+                             QLineEdit, QTextEdit, QLabel, QScrollArea,
+                             QInputDialog, QMenu)
 
 from combobox_nowheel import QComboBoxNoWheel
 
@@ -97,7 +102,7 @@ class WingUI():
     def select_airfoil_root(self):
         basepath = os.path.split(os.path.abspath(sys.argv[0]))[0]
         airfoil_path = basepath + "/data/airfoils/"
-        filename = QtGui.QFileDialog.getOpenFileName(None, "Open File",
+        filename = QFileDialog.getOpenFileName(None, "Open File",
                                                      airfoil_path,
                                                      "Airfoil (*.dat)")
         if ( filename == "" ):
@@ -109,7 +114,7 @@ class WingUI():
     def select_airfoil_tip(self):
         basepath = os.path.split(os.path.abspath(sys.argv[0]))[0]
         airfoil_path = basepath + "/data/airfoils/"
-        filename = QtGui.QFileDialog.getOpenFileName(None, "Open File",
+        filename = QFileDialog.getOpenFileName(None, "Open File",
                                                      airfoil_path,
                                                      "Airfoil (*.dat)")
         if ( filename == "" ):
@@ -119,7 +124,7 @@ class WingUI():
         self.edit_airfoil_tip.setText(fileroot)
 
     def generate_stations(self):
-        text, ok = QtGui.QInputDialog.getText(None, 'Input Dialog', 
+        text, ok = QInputDialog.getText(None, 'Input Dialog', 
             'Enter number of stations (ribs):')
         
         if ok:
@@ -224,88 +229,88 @@ class WingUI():
 
     def make_page(self, name):
         # make the full edit widget
-        toppage = QtGui.QFrame()
-        toplayout = QtGui.QVBoxLayout()
+        toppage = QFrame()
+        toplayout = QVBoxLayout()
         toppage.setLayout(toplayout)
 
-        page = QtGui.QFrame()
-        layout = QtGui.QVBoxLayout()
+        page = QFrame()
+        layout = QVBoxLayout()
         page.setLayout(layout)
 
-        maincontents = QtGui.QFrame()
-        formlayout = QtGui.QFormLayout()
+        maincontents = QFrame()
+        formlayout = QFormLayout()
         maincontents.setLayout( formlayout )
         layout.addWidget(maincontents)
 
-        scroll = QtGui.QScrollArea()
+        scroll = QScrollArea()
         scroll.setWidget(page)
         scroll.setWidgetResizable(True)
         #layout.addWidget(scroll)
         toplayout.addWidget(scroll)
 
-        frame = QtGui.QGroupBox("Leading Edges")
-        self.layout_le = QtGui.QVBoxLayout()
+        frame = QGroupBox("Leading Edges")
+        self.layout_le = QVBoxLayout()
         frame.setLayout(self.layout_le)
         layout.addWidget(frame)
 
-        frame = QtGui.QGroupBox("Trailing Edges")
-        self.layout_te = QtGui.QVBoxLayout()
+        frame = QGroupBox("Trailing Edges")
+        self.layout_te = QVBoxLayout()
         frame.setLayout(self.layout_te)
         layout.addWidget(frame)
 
-        frame = QtGui.QGroupBox("Spars")
-        self.layout_spars = QtGui.QVBoxLayout()
+        frame = QGroupBox("Spars")
+        self.layout_spars = QVBoxLayout()
         frame.setLayout(self.layout_spars)
         layout.addWidget(frame)
 
-        frame = QtGui.QGroupBox("Stringers")
-        self.layout_stringers = QtGui.QVBoxLayout()
+        frame = QGroupBox("Stringers")
+        self.layout_stringers = QVBoxLayout()
         frame.setLayout(self.layout_stringers)
         layout.addWidget(frame)
 
-        frame = QtGui.QGroupBox("Sheeting")
-        self.layout_sheeting = QtGui.QVBoxLayout()
+        frame = QGroupBox("Sheeting")
+        self.layout_sheeting = QVBoxLayout()
         frame.setLayout(self.layout_sheeting)
         layout.addWidget(frame)
 
-        frame = QtGui.QGroupBox("Simple Holes")
-        self.layout_simple_holes = QtGui.QVBoxLayout()
+        frame = QGroupBox("Simple Holes")
+        self.layout_simple_holes = QVBoxLayout()
         frame.setLayout(self.layout_simple_holes)
         layout.addWidget(frame)
 
-        frame = QtGui.QGroupBox("Shaped Holes")
-        self.layout_shaped_holes = QtGui.QVBoxLayout()
+        frame = QGroupBox("Shaped Holes")
+        self.layout_shaped_holes = QVBoxLayout()
         frame.setLayout(self.layout_shaped_holes)
         layout.addWidget(frame)
 
-        frame = QtGui.QGroupBox("Build Tabs")
-        self.layout_build_tabs = QtGui.QVBoxLayout()
+        frame = QGroupBox("Build Tabs")
+        self.layout_build_tabs = QVBoxLayout()
         frame.setLayout(self.layout_build_tabs)
         layout.addWidget(frame)
 
-        frame = QtGui.QGroupBox("Control Surfaces")
-        self.layout_flaps = QtGui.QVBoxLayout()
+        frame = QGroupBox("Control Surfaces")
+        self.layout_flaps = QVBoxLayout()
         frame.setLayout(self.layout_flaps)
         layout.addWidget(frame)
 
         # 'Command' button bar
-        cmd_group = QtGui.QFrame()
+        cmd_group = QFrame()
         toplayout.addWidget(cmd_group)
-        cmd_layout = QtGui.QHBoxLayout()
+        cmd_layout = QHBoxLayout()
         cmd_group.setLayout( cmd_layout )
 
-        cmd_layout.addWidget( QtGui.QLabel("<b>Wing Tools:</b> ") )
+        cmd_layout.addWidget( QLabel("<b>Wing Tools:</b> ") )
 
-        select_airfoil = QtGui.QPushButton("Assist Me ...")
-        menu = QtGui.QMenu()
+        select_airfoil = QPushButton("Assist Me ...")
+        menu = QMenu()
         menu.addAction("Select Root Airfoil", self.select_airfoil_root)
         menu.addAction("Select Tip Airfoil", self.select_airfoil_tip)
         menu.addAction("Generate Stations", self.generate_stations)
         select_airfoil.setMenu(menu)
         cmd_layout.addWidget(select_airfoil)
 
-        add_feature = QtGui.QPushButton("Add Feature ...")
-        menu = QtGui.QMenu()
+        add_feature = QPushButton("Add Feature ...")
+        menu = QMenu()
         menu.addAction("Leading Edge", self.add_leading_edge)
         menu.addAction("Trailing Edge", self.add_trailing_edge)
         menu.addAction("Spar", self.add_spar)
@@ -320,46 +325,46 @@ class WingUI():
 
         cmd_layout.addStretch(1)
 
-        delete = QtGui.QPushButton('Delete Wing')
+        delete = QPushButton('Delete Wing')
         delete.clicked.connect(self.delete_self)
         cmd_layout.addWidget(delete)
 
         # form content
-        self.edit_name = QtGui.QLineEdit()
+        self.edit_name = QLineEdit()
         self.edit_name.setFixedWidth(250)
         self.edit_name.textChanged.connect(self.onChange)
         self.edit_name.setText(name)
-        self.edit_airfoil_root = QtGui.QLineEdit()
+        self.edit_airfoil_root = QLineEdit()
         self.edit_airfoil_root.setFixedWidth(250)
         self.edit_airfoil_root.textChanged.connect(self.onChange)
-        self.edit_airfoil_tip = QtGui.QLineEdit()
+        self.edit_airfoil_tip = QLineEdit()
         self.edit_airfoil_tip.setFixedWidth(250)
         self.edit_airfoil_tip.textChanged.connect(self.onChange)
-        self.edit_span = QtGui.QLineEdit()
+        self.edit_span = QLineEdit()
         self.edit_span.setFixedWidth(250)
         self.edit_span.textChanged.connect(self.onChange)
-        self.edit_chord_root = QtGui.QLineEdit()
+        self.edit_chord_root = QLineEdit()
         self.edit_chord_root.setFixedWidth(250)
         self.edit_chord_root.textChanged.connect(self.onChange)
-        self.edit_chord_tip = QtGui.QLineEdit()
+        self.edit_chord_tip = QLineEdit()
         self.edit_chord_tip.setFixedWidth(250)
         self.edit_chord_tip.textChanged.connect(self.onChange)
-        self.edit_chord_curve = QtGui.QLineEdit()
+        self.edit_chord_curve = QLineEdit()
         self.edit_chord_curve.setFixedWidth(250)
         self.edit_chord_curve.textChanged.connect(self.onChange)
-        self.edit_twist = QtGui.QLineEdit()
+        self.edit_twist = QLineEdit()
         self.edit_twist.setFixedWidth(250)
         self.edit_twist.textChanged.connect(self.onChange)
-        self.edit_sweep = QtGui.QLineEdit()
+        self.edit_sweep = QLineEdit()
         self.edit_sweep.setFixedWidth(250)
         self.edit_sweep.textChanged.connect(self.onChange)
-        self.edit_sweep_curve = QtGui.QLineEdit()
+        self.edit_sweep_curve = QLineEdit()
         self.edit_sweep_curve.setFixedWidth(250)
         self.edit_sweep_curve.textChanged.connect(self.onChange)
-        self.edit_dihedral = QtGui.QLineEdit()
+        self.edit_dihedral = QLineEdit()
         self.edit_dihedral.setFixedWidth(250)
         self.edit_dihedral.textChanged.connect(self.onChange)
-        self.edit_stations = QtGui.QLineEdit()
+        self.edit_stations = QLineEdit()
         self.edit_stations.setFixedWidth(250)
         self.edit_stations.textChanged.connect(self.rebuildStations)
         self.edit_wing_link = QComboBoxNoWheel()

@@ -10,7 +10,12 @@ started: November 2013
 """
 
 import sys
-from PyQt4 import QtGui, QtCore
+
+from PyQt5.QtWidgets import (QWidget,
+                             QHBoxLayout, QVBoxLayout, QFrame, QFormLayout,
+                             QPushButton, QTabWidget, QGroupBox,
+                             QLineEdit, QTextEdit, QLabel, QScrollArea,
+                             QInputDialog, QMenu)
 
 from combobox_nowheel import QComboBoxNoWheel
 
@@ -52,18 +57,18 @@ class LeadingEdgeUI():
 
     def make_page(self):
         # make the edit line
-        page = QtGui.QFrame()
-        layout = QtGui.QVBoxLayout()
+        page = QFrame()
+        layout = QVBoxLayout()
         page.setLayout( layout )
 
-        line1 = QtGui.QFrame()
-        layout1 = QtGui.QHBoxLayout()
+        line1 = QFrame()
+        layout1 = QHBoxLayout()
         line1.setLayout( layout1 )
         layout.addWidget( line1 )
 
-        layout1.addWidget( QtGui.QLabel("<b>Size:</b> ") )
+        layout1.addWidget( QLabel("<b>Size:</b> ") )
 
-        self.edit_size = QtGui.QLineEdit()
+        self.edit_size = QLineEdit()
         self.edit_size.setFixedWidth(50)
         self.edit_size.textChanged.connect(self.onChange)
         layout1.addWidget( self.edit_size )
@@ -86,7 +91,7 @@ class LeadingEdgeUI():
 
         layout1.addStretch(1)
 
-        delete = QtGui.QPushButton('Delete ')
+        delete = QPushButton('Delete ')
         delete.clicked.connect(self.delete_self)
         layout1.addWidget(delete)
 

@@ -10,7 +10,12 @@ started: November 2013
 """
 
 import sys
-from PyQt4 import QtGui, QtCore
+
+from PyQt5.QtWidgets import (QWidget,
+                             QHBoxLayout, QVBoxLayout, QFrame, QFormLayout,
+                             QPushButton, QTabWidget, QGroupBox,
+                             QLineEdit, QTextEdit, QLabel, QScrollArea,
+                             QInputDialog, QMenu)
 
 from combobox_nowheel import QComboBoxNoWheel
 
@@ -52,23 +57,23 @@ class TrailingEdgeUI():
 
     def make_page(self):
         # make the edit line
-        page = QtGui.QFrame()
-        layout = QtGui.QVBoxLayout()
+        page = QFrame()
+        layout = QVBoxLayout()
         page.setLayout( layout )
 
-        line1 = QtGui.QFrame()
-        layout1 = QtGui.QHBoxLayout()
+        line1 = QFrame()
+        layout1 = QHBoxLayout()
         line1.setLayout( layout1 )
         layout.addWidget( line1 )
 
-        layout1.addWidget( QtGui.QLabel("<b>W x H:</b> ") )
+        layout1.addWidget( QLabel("<b>W x H:</b> ") )
 
-        self.edit_width = QtGui.QLineEdit()
+        self.edit_width = QLineEdit()
         self.edit_width.setFixedWidth(50)
         self.edit_width.textChanged.connect(self.onChange)
         layout1.addWidget( self.edit_width )
 
-        self.edit_height = QtGui.QLineEdit()
+        self.edit_height = QLineEdit()
         self.edit_height.setFixedWidth(50)
         self.edit_height.textChanged.connect(self.onChange)
         layout1.addWidget( self.edit_height )
@@ -98,7 +103,7 @@ class TrailingEdgeUI():
 
         layout1.addStretch(1)
 
-        delete = QtGui.QPushButton('Delete ')
+        delete = QPushButton('Delete ')
         delete.clicked.connect(self.delete_self)
         layout1.addWidget(delete)
 

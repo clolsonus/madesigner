@@ -10,7 +10,12 @@ started: November 2013
 """
 
 import sys
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore
+from PyQt5.QtWidgets import (QWidget,
+                             QHBoxLayout, QVBoxLayout, QFrame, QFormLayout,
+                             QPushButton, QTabWidget,
+                             QLineEdit, QTextEdit, QLabel,
+                             QInputDialog)
 
 from combobox_nowheel import QComboBoxNoWheel
 from version import MADversion
@@ -26,20 +31,20 @@ class Overview():
 
     def make_page(self):
         # make the full edit widget
-        page = QtGui.QFrame()
-        layout = QtGui.QFormLayout()
+        page = QFrame()
+        layout = QFormLayout()
         page.setLayout( layout )
 
-        self.edit_name = QtGui.QLineEdit()
+        self.edit_name = QLineEdit()
         self.edit_name.setFixedWidth(250)
         self.edit_name.textChanged.connect(self.onChange)
-        self.edit_desc = QtGui.QTextEdit()
+        self.edit_desc = QTextEdit()
         self.edit_desc.setFixedWidth(250)
         self.edit_desc.textChanged.connect(self.onChange)
-        self.edit_author = QtGui.QLineEdit()
+        self.edit_author = QLineEdit()
         self.edit_author.setFixedWidth(250)
         self.edit_author.textChanged.connect(self.onChange)
-        self.edit_email = QtGui.QLineEdit()
+        self.edit_email = QLineEdit()
         self.edit_email.setFixedWidth(250)
         self.edit_email.textChanged.connect(self.onChange)
         self.edit_units = QComboBoxNoWheel()
@@ -48,16 +53,16 @@ class Overview():
         self.edit_units.addItem("cm")
         self.edit_units.addItem("mm")
         self.edit_units.currentIndexChanged.connect(self.onChange)
-        self.edit_sheet_w = QtGui.QLineEdit()
+        self.edit_sheet_w = QLineEdit()
         self.edit_sheet_w.setFixedWidth(250)
         self.edit_sheet_w.textChanged.connect(self.onChange)
-        self.edit_sheet_h = QtGui.QLineEdit()
+        self.edit_sheet_h = QLineEdit()
         self.edit_sheet_h.setFixedWidth(250)
         self.edit_sheet_h.textChanged.connect(self.onChange)
-        self.edit_plans_w = QtGui.QLineEdit()
+        self.edit_plans_w = QLineEdit()
         self.edit_plans_w.setFixedWidth(250)
         self.edit_plans_w.textChanged.connect(self.onChange)
-        self.edit_plans_h = QtGui.QLineEdit()
+        self.edit_plans_h = QLineEdit()
         self.edit_plans_h.setFixedWidth(250)
         self.edit_plans_h.textChanged.connect(self.onChange)
 

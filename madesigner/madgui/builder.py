@@ -42,7 +42,7 @@ class Builder():
         self.airfoil_resample = airfoil_resample
         self.circle_points = circle_points
         self.nest_speed = nest_speed
-        self.load(filename)
+        self.load(str(filename))
 
     # return a list of start/end/part triplets for a structure that
     # spans the given start/end stations.  The structure is separated
