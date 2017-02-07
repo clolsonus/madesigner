@@ -21,12 +21,10 @@ import numpy
 from props import PropertyNode
 import props_json
 
-print sys.path
-
-import lib.ac3d
-import lib.freecad
-import lib.contour
-from lib.wing import Wing
+import madlib.ac3d
+import madlib.freecad
+import madlib.contour
+from madlib.wing import Wing
 
 def myfloat(node, name):
     val = node.getString(name)
@@ -263,7 +261,7 @@ class Builder():
             end = float(tokens[1])
         else:
             end = None
-        pos=lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
+        pos=madlib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
         wing.add_simple_hole(style=style, size=size, pos1=pos, start_station=start, end_station=end, part="wing")
 
     def parse_shaped_hole(self, wing, node):
@@ -284,7 +282,7 @@ class Builder():
             rear = position1_val
         elif position1_ref == "Abs Pos":
             xpos = position1_val
-        pos1=lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
+        pos1=madlib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
 
         position2_ref = node.getString('position2_ref')
         position2_val = myfloat(node, 'position2')
@@ -300,7 +298,7 @@ class Builder():
             rear = position2_val
         elif position2_ref == "Abs Pos":
             xpos = position2_val
-        pos2=lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
+        pos2=madlib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
 
         tokens = node.getString('start_station').split()
         if len(tokens) == 2 and tokens[1] != 'Inner':
@@ -383,7 +381,7 @@ class Builder():
         atstation = myfloat(node, 'at_station')
         slope = myfloat(node, 'slope')
         angle = myfloat(node, 'angle')
-        pos = lib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos, atstation=atstation, slope=slope)
+        pos = madlib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos, atstation=atstation, slope=slope)
         size = ( width, height )
         wing.add_flap( start_station=start, end_station=end, pos=pos, type="builtup", angle=angle, edge_stringer_size=size)
 
@@ -495,7 +493,7 @@ class Builder():
 
         # generate AC3D model
         # if len(self.wings):
-        #     ac = lib.ac3d.AC3D( self.fileroot )
+        #     ac = madlib.ac3d.AC3D( self.fileroot )
         #     ac.gen_headers( "airframe", 2 )
         #     for wing in self.wings:
         #         tip = [ 0.0, 0.0, 0.0 ]
@@ -507,7 +505,7 @@ class Builder():
         #     ac.close()
             
         # generate FreeCAD model
-        doc = lib.freecad.GenFreeCAD()
+        doc = madlib.freecad.GenFreeCAD()
         doc.start_model("my document")
         if len(self.wings):
             for wing in self.wings:
