@@ -11,7 +11,6 @@ website: madesigner.flightgear.org
 started: November 2013
 """
 
-from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import QComboBox
 
 class QComboBoxNoWheel(QComboBox):

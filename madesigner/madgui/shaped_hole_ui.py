@@ -10,7 +10,12 @@ started: November 2013
 """
 
 import sys
-from PyQt5 import QtGui, QtCore
+
+from PyQt5.QtWidgets import (QApplication, QWidget,
+                             QHBoxLayout, QVBoxLayout, QFrame, QFormLayout,
+                             QPushButton, QTabWidget, QGroupBox,
+                             QLineEdit, QTextEdit, QLabel, QScrollArea,
+                             QInputDialog, QMenu, QMessageBox)
 
 from combobox_nowheel import QComboBoxNoWheel
 
@@ -51,30 +56,30 @@ class ShapedHoleUI():
             self.valid = False
 
     def make_page(self):
-        page = QtGui.QFrame()
-        layout = QtGui.QVBoxLayout()
+        page = QFrame()
+        layout = QVBoxLayout()
         page.setLayout( layout )
 
-        line1 = QtGui.QFrame()
-        layout1 = QtGui.QHBoxLayout()
+        line1 = QFrame()
+        layout1 = QHBoxLayout()
         line1.setLayout( layout1 )
         layout.addWidget( line1 )
 
-        line2 = QtGui.QFrame()
-        layout2 = QtGui.QHBoxLayout()
+        line2 = QFrame()
+        layout2 = QHBoxLayout()
         line2.setLayout( layout2 )
         layout.addWidget( line2 )
 
-        layout1.addWidget( QtGui.QLabel("<b>Mat. W:</b> ") )
+        layout1.addWidget( QLabel("<b>Mat. W:</b> ") )
 
-        self.edit_width = QtGui.QLineEdit()
+        self.edit_width = QLineEdit()
         self.edit_width.setFixedWidth(50)
         self.edit_width.textChanged.connect(self.onChange)
         layout1.addWidget( self.edit_width )
 
-        layout1.addWidget( QtGui.QLabel("<b>Corner Rad:</b> ") )
+        layout1.addWidget( QLabel("<b>Corner Rad:</b> ") )
 
-        self.edit_radius = QtGui.QLineEdit()
+        self.edit_radius = QLineEdit()
         self.edit_radius.setFixedWidth(50)
         self.edit_radius.textChanged.connect(self.onChange)
         layout1.addWidget( self.edit_radius )
@@ -97,11 +102,11 @@ class ShapedHoleUI():
 
         layout1.addStretch(1)
 
-        delete = QtGui.QPushButton('Delete')
+        delete = QPushButton('Delete')
         delete.clicked.connect(self.delete_self)
         layout1.addWidget(delete)
   
-        layout2.addWidget( QtGui.QLabel("<b>Start Pos:</b> ") )
+        layout2.addWidget( QLabel("<b>Start Pos:</b> ") )
 
         self.edit_pos1ref = QComboBoxNoWheel()
         self.edit_pos1ref.addItem("Chord %")
@@ -111,12 +116,12 @@ class ShapedHoleUI():
         self.edit_pos1ref.currentIndexChanged.connect(self.onChange)
         layout2.addWidget(self.edit_pos1ref)
 
-        self.edit_pos1 = QtGui.QLineEdit()
+        self.edit_pos1 = QLineEdit()
         self.edit_pos1.setFixedWidth(50)
         self.edit_pos1.textChanged.connect(self.onChange)
         layout2.addWidget( self.edit_pos1 )
 
-        layout2.addWidget( QtGui.QLabel("<b>End Pos:</b> ") )
+        layout2.addWidget( QLabel("<b>End Pos:</b> ") )
 
         self.edit_pos2ref = QComboBoxNoWheel()
         self.edit_pos2ref.addItem("Chord %")
@@ -126,7 +131,7 @@ class ShapedHoleUI():
         self.edit_pos2ref.currentIndexChanged.connect(self.onChange)
         layout2.addWidget(self.edit_pos2ref)
 
-        self.edit_pos2 = QtGui.QLineEdit()
+        self.edit_pos2 = QLineEdit()
         self.edit_pos2.setFixedWidth(50)
         self.edit_pos2.textChanged.connect(self.onChange)
         layout2.addWidget( self.edit_pos2 )

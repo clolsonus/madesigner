@@ -10,7 +10,12 @@ started: December 2013
 """
 
 import sys
-from PyQt5 import QtGui, QtCore
+
+from PyQt5.QtWidgets import (QApplication, QWidget,
+                             QHBoxLayout, QVBoxLayout, QFrame, QFormLayout,
+                             QPushButton, QTabWidget, QGroupBox,
+                             QLineEdit, QTextEdit, QLabel, QScrollArea,
+                             QInputDialog, QMenu, QMessageBox)
 
 from combobox_nowheel import QComboBoxNoWheel
 
@@ -51,23 +56,23 @@ class SheetUI():
             self.valid = False
 
     def make_page(self):
-        page = QtGui.QFrame()
-        layout = QtGui.QVBoxLayout()
+        page = QFrame()
+        layout = QVBoxLayout()
         page.setLayout( layout )
 
-        line1 = QtGui.QFrame()
-        layout1 = QtGui.QHBoxLayout()
+        line1 = QFrame()
+        layout1 = QHBoxLayout()
         line1.setLayout( layout1 )
         layout.addWidget( line1 )
 
-        line2 = QtGui.QFrame()
-        layout2 = QtGui.QHBoxLayout()
+        line2 = QFrame()
+        layout2 = QHBoxLayout()
         line2.setLayout( layout2 )
         layout.addWidget( line2 )
 
-        layout1.addWidget( QtGui.QLabel("<b>Depth:</b> ") )
+        layout1.addWidget( QLabel("<b>Depth:</b> ") )
 
-        self.edit_depth = QtGui.QLineEdit()
+        self.edit_depth = QLineEdit()
         self.edit_depth.setFixedWidth(70)
         self.edit_depth.textChanged.connect(self.onChange)
         layout1.addWidget( self.edit_depth )
@@ -90,13 +95,13 @@ class SheetUI():
 
         layout1.addStretch(1)
 
-        delete = QtGui.QPushButton('Delete')
+        delete = QPushButton('Delete')
         delete.clicked.connect(self.delete_self)
         layout1.addWidget(delete)
   
-        layout2.addWidget( QtGui.QLabel("<b>Start Pos:</b> ") )
+        layout2.addWidget( QLabel("<b>Start Pos:</b> ") )
 
-        self.edit_xstart = QtGui.QLineEdit()
+        self.edit_xstart = QLineEdit()
         self.edit_xstart.setFixedWidth(50)
         self.edit_xstart.textChanged.connect(self.onChange)
         layout2.addWidget( self.edit_xstart )
@@ -107,7 +112,7 @@ class SheetUI():
         self.edit_xmode.currentIndexChanged.connect(self.onChange)
         layout2.addWidget(self.edit_xmode)
 
-        self.edit_xend = QtGui.QLineEdit()
+        self.edit_xend = QLineEdit()
         self.edit_xend.setFixedWidth(50)
         self.edit_xend.textChanged.connect(self.onChange)
         layout2.addWidget( self.edit_xend )

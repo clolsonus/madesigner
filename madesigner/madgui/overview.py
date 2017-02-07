@@ -10,7 +10,6 @@ started: November 2013
 """
 
 import sys
-from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import (QWidget,
                              QHBoxLayout, QVBoxLayout, QFrame, QFormLayout,
                              QPushButton, QTabWidget,
@@ -134,7 +133,7 @@ class Overview():
         if writer_version == "" or float(writer_version) != self.version.get():
             if writer_version == "":
                 writer_version = "(unknown)"
-            reply = QtGui.QMessageBox.question(None, 'Version Alert', 'The design you are loading was created with MAD v' + str(writer_version) + '.  You are running v' + str(self.version.get()) + '.  The file will be converted as best as possible, but please check your design carefully for any issues.', QtGui.QMessageBox.Ok)
+            reply = QMessageBox.question(None, 'Version Alert', 'The design you are loading was created with MAD v' + str(writer_version) + '.  You are running v' + str(self.version.get()) + '.  The file will be converted as best as possible, but please check your design carefully for any issues.', QMessageBox.Ok)
 
     def wipe_clean(self):
         self.edit_name.setText('')
