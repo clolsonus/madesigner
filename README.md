@@ -1,11 +1,11 @@
-# MADesigner v2.0 - Model Airplane Rapid Design Toolkit
+# MAdesigner v2.0 - Model Airplane Rapid Design Toolkit
 
 
 # Project Description
 
-MADesigner streamlines the process of designing and creating built up
+MAdesigner streamlines the process of designing and creating built up
 model airplane wings. Structures are defined with higher level
-parameters like span, chord, airfoil, sweep, etc.  MADesigner takes
+parameters like span, chord, airfoil, sweep, etc.  MAdesigner takes
 your specification and automatically creates the detailed structures
 for you.
 
@@ -15,7 +15,7 @@ for you.
   between them.
 * Supports separate root and tip chords, sweep, twist, and dihedral.
 * Automatic flap/aileron control surface structures and cutouts.
-* Support multiple wing planels linked together (ex: a polyhedral glider wing)
+* Supports multiple wing planels linked together (ex: a polyhedral glider wing)
 * Generates an STL (3d format) of entire finished wing structure
   including dihedral, twist, all stringers and stock, control surface
   cutouts, lightening holes.  Useful for a final sanity check before
@@ -83,12 +83,12 @@ can be a huge cost for advanced CAD software and also a huge learning
 curve to understand the software well enough to do anything useful
 with it.
 
-MADesigner is an experiment to help address the cost and complexity of
+MAdesigner is an experiment to help address the cost and complexity of
 the design portion of the process; focused primarily on the area of
 model aircraft which is one of my life long interests.
 
 It will take some time to realize all the goals I can envision for
-this project, but I would like MADesigner to reduce the time to design
+this project, but I would like MAdesigner to reduce the time to design
 an entire model aircraft from scratch to just minutes.  Select an
 airfoil, choose the basic layout of the model, tweak the scale and the
 dimensions, and then run the scripts.  What should pop out are 3-view
@@ -110,7 +110,7 @@ sweeps even though we know that an eliptical design is the most
 efficient and most beautiful?  The answer is that curved wings are
 very complex to design and build.  Imagine every rib is a difference
 size with different cutouts for stringers and control surfaces.  That
-is a nightmare with traditional tools, but MADesigner makes this a
+is a nightmare with traditional tools, but MAdesigner makes this a
 breeze.  First it generates all the exact rib cutouts for you, next it
 will layout the parts on a laser cut sheet, and finally it produces a
 full size plan to build on top of.  Dream it, design it, build it!
