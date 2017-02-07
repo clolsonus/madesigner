@@ -12,7 +12,7 @@ setup( name = 'madesigner',
        url = 'http://madesigner.flightgear.org',
        package_dir = {'': 'madesigner'},
        packages = find_packages('madesigner'),
-       scripts = [ 'madesigner/creator.py' ],
+       scripts = [ 'madesigner/madesigner.py' ],
        package_data = { 'madlib': ['airfoils/*.dat'] },
        )
 
