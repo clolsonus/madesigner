@@ -1,26 +1,52 @@
-# MADesigner v1.0
+# MADesigner v2.0 - Model Airplane Rapid Design Toolkit
 
 
 # Project Description
 
-The general purpose of this project is to build up a python library to
-enable writing simply python scripts that generate model airplane
-designs.  The initial vision includes:
+MADesigner streamlines the process of designing and creating built up
+model airplane wings. Structures are defined with higher level
+parameters like span, chord, airfoil, sweep, etc.  MADesigner takes
+your specification and automatically creates the detailed structures
+for you.
 
-- processing/blending/smoothing airfoils
-- cutting out spars, stringers, sheeting, lightening holes, etc. from wing ribs
-- laying out top down "plans" for the major aircraft subassemblies
-- generating cut files that could be handed to a laser cutter (or cnc machine)
-- generating surface "skins" that could be handed to a cnc machine for cutting
-  molds
-- generating 3d models for importing into flight simulators.
+# High Level Features
 
-Hopefully this next statement will become quickly out dated, but this
-is a very young project and does not have all the capabilities yet
-that are listed as goals.  I decided to "publish" the project publicly
-because there are a few things working that could be an interesting
-curiousity or idea generator for others.
+* Supports distinct root and tip airfoils and automatically blends
+  between them.
+* Supports separate root and tip chords, sweep, twist, and dihedral.
+* Automatic flap/aileron control surface structures and cutouts.
+* Support multiple wing planels linked together (ex: a polyhedral glider wing)
+* Generates an STL (3d format) of entire finished wing structure
+  including dihedral, twist, all stringers and stock, control surface
+  cutouts, lightening holes.  Useful for a final sanity check before
+  sending parts to a laser cutter.  It's also pretty and fun to look
+  at your design!
+* Generates a FreeCAD model file so the entire logical design can be
+  imported into FreeCAD and further manipulated. Ex: adding landing
+  gear blocks, servo mounts, fancy wing tips, etc.
+* Creates nested laser cut sheets (svg file format) that can be loaded
+  directly into your laser cutter and cut with minimal material waste.
+* Creates full size planes (svg file format) that can be printed on a
+  large format plotted.
+* Written in python and fully open-source.
 
+# Low level features
+
+* Airfoils
+  - Database of 1500+ airfoils
+  - Smooth spline fitting through airfoil data points and resampling at
+    a much higher resolution.
+  - Proportional blending of airfoils
+* Cut outs
+  - Flush/tangent stringer cutouts.
+  - Best fit leading edge diamond cutout.
+  - Best fit trailing edge cutouts supporing symmetric or triangle stock.
+  - Spar cutouts with 'twist' built in for self aligning structures.
+  - Simple round lighteining holes.
+  - Shaped lightening holes.
+* Add ons:
+  - Optionally generate top or bottom build tabs to help with building
+    alignment.
 
 # 35,000' Overview
 
@@ -76,6 +102,18 @@ designer can spend time up front adjusting their aircraft, engineering
 the structures, selecting materials, adjusting the lines and the
 proportions, personalizing it, making engineering tradeoffs, and
 ultimately making the design entirely their own.
+
+# Motivation
+
+While are most airplane wings built as straight planks or straight
+sweeps even though we know that an eliptical design is the most
+efficient and most beautiful?  The answer is that curved wings are
+very complex to design and build.  Imagine every rib is a difference
+size with different cutouts for stringers and control surfaces.  That
+is a nightmare with traditional tools, but MADesigner makes this a
+breeze.  First it generates all the exact rib cutouts for you, next it
+will layout the parts on a laser cut sheet, and finally it produces a
+full size plan to build on top of.  Dream it, design it, build it!
 
 
 # Capabilities
