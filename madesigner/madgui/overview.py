@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QWidget,
                              QHBoxLayout, QVBoxLayout, QFrame, QFormLayout,
                              QPushButton, QTabWidget,
                              QLineEdit, QTextEdit, QLabel,
-                             QInputDialog)
+                             QInputDialog, QMenu, QMessageBox)
 
 from combobox_nowheel import QComboBoxNoWheel
 from version import MADversion

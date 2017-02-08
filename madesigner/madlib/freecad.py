@@ -101,9 +101,10 @@ class GenFreeCAD():
         compound = Part.Compound(face_list)
 
         # export to stl
-        compound.exportStl(os.path.join(dirname, 'design.stl'))
+        stl_file = os.path.join(dirname, 'design.stl')
+        compound.exportStl(stl_file)
 
         # view stl
-        command = ['osgviewer', 'junk.stl']
+        command = ['osgviewer', stl_file]
         pid = subprocess.Popen(command).pid
         print "spawned osgviewer with pid = " + str(pid)
