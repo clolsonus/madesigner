@@ -21,10 +21,11 @@ import numpy
 from props import PropertyNode
 import props_json
 
-import madlib.ac3d
-import madlib.freecad
-import madlib.contour
-from madlib.wing import Wing
+import ac3d
+import freecad
+import contour
+from wing import Wing
+
 
 def myfloat(node, name):
     val = node.getString(name)
@@ -35,14 +36,17 @@ def myfloat(node, name):
 
 class Builder():
 
-    def __init__(self, filename=None, airfoil_resample=25, circle_points=8,
+    def __init__(self, design, dirname=None,
+                 airfoil_resample=25, circle_points=8,
                  nest_speed="fast"):
         # airfoil_resample: 25 = fast, 100 = mid, 1000 = quality
         # circle_points: 8 = fast, 16 = mid, 32 = quality
         self.airfoil_resample = airfoil_resample
         self.circle_points = circle_points
         self.nest_speed = nest_speed
-        self.load(str(filename))
+        self.design = design
+        self.dirname = dirname
+        self.do_build()
 
     # return a list of start/end/part triplets for a structure that
     # spans the given start/end stations.  The structure is separated
@@ -261,7 +265,7 @@ class Builder():
             end = float(tokens[1])
         else:
             end = None
-        pos=madlib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
+        pos=contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
         wing.add_simple_hole(style=style, size=size, pos1=pos, start_station=start, end_station=end, part="wing")
 
     def parse_shaped_hole(self, wing, node):
@@ -282,7 +286,7 @@ class Builder():
             rear = position1_val
         elif position1_ref == "Abs Pos":
             xpos = position1_val
-        pos1=madlib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
+        pos1=contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
 
         position2_ref = node.getString('position2_ref')
         position2_val = myfloat(node, 'position2')
@@ -298,7 +302,7 @@ class Builder():
             rear = position2_val
         elif position2_ref == "Abs Pos":
             xpos = position2_val
-        pos2=madlib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
+        pos2=contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos)
 
         tokens = node.getString('start_station').split()
         if len(tokens) == 2 and tokens[1] != 'Inner':
@@ -381,7 +385,7 @@ class Builder():
         atstation = myfloat(node, 'at_station')
         slope = myfloat(node, 'slope')
         angle = myfloat(node, 'angle')
-        pos = madlib.contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos, atstation=atstation, slope=slope)
+        pos = contour.Cutpos(percent=percent, front=front, rear=rear, xpos=xpos, atstation=atstation, slope=slope)
         size = ( width, height )
         wing.add_flap( start_station=start, end_station=end, pos=pos, type="builtup", angle=angle, edge_stringer_size=size)
 
@@ -401,7 +405,7 @@ class Builder():
         return curve                         
         
     def parse_wing(self, node):
-        wing = Wing(self.fileroot)
+        wing = Wing(self.dirname)
         wing.units = self.units
         wing.airfoil_resample = self.airfoil_resample
         wing.circle_points=self.circle_points
@@ -468,32 +472,33 @@ class Builder():
         # no match
         return -1
 
-    def load(self, filename):
-        if not os.path.exists(filename):
-            print "Error, design not found: " + filename
-            return
+    def do_build(self):
+        print "do build"
+        # if not os.path.exists(filename):
+        #     print "Error, design not found: " + filename
+        #     return
 
-        design = PropertyNode()
-        if not props_json.load(filename, design):
-            print filename + ": xml parse error:\n" + str(sys.exc_info()[1])
-            return
+        # design = PropertyNode()
+        # if not props_json.load(filename, design):
+        #     print filename + ": xml parse error:\n" + str(sys.exc_info()[1])
+        #     return
 
-        self.fileroot, ext = os.path.splitext(filename)
-        self.basename = os.path.basename(filename)
-        self.baseroot, ext = os.path.splitext(self.basename)
+        # self.fileroot, ext = os.path.splitext(filename)
+        # self.basename = os.path.basename(filename)
+        # self.baseroot, ext = os.path.splitext(self.basename)
 
-        node = design.getChild('overview', True)
+        node = self.design.getChild('overview', True)
         self.parse_overview(node)
 
         self.wings = []
-        for i in range(design.getLen('wing')):
-            wing_node = design.getChild('wing[%d]' % i)
+        for i in range(self.design.getLen('wing')):
+            wing_node = self.design.getChild('wing[%d]' % i)
             wing = self.parse_wing(wing_node)
             self.wings.append(wing)
 
         # generate AC3D model
         # if len(self.wings):
-        #     ac = madlib.ac3d.AC3D( self.fileroot )
+        #     ac = ac3d.AC3D( self.fileroot )
         #     ac.gen_headers( "airframe", 2 )
         #     for wing in self.wings:
         #         tip = [ 0.0, 0.0, 0.0 ]
@@ -505,7 +510,7 @@ class Builder():
         #     ac.close()
             
         # generate FreeCAD model
-        doc = madlib.freecad.GenFreeCAD()
+        doc = freecad.GenFreeCAD()
         doc.start_model("my document")
         if len(self.wings):
             for wing in self.wings:
@@ -515,8 +520,8 @@ class Builder():
                     if i >= 0:
                         tip = self.wings[i].get_tip_pos()
                 wing.build_freecad( doc, xoffset=tip[1], yoffset=tip[2] )
-        doc.view_stl()
-        doc.save_model("name");
+        doc.view_stl(self.dirname)
+        doc.save_model(os.path.join(self.dirname, "name"));
 
 def usage():
     print "Usage: " + sys.argv[0] + " design.mad"

@@ -33,8 +33,9 @@ import props_json
 
 from overview import Overview
 from wing_ui import WingUI
-from builder import Builder
 from version import MADversion
+
+from madlib.builder import Builder
 
 # Check if our version is the latest
 class CheckVersion(QtCore.QThread):
@@ -222,7 +223,8 @@ class CreatorUI(QWidget):
                 return
 
         QApplication.setOverrideCursor(QCursor(QtCore.Qt.WaitCursor))
-        build = Builder(filename=self.filename, airfoil_resample=25,
+        design = self.gen_property_tree()
+        build = Builder(design, dirname="", airfoil_resample=25,
                         circle_points=8, nest_speed="fast")
         QApplication.restoreOverrideCursor()
 
@@ -298,7 +300,7 @@ class CreatorUI(QWidget):
         self.overview.wipe_clean()
         for wing in self.wings:
             wing.delete_self()
-        self.clean = True
+        self.setClean()
 
     # load from a filename
     def load(self, filename):
@@ -349,6 +351,7 @@ class CreatorUI(QWidget):
             self.wings.append(wing)
             self.tabs.addTab( wing.get_widget(), "Wing: " + wing.get_name() )
         self.rebuildWingLists()
+        self.setClean()
 
     def new_design(self):
         # wipe the current design (by command or before loading a new design)
@@ -385,9 +388,6 @@ class CreatorUI(QWidget):
         self.open(startdir)
 
     def load_example(self):
-        #app_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
-        #startdir = os.path.abspath(app_path + "/examples")
-        #self.open(startdir)
         items = []
         for res in resource_listdir('madgui', 'examples'):
             name, ext = os.path.splitext(res)
@@ -395,10 +395,9 @@ class CreatorUI(QWidget):
                 items.append(name)
         items.sort()            # make pretty
         item, ok = QInputDialog.getItem(self, "Examples", "Select an Example:", items, 0, False)
-        print ok, item
         if ok:
-            self.filename = None
-            self.fileroot = None
+            self.filename = ""
+            self.fileroot = ""
             example_res = os.path.join('examples', str(item) + ".mad")
             print example_res
             f = resource_stream('madgui', example_res)
@@ -412,17 +411,7 @@ class CreatorUI(QWidget):
                                                  startdir,
                                                  "MAdesigner (*.mad)")
 
-    def save(self):
-        if self.filename == "":
-            filename = str(self.setFileName())
-            if filename == "":
-                # print "cancelled save ..."
-                return
-            else:
-                self.filename = filename
-                self.fileroot, ext = os.path.splitext(self.filename)
-                # print self.fileroot, ext
-
+    def gen_property_tree(self):
         # create a new design root
         design = PropertyNode()
 
@@ -437,6 +426,22 @@ class CreatorUI(QWidget):
                 node = design.getChild('wing[%d]' % i, True)
                 wing.save(node)
                 i += 1
+                
+        return design
+    
+    def save(self):
+        if self.filename == "":
+            filename = str(self.setFileName())
+            if filename == "":
+                # print "cancelled save ..."
+                return
+            else:
+                self.filename = filename
+                self.fileroot, ext = os.path.splitext(self.filename)
+                # print self.fileroot, ext
+
+        # create the design as a property tree
+        design = gen_property_tree()
 
         try:
             props_json.save(self.filename, design)

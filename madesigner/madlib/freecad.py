@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import os.path
 
 # path to your FreeCAD.so or FreeCAD.dll file
 FREECADPATH = '/usr/lib64/freecad/lib'
@@ -80,7 +81,7 @@ class GenFreeCAD():
         if self.extra_group:
             self.extra_group.addObject(p)
 
-    def view_stl(self):
+    def view_stl(self, dirname):
         # merge all the faces from all the parts into a compound
         face_list = []
 
@@ -95,7 +96,7 @@ class GenFreeCAD():
         compound = Part.Compound(face_list)
 
         # export to stl
-        compound.exportStl('junk.stl')
+        compound.exportStl(os.path.join(dirname, 'design.stl'))
 
         # view stl
         command = ['osgviewer', 'junk.stl']
