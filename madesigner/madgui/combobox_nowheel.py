@@ -1,15 +1,9 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-"""
-Combo box that ignores scroll wheel input
-
-Reference: http://nathanhorne.com/?p=254
-
-author: Curtis L. Olson
-website: madesigner.flightgear.org
-started: November 2013
-"""
+# combobox_nowheel.py - Combo box that ignores scroll wheel input
+#
+# Copyright (C) 2013-2017 - Curtis Olson, curtolson@flightgear.org
+# http://madesigner.flightgear.org
+#
+# Reference: http://nathanhorne.com/?p=254
 
 from PyQt5.QtWidgets import QComboBox
 

@@ -1,10 +1,7 @@
-#!python
-
-__author__ = "Curtis L. Olson < curtolson {at} flightgear {dot} org >"
-__url__ = "http://gallinazo.flightgear.org"
-__version__ = "1.0"
-__license__ = "GPL v2"
-
+# structure.py - a generic high level structure
+#
+# Copyright (C) 2013-2017 - Curtis Olson, curtolson@flightgear.org
+# http://madesigner.flightgear.org
 
 import copy
 import math

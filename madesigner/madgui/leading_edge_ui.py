@@ -1,13 +1,7 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-"""
-Leading Edge
-
-author: Curtis L. Olson
-website: madesigner.flightgear.org
-started: November 2013
-"""
+# leading_edge_ui.py - leading edge user interface components
+#
+# Copyright (C) 2013-2017 - Curtis Olson, curtolson@flightgear.org
+# http://madesigner.flightgear.org
 
 import sys
 

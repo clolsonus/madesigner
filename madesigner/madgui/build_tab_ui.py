@@ -1,13 +1,7 @@
-#!/usr/bin/python
-
-"""
-build_tab_ui.py
-
-author: Curtis L. Olson
-Copyright: Curtis L. Olson 2013-2017
-website: madesigner.flightgear.org
-started: November 2013
-"""
+# build_tab_ui.py - build tab user interface components
+#
+# Copyright (C) 2013-2017 - Curtis Olson, curtolson@flightgear.org
+# http://madesigner.flightgear.org
 
 import sys
 

@@ -1,13 +1,7 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-"""
-Wing Panel tab
-
-author: Curtis L. Olson
-website: madesigner.flightgear.org
-started: November 2013
-"""
+# wing_ui.py - wing user interface components
+#
+# Copyright (C) 2013-2017 - Curtis Olson, curtolson@flightgear.org
+# http://madesigner.flightgear.org
 
 import os.path
 import sys

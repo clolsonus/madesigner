@@ -1,13 +1,7 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-"""
-Spar
-
-author: Curtis L. Olson
-website: madesigner.flightgear.org
-started: November 2013
-"""
+# spar_ui.py - spar user interface components
+#
+# Copyright (C) 2013-2017 - Curtis Olson, curtolson@flightgear.org
+# http://madesigner.flightgear.org
 
 import sys
 

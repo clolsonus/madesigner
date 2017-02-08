@@ -1,13 +1,7 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-"""
-Overview tab
-
-author: Curtis L. Olson
-website: madesigner.flightgear.org
-started: November 2013
-"""
+# overview.py - overview page
+#
+# Copyright (C) 2013-2017 - Curtis Olson, curtolson@flightgear.org
+# http://madesigner.flightgear.org
 
 import sys
 from PyQt5.QtWidgets import (QWidget,

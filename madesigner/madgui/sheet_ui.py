@@ -1,13 +1,7 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-"""
-Sheet
-
-author: Curtis L. Olson
-website: madesigner.flightgear.org
-started: December 2013
-"""
+# sheet_ui.py - sheeting user interface components
+#
+# Copyright (C) 2013-2017 - Curtis Olson, curtolson@flightgear.org
+# http://madesigner.flightgear.org
 
 import sys
 

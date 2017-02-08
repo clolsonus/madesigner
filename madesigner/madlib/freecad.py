@@ -1,3 +1,8 @@
+# freecad.py - generate freecad parts and documents
+#
+# Copyright (C) 2013-2017 - Curtis Olson, curtolson@flightgear.org
+# http://madesigner.flightgear.org
+
 import subprocess
 import sys
 import os.path

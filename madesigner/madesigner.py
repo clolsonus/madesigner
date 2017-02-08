@@ -1,19 +1,15 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 """
-MA creator 
+MAdesigner - Model Airplane Rapid Design Toolkit
 
-This program hopefully does something eventually ...
+Copyright (C) 2013-2017 - Curtis Olson, curtolson@flightgear.org
+http://madesigner.flightgear.org
 
-author: Curtis L. Olson
-website: madesigner.flightgear.org
-started edited: November 2013
 """
 
 import os.path
 import sys
-from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import QApplication
 from madgui.creator_ui import CreatorUI
 

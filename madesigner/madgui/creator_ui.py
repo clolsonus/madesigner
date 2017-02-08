@@ -1,15 +1,7 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-"""
-MA creator 
-
-This program hopefully does something eventually ...
-
-author: Curtis L. Olson
-website: madesigner.flightgear.org
-started edited: November 2013
-"""
+# creator_ui.py - main creator window components
+#
+# Copyright (C) 2013-2017 - Curtis Olson, curtolson@flightgear.org
+# http://madesigner.flightgear.org
 
 import sys
 import os.path

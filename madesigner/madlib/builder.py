@@ -1,15 +1,7 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-"""
-MA builder 
-
-This program loads an xml aircraft and builds it
-
-author: Curtis L. Olson
-website: madesigner.flightgear.org
-started edited: December 2013
-"""
+# builder.py - build it!
+#
+# Copyright (C) 2013-2017 - Curtis Olson, curtolson@flightgear.org
+# http://madesigner.flightgear.org
 
 import re
 import sys
