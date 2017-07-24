@@ -919,16 +919,29 @@ class Structure:
                 if spar.side == "left":
                     ac.make_extrusion("spar", spar.points, spar.side=="left")
 
-    def build_freecad(self, doc, xoffset=0.0, yoffset=0.0):
+    def build_freecad(self, doc, xoffset=0.0, yoffset=0.0, twist=0.0):
         doc.make_extra_group('Wing_' + self.name)
         
-        right_ref = Base.Vector(0, xoffset, yoffset)
-        left_ref = Base.Vector(0, -xoffset, yoffset)
-        right_rot = Base.Rotation(Base.Vector(1, 0, 0), self.dihedral)
-        right_pl = FreeCAD.Placement(right_ref, right_rot)
-        left_rot = Base.Rotation(Base.Vector(1, 0, 0), -self.dihedral)
-        left_pl = FreeCAD.Placement(left_ref, left_rot)
+        # right_ref = Base.Vector(0, xoffset, yoffset)
+        # left_ref = Base.Vector(0, -xoffset, yoffset)
+        # right_rot = Base.Rotation(Base.Vector(1, 0, 0), self.dihedral)
+        # right_pl = FreeCAD.Placement(right_ref, right_rot)
+        # left_rot = Base.Rotation(Base.Vector(1, 0, 0), -self.dihedral)
+        # left_pl = FreeCAD.Placement(left_ref, left_rot)
+        
+        right_m = Base.Matrix()
+        right_m.rotateY(math.radians(-twist))
+        right_m.rotateX(math.radians(self.dihedral))
+        right_m.move(Base.Vector(0, xoffset, yoffset))
 
+        left_m = Base.Matrix()
+        left_m.rotateY(math.radians(-twist))
+        left_m.rotateX(math.radians(-self.dihedral))
+        left_m.move(Base.Vector(0, -xoffset, yoffset))
+
+        left_pl = FreeCAD.Placement(left_m)
+        right_pl = FreeCAD.Placement(right_m)
+        
         # make parts
         for rib in self.right_ribs:
             part = doc.make_object(rib.contour.poly, rib.thickness, rib.pos, rib.nudge)

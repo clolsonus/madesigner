@@ -500,18 +500,25 @@ class Builder():
         #                 tip = self.wings[i].get_tip_pos()
         #         wing.build_ac3d( ac, xoffset=tip[1], yoffset=tip[2] )
         #     ac.close()
-            
+
+        # note: two panel wings are supported (i.e. classic polyhedral
+        # glider wings, however the tip position and twist handling
+        # will likely break if you specify 3 or more panels per side.)
+        
         # generate FreeCAD model
         doc = freecad.GenFreeCAD()
         doc.start_model("my document")
         if len(self.wings):
+            twist_accum = 0.0
             for wing in self.wings:
                 tip = [ 0.0, 0.0, 0.0 ]
                 if wing.link_name != None and wing.link_name != "none":
                     i = self.find_wing_by_name( wing.link_name )
                     if i >= 0:
                         tip = self.wings[i].get_tip_pos()
-                wing.build_freecad( doc, xoffset=tip[1], yoffset=tip[2] )
+                        twist_accum += self.wings[i].twist
+                wing.build_freecad( doc, xoffset=tip[1], yoffset=tip[2],
+                                    twist=twist_accum)
         print "finished build, before save"
         doc.view_stl(self.dirname)
         doc.save_model(os.path.join(self.dirname, "name"));
