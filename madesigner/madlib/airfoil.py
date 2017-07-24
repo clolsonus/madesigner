@@ -54,7 +54,15 @@ class Airfoil(Contour):
                 self.description = string.join(line.split())
                 is_first_line = False
                 continue
-            xa, ya = line.split()
+            if line == '':
+                # empty line
+                continue
+            tokens = line.split()
+            if len(tokens) != 2:
+                # unknown data (comment?)
+                continue
+            xa = tokens[0]
+            ya = tokens[1]
             if ya == "......" or ya == ".......":
                 # ya = "0.0"
                 continue
