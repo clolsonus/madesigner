@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QWidget,
                              QHBoxLayout, QVBoxLayout, QFrame, QFormLayout,
                              QPushButton, QTabWidget, QGroupBox,
                              QLineEdit, QTextEdit, QLabel, QScrollArea,
-                             QInputDialog, QMenu)
+                             QInputDialog, QMenu, QFileDialog)
 
 from combobox_nowheel import QComboBoxNoWheel
 
@@ -94,11 +94,11 @@ class WingUI():
             self.edit_wing_link.setCurrentIndex(0)
 
     def select_airfoil_root(self):
-        basepath = os.path.split(os.path.abspath(sys.argv[0]))[0]
-        airfoil_path = basepath + "/data/airfoils/"
-        filename = QFileDialog.getOpenFileName(None, "Open File",
-                                                     airfoil_path,
-                                                     "Airfoil (*.dat)")
+        basepath = os.path.split(os.path.realpath(__file__))[0]
+        airfoil_path = os.path.join(basepath, "../airfoils/")
+        (filename, mask) = QFileDialog.getOpenFileName(None, "Open File",
+                                                       airfoil_path,
+                                                       "Airfoil (*.dat)")
         if ( filename == "" ):
             return
         basename = os.path.basename(str(filename))
@@ -106,11 +106,11 @@ class WingUI():
         self.edit_airfoil_root.setText(fileroot)
 
     def select_airfoil_tip(self):
-        basepath = os.path.split(os.path.abspath(sys.argv[0]))[0]
-        airfoil_path = basepath + "/data/airfoils/"
-        filename = QFileDialog.getOpenFileName(None, "Open File",
-                                                     airfoil_path,
-                                                     "Airfoil (*.dat)")
+        basepath = os.path.split(os.path.realpath(__file__))[0]
+        airfoil_path = os.path.join(basepath, "../airfoils/")
+        (filename, mask) = QFileDialog.getOpenFileName(None, "Open File",
+                                                       airfoil_path,
+                                                       "Airfoil (*.dat)")
         if ( filename == "" ):
             return
         basename = os.path.basename(str(filename))

@@ -1,0 +1,3 @@
+Detailed Polygon clipping library documentation (python interaface):
+
+    http://nullege.com/codes/search/Polygon

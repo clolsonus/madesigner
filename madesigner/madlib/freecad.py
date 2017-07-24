@@ -11,7 +11,7 @@ import os.path
 FREECADPATH = '/usr/lib64/freecad/lib'
 sys.path.append(FREECADPATH)
 import FreeCAD
-import Part
+import Part, Mesh
 from FreeCAD import Base
 
 class GenFreeCAD():
@@ -31,17 +31,36 @@ class GenFreeCAD():
     def save_model(self, name):
         self.doc.saveAs("test.FCStd")
 
-    def make_extrusion(self, name, points):
+    def make_extrusion(self, name, points, invert_order):
+        print 'make_extrusion', name, invert_order
         wires = []
         for section in points:
             pts = []
-            for pt in section:
-                # print "%.2f %.2f %.2f" % (pt[0], pt[1], pt[2])
+            if len(section) < 3:
+                print "warning: cross section in make_extrusion() < 3 points"
+                print "length:", len(section)
+                continue
+            if not invert_order:
+                for pt in section:
+                    # print "%.2f %.2f %.2f" % (pt[0], pt[1], pt[2])
+                    pts.append( Base.Vector(pt[0], pt[1], pt[2]) )
+                pt = section[0]
                 pts.append( Base.Vector(pt[0], pt[1], pt[2]) )
-            pts.append(Base.Vector(pts[0])) # close loop
+            else:
+                for pt in section:
+                    # print "%.2f %.2f %.2f" % (pt[0], pt[1], pt[2])
+                    pts.append( Base.Vector(pt[0], pt[1], pt[2]) )
+                pt = section[0]
+                pts.append( Base.Vector(pt[0], pt[1], pt[2]) )
+                #pt = section[0]
+                #Base.Vector(pt[0], pt[1], pt[2])
+                #for pt in reversed(section):
+                    # print "%.2f %.2f %.2f" % (pt[0], pt[1], pt[2])
+                    #pts.append( Base.Vector(pt[0], pt[1], pt[2]) )
+      
             wire = Part.makePolygon(pts)
             wires.append(wire)
-        loft = Part.makeLoft(wires, True)
+        loft = Part.makeLoft(wires, False)
         return loft
 
     def make_object(self, poly, thickness, pos, nudge):
@@ -87,23 +106,28 @@ class GenFreeCAD():
             self.extra_group.addObject(p)
 
     def view_stl(self, dirname):
+        print "make and view stl file"
+        
         # merge all the faces from all the parts into a compound
         face_list = []
-
-        #for part in parts:
-        #    faces.extend(part.Faces)
 
         for part in self.all_group.Group:
             shape = part.Shape
             faces = shape.Faces
             face_list.extend(faces)
 
+        print 'making part compound'
         compound = Part.Compound(face_list)
 
-        # export to stl
         stl_file = os.path.join(dirname, 'design.stl')
-        compound.exportStl(stl_file)
 
+        # testing explicite tessellation
+        MESH_DEVIATION=0.1
+        print "generating mesh"
+        mesh = Mesh.Mesh( compound.tessellate(MESH_DEVIATION) )
+        print "mesh name:", stl_file
+        mesh.write(stl_file)
+        
         # view stl
         command = ['osgviewer', stl_file]
         pid = subprocess.Popen(command).pid

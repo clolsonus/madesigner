@@ -512,6 +512,7 @@ class Builder():
                     if i >= 0:
                         tip = self.wings[i].get_tip_pos()
                 wing.build_freecad( doc, xoffset=tip[1], yoffset=tip[2] )
+        print "finished build, before save"
         doc.view_stl(self.dirname)
         doc.save_model(os.path.join(self.dirname, "name"));
 

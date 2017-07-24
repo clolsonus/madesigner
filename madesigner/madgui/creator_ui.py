@@ -16,7 +16,8 @@ from PyQt5.QtWidgets import (QApplication, QWidget,
                              QHBoxLayout, QVBoxLayout, QFrame, QFormLayout,
                              QPushButton, QTabWidget, QGroupBox,
                              QLineEdit, QTextEdit, QLabel, QScrollArea,
-                             QInputDialog, QMenu, QMessageBox)
+                             QInputDialog, QMenu, QMessageBox,
+                             QFileDialog, QErrorMessage)
 from PyQt5.QtGui import QCursor
 
 from props import PropertyNode
@@ -28,6 +29,20 @@ from wing_ui import WingUI
 from version import MADversion
 
 from madlib.builder import Builder
+
+# test for writeable path
+import tempfile
+import errno
+def isWritable(path):
+    try:
+        testfile = tempfile.TemporaryFile(dir=path)
+        testfile.close()
+    except OSError as e:
+        if e.errno == errno.EACCES:  # 13
+            return False
+        e.filename = path
+        raise
+    return True
 
 # Check if our version is the latest
 class CheckVersion(QtCore.QThread):
@@ -69,6 +84,7 @@ class CreatorUI(QWidget):
         self.fileroot = ""
         self.load(filename)
         self.clean = True
+        self.dirname = "."
 
         # version checking task (fixme)
         # self.checkversion = CheckVersion()
@@ -299,12 +315,20 @@ class CreatorUI(QWidget):
         if filename == "":
             # new empty design
             return
-
+        
+        self.dirname = os.path.split(os.path.realpath(filename))[0]
+        if not isWritable(self.dirname):
+            QMessageBox.question(self, 'Directory Access Notice', 'The directory <b>' + self.dirname + '</b> is not writable.  Using <b>' + os.getcwd() + '</b> to save build files.', QMessageBox.Ok)
+            self.dirname = os.getcwd()
+            
+                                     
         basename = os.path.basename(str(filename))
         fileroot, ext = os.path.splitext(basename)
-
+        print filename
+        
         if not os.path.exists(filename):
             # invalid/nonexistent filename
+            print "invalid file name"
             return
 
         self.filename = str(filename)
@@ -368,9 +392,9 @@ class CreatorUI(QWidget):
 
         if startdir == None:
             startdir = os.path.expanduser("~")
-        filename = QFileDialog.getOpenFileName(self, "Open File",
-                                                     startdir,
-                                                     "MAdesigner (*.mad)")
+        (filename, mask) = QFileDialog.getOpenFileName(self, "Open File",
+                                                       startdir,
+                                                       "MAdesigner (*.mad)")
         if ( filename == "" ):
             return
         self.load(str(filename))
@@ -380,28 +404,21 @@ class CreatorUI(QWidget):
         self.open(startdir)
 
     def load_example(self):
-        items = []
-        for res in resource_listdir('madgui', 'examples'):
-            name, ext = os.path.splitext(res)
-            if ext == '.mad':
-                items.append(name)
-        items.sort()            # make pretty
-        item, ok = QInputDialog.getItem(self, "Examples", "Select an Example:", items, 0, False)
-        if ok:
-            self.filename = ""
-            self.fileroot = ""
-            example_res = os.path.join('examples', str(item) + ".mad")
-            print example_res
-            f = resource_stream('madgui', example_res)
-            stream = f.read()
-            print stream
-            self.loads(stream, item)
+        basepath = os.path.split(os.path.realpath(__file__))[0]
+        example_path = os.path.join(basepath, "../examples/")
+        (filename, mask) = QFileDialog.getOpenFileName(None, "Open File",
+                                                       example_path,
+                                                       "MAdesigner (*.mad)")
+        if ( filename == "" ):
+            return
+        self.load(filename)
 
     def setFileName(self):
         startdir = os.path.expanduser("~/newdesign.mad")
-        return QFileDialog.getSaveFileName(self, "Save File",
-                                                 startdir,
-                                                 "MAdesigner (*.mad)")
+        (filename, mask) = QFileDialog.getSaveFileName(self, "Save File",
+                                                       startdir,
+                                                       "MAdesigner (*.mad)")
+        return filename
 
     def gen_property_tree(self):
         # create a new design root
@@ -433,7 +450,7 @@ class CreatorUI(QWidget):
                 # print self.fileroot, ext
 
         # create the design as a property tree
-        design = gen_property_tree()
+        design = self.gen_property_tree()
 
         try:
             props_json.save(self.filename, design)

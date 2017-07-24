@@ -30,6 +30,30 @@ for you.
   large format plotted.
 * Written in python and fully open-source.
 
+# How to Install and Run
+
+* Install Python: http://www.python.org
+
+* Install required python libraries: numpy polygon2 svgwrite (Example
+  for Debian or Ubuntu, as root or with sudo: apt-get install
+  python-numpy python-pip python2.7-dev pip install polygon2 pip
+  install svgwrite)
+
+* Download and install aura-props:
+  https://github.com/AuraUAS/aura-props and run 'python setup.py install'
+
+* Download and install FreeCAD: https://www.freecadweb.org/ set/add an
+  environment variable named PYTHONPATH to point to the path to
+  FreeCAD.so (Linux) / FreeCAD.dll (Windows) file (In Ubuntu, using
+  apt to install FreeCAD, FreeCAD.so should be in/usr/lib/freecad/lib/
+
+* Download madesigner from github: https://github.com/clolsonus/madesigner
+      
+* cd to madesigner and run 'python setup.py install'
+
+* At a command prompt 'madesigner.py'
+
+
 # Low level features
 
 * Airfoils

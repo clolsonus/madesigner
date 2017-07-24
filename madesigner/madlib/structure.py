@@ -942,41 +942,49 @@ class Structure:
 
         for te in self.trailing_edges:
             if te.side == "left":
-                part = doc.make_extrusion("trailing edge", te.points)
+                part = doc.make_extrusion("trailing edge", te.points,
+                                          te.side=="left")
                 part.Placement = left_pl
                 doc.add_object('stock', "trailing edge", part)
             if te.side == "right":
-                part = doc.make_extrusion("trailing edge", te.points)
+                part = doc.make_extrusion("trailing edge", te.points,
+                                          te.side=="left")
                 part.Placement = right_pl
                 doc.add_object('stock', "trailing edge", part)
                 
         for le in self.leading_edges:
             if le.side == "left":
-                part = doc.make_extrusion("leading edge", le.points)
+                part = doc.make_extrusion("leading edge", le.points,
+                                          le.side=="left")
                 part.Placement = left_pl
                 doc.add_object('stock', "leading edge", part)
             if le.side == "right":
-                part = doc.make_extrusion("leading edge", le.points)
+                part = doc.make_extrusion("leading edge", le.points,
+                                          le.side=="left")
                 part.Placement = right_pl
                 doc.add_object('stock', "leading edge", part)
                 
         for spar in self.spars:
             if spar.side == "left":
-                part = doc.make_extrusion("spar", spar.points)
+                part = doc.make_extrusion("spar", spar.points,
+                                          spar.side=="left")
                 part.Placement = left_pl
                 doc.add_object('stock', "spar", part)
             if spar.side == "right":
-                part = doc.make_extrusion("spar", spar.points)
+                part = doc.make_extrusion("spar", spar.points,
+                                          spar.side=="left")
                 part.Placement = right_pl
                 doc.add_object('stock', "spar", part)
 
         for stringer in self.stringers:
             if stringer.side == "left":
-                part = doc.make_extrusion("stringer", stringer.points)
+                part = doc.make_extrusion("stringer", stringer.points,
+                                          stringer.side=="left")
                 part.Placement = left_pl
                 doc.add_object('stock', "stringer", part)
             if stringer.side == "right":
-                part = doc.make_extrusion("stringer", stringer.points)
+                part = doc.make_extrusion("stringer", stringer.points,
+                                          stringer.side=="left")
                 part.Placement = right_pl
                 doc.add_object('stock', "stringer", part)
 
