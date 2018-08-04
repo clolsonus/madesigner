@@ -232,7 +232,10 @@ class CreatorUI(QWidget):
 
         QApplication.setOverrideCursor(QCursor(QtCore.Qt.WaitCursor))
         design = self.gen_property_tree()
-        build = Builder(design, dirname="", airfoil_resample=25,
+
+        dir,_ = os.path.split(self.filename)
+
+        build = Builder(design, dirname=dir + os.sep , airfoil_resample=25,
                         circle_points=8, nest_speed="fast")
         QApplication.restoreOverrideCursor()
 
@@ -245,7 +248,10 @@ class CreatorUI(QWidget):
                 return
 
         QApplication.setOverrideCursor(QCursor(QtCore.Qt.WaitCursor))
-        build = Builder(filename=self.filename, airfoil_resample=1000,
+        design = self.gen_property_tree()
+
+        dir, _ = os.path.split(self.filename)
+        build = Builder(design, dirname=dir + os.sep, airfoil_resample=1000,
                         circle_points=32, nest_speed="nice")
         QApplication.restoreOverrideCursor()
 
