@@ -39,7 +39,7 @@ class Sheet:
         #self.biggest_x = 0.0
         self.mask = Polygon.Polygon()
 
-    def draw_part_side(self, part, stroke_width="1px", color="red",
+    def draw_part_side(self, part, stroke_width="4px", color="red",
                        lines=True, points=False, outline=False, speed="fast"):
         print "Placing:", part.labels
         if part.poly == None:
@@ -304,7 +304,7 @@ class Layout:
         return done
 
     def draw_part_cut_line(self, airfoil, speed):
-        self.draw_part(airfoil, stroke_width="0.001in", color="red", lines=True,
+        self.draw_part(airfoil, stroke_width=".05mm", color="red", lines=True,
                        speed=speed)
 
     def draw_part_plan_side(self, airfoil, speed):

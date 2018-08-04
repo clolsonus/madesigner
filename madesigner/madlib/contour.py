@@ -13,7 +13,7 @@ import spline
 import Polygon
 import Polygon.Shapes
 import Polygon.Utils
-
+import matplotlib.pyplot as plt
 
 class Cutpos:
     def __init__(self, percent=None, front=None, rear=None, xpos=None,
@@ -760,21 +760,37 @@ class Contour:
         # pretend we are cutting by placing a 'radius' size circle at
         # each point in the cut line and taking the union of all of
         # those (incrementally)
+
+        #plt.plot(*zip(*mask_cut.contour(0)))
+
         mask = None
         for p in mask_cut[0]:
             circle = Polygon.Shapes.Circle(radius=radius, center=p, points=circle_points)
+
             if mask == None:
                 mask = circle
             else:
+
                 mask = Polygon.Utils.convexHull(mask | circle)
                 mask = self.reduce_degeneracy(mask)
+
+
+
 
         mask = Polygon.Utils.convexHull(mask)
         #for p in mask:
         #    print "contour..."
         #    print p
 
+
+
         self.poly = self.poly - mask
+
+        z = 0
+
+        #plt.plot(*zip(*self.poly.contour(0)))
+        #plt.plot(*zip(*self.poly.contour(0)))
+        #plt.show()
 
 
     def get_bounds(self):

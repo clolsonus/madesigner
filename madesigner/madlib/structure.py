@@ -454,7 +454,7 @@ class Structure:
   
 
     def add_shaped_hole(self, pos1=None, pos2=None, \
-                            material_width=None, radius=0.0,\
+                            material_width=None, radius=None,\
                             start_station=None, end_station=None, mirror=True, \
                             part="wing"):
         if start_station == None:
@@ -462,14 +462,14 @@ class Structure:
         if end_station == None:
             end_station = self.stations[len(self.stations)-1]
         hole = Hole( type="shaped", pos1=pos1, pos2=pos2, \
-                         material_width=material_width, radius=radius, \
+                         material_width=material_width, size=radius, \
                          start_station=start_station, end_station=end_station,\
                          part=part )
         hole.side = "right"
         self.holes.append( hole )
         if mirror:
             hole = Hole( type="shaped", pos1=pos1, pos2=pos2, \
-                             material_width=material_width, radius=radius, \
+                             material_width=material_width, size=radius, \
                              start_station=-start_station, \
                              end_station=-end_station,\
                              part=part )
@@ -617,7 +617,7 @@ class Structure:
                                                    pos2=hole.pos2,
                                                    sweep=rib.pos[1],
                                                    material_width=hole.material_width,
-                                                   radius=hole.radius,
+                                                   radius=hole.size,
                                                    circle_points=self.circle_points )
 
 
@@ -640,7 +640,7 @@ class Structure:
 
     def layout_parts_sheets(self, width, height, step=None, units="in",
                             speed="fast"):
-        l = layout.Layout( self.basename + '-sheet', width, height, step=step, units=units )
+        l = layout.Layout( self.basename + self.name + '-sheet', width, height, step=step, units=units )
         # sort by size (ascending), then place in reverse order (largest first)
         sorted_list = []
         for rib in self.right_ribs:
@@ -716,7 +716,7 @@ class Structure:
         return shape
 
     def layout_plans(self, width, height, step=None, units="in", dpi=90):
-        sheet = layout.Sheet( self.basename + "-plan", width=width,
+        sheet = layout.Sheet( self.basename + self.name + "-plan", width=width,
                               height=height, step=step, units=units,
                               dpi=dpi )
         yoffset = (height - self.span) * 0.5

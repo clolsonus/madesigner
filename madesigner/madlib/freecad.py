@@ -8,7 +8,7 @@ import sys
 import os.path
 
 # path to your FreeCAD.so or FreeCAD.dll file
-FREECADPATH = '/usr/lib64/freecad/lib'
+FREECADPATH = '/usr/lib/freecad/lib'
 sys.path.append(FREECADPATH)
 import FreeCAD
 import Part, Mesh
