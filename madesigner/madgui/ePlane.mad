@@ -1,0 +1,180 @@
+{
+    "overview": {
+        "MADversion": "2.0", 
+        "author": "F. Conci", 
+        "description": "", 
+        "email": "concifederico@gmail.com", 
+        "name": "ePlane", 
+        "plans_height": "1000", 
+        "plans_width": "200", 
+        "sheet_height": "297", 
+        "sheet_width": "210", 
+        "units": "mm"
+    }, 
+    "wing": [
+        {
+            "airfoil_root": "e61", 
+            "airfoil_tip": "", 
+            "chord_curve": "", 
+            "chord_root": "90", 
+            "chord_tip": "", 
+            "dihedral": "0", 
+            "leading_edge": [
+                {
+                    "end_station": "End: Outer", 
+                    "size": "1.5", 
+                    "start_station": "Start: Inner"
+                }
+            ], 
+            "name": "Central", 
+            "shaped_hole": [
+                {
+                    "corner_radius": ".5", 
+                    "end_station": "End: Outer", 
+                    "material_width": "1.5", 
+                    "position1": ".35", 
+                    "position1_ref": "Chord %", 
+                    "position2": ".5", 
+                    "position2_ref": "Chord %", 
+                    "start_station": "Start: 50"
+                }, 
+                {
+                    "corner_radius": ".3", 
+                    "end_station": "End: Outer", 
+                    "material_width": ".8", 
+                    "position1": ".55", 
+                    "position1_ref": "Chord %", 
+                    "position2": ".65", 
+                    "position2_ref": "Chord %", 
+                    "start_station": "Start: 200"
+                }
+            ], 
+            "simple_hole": [
+                {
+                    "end_station": "End: Outer", 
+                    "position": ".1", 
+                    "position_ref": "Chord %", 
+                    "size": "1.2", 
+                    "start_station": "Start: Inner", 
+                    "style": "Radius"
+                }, 
+                {
+                    "end_station": "End: Outer", 
+                    "position": ".2", 
+                    "position_ref": "Chord %", 
+                    "size": "1.5", 
+                    "start_station": "Start: Inner", 
+                    "style": "Radius"
+                }
+            ], 
+            "span": "300", 
+            "stations": "0 25 50 75 100 125 150 175 200 225 250 275 300", 
+            "stringer": [
+                {
+                    "end_station": "End: Outer", 
+                    "height": "3", 
+                    "position": ".3", 
+                    "position_ref": "Chord %", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Top", 
+                    "width": "1.5"
+                }, 
+                {
+                    "end_station": "End: Outer", 
+                    "height": "1", 
+                    "position": ".15", 
+                    "position_ref": "Chord %", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Top", 
+                    "width": "1"
+                }
+            ], 
+            "sweep": "", 
+            "sweep_curve": "", 
+            "trailing_edge": [
+                {
+                    "end_station": "End: Outer", 
+                    "height": "1", 
+                    "shape": "Bottom Sheet", 
+                    "start_station": "Start: Inner", 
+                    "width": "6"
+                }
+            ], 
+            "twist": "", 
+            "wing_link": "none"
+        }, 
+        {
+            "airfoil_root": "e61", 
+            "airfoil_tip": "", 
+            "chord_curve": "", 
+            "chord_root": "90", 
+            "chord_tip": "70", 
+            "dihedral": "5", 
+            "leading_edge": [
+                {
+                    "end_station": "End: Outer", 
+                    "size": "1.5", 
+                    "start_station": "Start: Inner"
+                }
+            ], 
+            "name": "Extremos", 
+            "shaped_hole": [
+                {
+                    "corner_radius": ".5", 
+                    "end_station": "End: Outer", 
+                    "material_width": "1", 
+                    "position1": ".35", 
+                    "position1_ref": "Chord %", 
+                    "position2": ".5", 
+                    "position2_ref": "Chord %", 
+                    "start_station": "Start: Inner"
+                }
+            ], 
+            "simple_hole": [
+                {
+                    "end_station": "End: Outer", 
+                    "position": ".2", 
+                    "position_ref": "Chord %", 
+                    "size": "1.5", 
+                    "start_station": "Start: Inner", 
+                    "style": "Radius"
+                }
+            ], 
+            "span": "100", 
+            "stations": "0 25 50 75 100", 
+            "stringer": [
+                {
+                    "end_station": "End: Outer", 
+                    "height": "3", 
+                    "position": ".3", 
+                    "position_ref": "Chord %", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Top", 
+                    "width": "1.5"
+                }, 
+                {
+                    "end_station": "End: Outer", 
+                    "height": "1", 
+                    "position": ".15", 
+                    "position_ref": "Chord %", 
+                    "start_station": "Start: Inner", 
+                    "surface": "Top", 
+                    "width": "1"
+                }
+            ], 
+            "sweep": "", 
+            "sweep_curve": "", 
+            "trailing_edge": [
+                {
+                    "end_station": "End: Outer", 
+                    "height": "1", 
+                    "shape": "Bottom Sheet", 
+                    "start_station": "Start: Inner", 
+                    "width": "6"
+                }
+            ], 
+            "twist": "", 
+            "wing_link": "Central"
+        }
+    ]
+}
