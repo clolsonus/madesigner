@@ -9,7 +9,7 @@ __license__ = "GPL v2"
 import fileinput
 import math
 import string
-import spline
+from . import spline
 import Polygon
 import Polygon.Shapes
 import Polygon.Utils
@@ -186,9 +186,9 @@ class Contour:
         tmp = list(self.top)
         tmp.reverse()
         for pt in tmp:
-            print str(pt[0]) + " " + str(pt[1])
+            print(str(pt[0]) + " " + str(pt[1]))
         for pt in self.bottom:
-            print str(pt[0]) + " " + str(pt[1])
+            print(str(pt[0]) + " " + str(pt[1]))
 
     # rotate a point about (0, 0)
     def rotate_point( self, pt, angle ):
@@ -275,8 +275,8 @@ class Contour:
     # actual position (relative to the original pre-cut part dimensions)
     def get_xpos(self, cutpos=None, station=None, sweep=0.0):
         if len(self.saved_bounds) == 0:
-            print "need to call contour.save_bounds() after part created,"
-            print "but before any cutouts are made"
+            print("need to call contour.save_bounds() after part created,")
+            print("but before any cutouts are made")
             self.save_bounds()
         chord = self.saved_bounds[1][0] - self.saved_bounds[0][0]
         if cutpos.percent != None:
@@ -289,7 +289,7 @@ class Contour:
             # offset by sweep amount
             xpos = cutpos.xpos - sweep
         else:
-            print "get_xpos() called with no valid cut position!!!"
+            print("get_xpos() called with no valid cut position!!!")
         if cutpos.atstation != None and station != None:
             if cutpos.slope == None:
                 cutpos.slope = 0.0
@@ -336,9 +336,9 @@ class Contour:
                     if x >= pt1[0] and x <= pt2[0]:
                         found = True
                 else:
-                    print "parallel lines"
+                    print("parallel lines")
             else:
-                print "vertical segment"
+                print("vertical segment")
             i += 1
         if found:
             return x
@@ -402,8 +402,8 @@ class Contour:
     # ysize=value (vertical size)
     def cutout(self, cutout, pos=None, nudge=0.0):
         if len(self.saved_bounds) == 0:
-            print "need to call contour.save_bounds() after part created,"
-            print "but before any cutouts are made"
+            print("need to call contour.save_bounds() after part created,")
+            print("but before any cutouts are made")
             self.save_bounds()
 
         tangent = False
@@ -418,8 +418,8 @@ class Contour:
         xpos = self.get_xpos(cutout.cutpos, station=pos[0])
         ypos = self.poly_intersect(cutout.surf, xpos)
 
-        print "xpos = " + str(xpos)
-        print "ypos = " + str(ypos)
+        print("xpos = " + str(xpos))
+        print("ypos = " + str(ypos))
         if ypos == None:
             return ()
 
@@ -469,8 +469,8 @@ class Contour:
     # build tab
     def buildtab(self, cutout, station=None):
         if len(self.saved_bounds) == 0:
-            print "need to call contour.save_bounds() after part created,"
-            print "but before any cutouts are made"
+            print("need to call contour.save_bounds() after part created,")
+            print("but before any cutouts are made")
             self.save_bounds()
         top = False
         if cutout.surf == "top":
@@ -695,7 +695,7 @@ class Contour:
                         math.fabs(c[i][1]-c[i-2][1]) > 0.001:
                     shape1.append(c[i])
                 else:
-                    print "--> found zero width peninsula!!!"
+                    print("--> found zero width peninsula!!!")
                 i += 1
 
             # look for 3 points in a row with the same x value
@@ -707,7 +707,7 @@ class Contour:
                         math.fabs(c[i+1][0]-c[i][0]) > 0.001:
                     shape2.append(c[i])
                 else:
-                    print "--> found 3x in a row!!!"
+                    print("--> found 3x in a row!!!")
                 i += 1
             shape2.append(shape1[n-1])
 

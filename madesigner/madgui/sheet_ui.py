@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget,
                              QLineEdit, QTextEdit, QLabel, QScrollArea,
                              QInputDialog, QMenu, QMessageBox)
 
-from combobox_nowheel import QComboBoxNoWheel
+from .combobox_nowheel import QComboBoxNoWheel
 
 
 class SheetUI():

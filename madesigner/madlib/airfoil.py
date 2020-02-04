@@ -10,14 +10,14 @@ import sys
 import os.path
 import fileinput
 import math
-import string
+#import string
 import re
 import Polygon
 
 from pkg_resources import resource_stream
 
-from contour import Contour
-import spline
+from .contour import Contour
+from . import spline
 
 datapath = "../data"
 
@@ -49,9 +49,10 @@ class Airfoil(Contour):
         is_first_line = True
         for line in f:
             # print 'line:', line
-            line = line.strip()
+            line = line.decode().strip()
             if is_first_line:
-                self.description = string.join(line.split())
+                s = " "
+                self.description = s.join(line.split())
                 is_first_line = False
                 continue
             if line == '':
@@ -179,19 +180,19 @@ class Airfoil(Contour):
         return cur[0] + dx * pct
 
     def walk_curve_from_back(self, curve, xend, target_dist):
-        print "walk from " + str(xend) + " dist of " + str(target_dist)
+        print("walk from " + str(xend) + " dist of " + str(target_dist))
         n = len(curve)
-        print "curve is " + str(n) + " points"
+        print("curve is " + str(n) + " points")
         dist = 0
         cur = ( xend, self.simple_interp(curve, xend) )
         prior_index = spline.binsearch(curve, xend)
-        print "prior_index = " + str(prior_index)
+        print("prior_index = " + str(prior_index))
         if prior_index >= 0:
             dist_to_prior = self.dist_2d(cur, curve[prior_index])
         else:
             # ran out of points
             return cur[0]
-        print "idx = " + str(prior_index) + " dist_to_prior = " + str(dist_to_prior)
+        print("idx = " + str(prior_index) + " dist_to_prior = " + str(dist_to_prior))
         while dist + dist_to_prior < target_dist:
             dist += dist_to_prior
             cur = curve[prior_index]
@@ -229,7 +230,7 @@ class Airfoil(Contour):
             cur_diag = self.dist_2d( (xtop, ytop), (xbottom, ybottom) )
             dist += step
         if dist >= chord:
-            print "unable to fit leading edge, stock diagonal longer than rib height?"
+            print("unable to fit leading edge, stock diagonal longer than rib height?")
             return []
         #print (xtop, ytop)
         #print (xbottom, ybottom)
@@ -316,7 +317,7 @@ class Airfoil(Contour):
             top_dist = width
             mid_dist = width
         else:
-            print "Unknown trailing edge shape. Must be Flat Triangle, Symmetrical, or Bottom Sheet."
+            print("Unknown trailing edge shape. Must be Flat Triangle, Symmetrical, or Bottom Sheet.")
             return
 
         # make the Polygon representation of this part if needed
@@ -491,9 +492,9 @@ class Airfoil(Contour):
 
         dx = xpos - xtail
         dy = ybottom - ytail
-        print (dx, dy)
+        print(dx, dy)
         angle = math.atan2(dy, -dx)
-        print "angle = " + str(math.degrees(angle))
+        print("angle = " + str(math.degrees(angle)))
 
         #print "Trailing edge: stock height = " + str(height)
         #print "Rotated stock end height = " + str(height*math.cos(angle))
@@ -523,8 +524,8 @@ class Airfoil(Contour):
         if exact_shape:
             self.poly = self.poly - contour
         else:
-            print "poly:", self.poly
-            print "mask:", mask
+            print("poly:", self.poly)
+            print("mask:", mask)
             self.poly = self.poly - mask
 
         result = []
@@ -542,17 +543,17 @@ def blend( af1, af2, percent ):
     n = len(af1.top)
     #print str(len(af1.top)) + " = " + str(len(af2.top))
     for i in range(0, n):
-	y1 = af1.top[i][1]
-	y2 = af2.top[i][1]
-	y = (1.0-percent)*y1 + percent*y2
-	result.top.append( (af1.top[i][0], y) )
+        y1 = af1.top[i][1]
+        y2 = af2.top[i][1]
+        y = (1.0-percent)*y1 + percent*y2
+        result.top.append( (af1.top[i][0], y) )
     n = len(af1.bottom)
     #print str(len(af1.bottom)) + " = " + str(len(af2.bottom))
     for i in range(0, n):
-	y1 = af1.bottom[i][1]
-	y2 = af2.bottom[i][1]
-	y = (1.0-percent)*y1 + percent*y2
-	result.bottom.append( (af1.bottom[i][0], y) )
+        y1 = af1.bottom[i][1]
+        y2 = af2.bottom[i][1]
+        y = (1.0-percent)*y1 + percent*y2
+        result.bottom.append( (af1.bottom[i][0], y) )
     result.raw_top = list(result.top)
     result.raw_bottom = list(result.bottom)
     return result

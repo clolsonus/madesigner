@@ -99,39 +99,39 @@
 
 def derivative1(points):
     n = len(points)-1 # index of last point
-    y2 = list(xrange(n+1))
+    y2 = list(range(n+1))
     y2[0] = (points[1][1]-points[0][1]) / (points[1][0]-points[0][0])
     y2[n] = (points[n][1]-points[n-1][1]) / (points[n][0]-points[n-1][0])
     for i in range(1, n):
-	y2[i]=(points[i+1][1]-points[i-1][1]) / (points[i+1][0]-points[i-1][0])
+        y2[i]=(points[i+1][1]-points[i-1][1]) / (points[i+1][0]-points[i-1][0])
     return y2
 
 
 def derivative2(points, yp1 = "", ypn = ""):
     n = len(points)-1 # index of last point
-    y2 = list(xrange(n+1))
-    u = list(xrange(n+1))
+    y2 = list(range(n+1))
+    u = list(range(n+1))
     if yp1 == "":
-	y2[0] = 0
+        y2[0] = 0
         u[0] = 0
     else:
-	y2[0] = -0.5
-	u[0] = (3/(points[1][0]-points[0][0]))*((points[1][1]-points[0][1])/(points[1][0]-points[0][0])-float(yp1))
+        y2[0] = -0.5
+        u[0] = (3/(points[1][0]-points[0][0]))*((points[1][1]-points[0][1])/(points[1][0]-points[0][0])-float(yp1))
     for i in range(1, n):
-	sig = (points[i][0]-points[i-1][0])/(points[i+1][0]-points[i-1][0])
-	p = sig * y2[i-1] + 2.0
-	y2[i] = (sig-1.0) / p
-	u[i] = (6.0*( (points[i+1][1]-points[i][1])/(points[i+1][0]-points[i][0])-(points[i][1]-points[i-1][1])/(points[i][0]-points[i-1][0]))/(points[i+1][0]-points[i-1][0])-sig*u[i-1])/p;
+        sig = (points[i][0]-points[i-1][0])/(points[i+1][0]-points[i-1][0])
+        p = sig * y2[i-1] + 2.0
+        y2[i] = (sig-1.0) / p
+        u[i] = (6.0*( (points[i+1][1]-points[i][1])/(points[i+1][0]-points[i][0])-(points[i][1]-points[i-1][1])/(points[i][0]-points[i-1][0]))/(points[i+1][0]-points[i-1][0])-sig*u[i-1])/p;
 
     if ypn == "":
-	qn = 0
-	un = 0
+        qn = 0
+        un = 0
     else:
-	qn = 0.5
-	un = (3.0/(points[n][0]-points[n-1][0]))*(float(ypn)-(points[n][1]-points[n-1][1])/(points[n][0]-points[n-1][0]))
+        qn = 0.5
+        un = (3.0/(points[n][0]-points[n-1][0]))*(float(ypn)-(points[n][1]-points[n-1][1])/(points[n][0]-points[n-1][0]))
     y2[n] = (un-qn*u[n-1])/(qn*y2[n-1]+1.0)
     for i in range(n-1, -1, -1):
-	y2[i] = y2[i]*y2[i+1]+u[i]
+        y2[i] = y2[i]*y2[i+1]+u[i]
 
     return y2
 
@@ -140,7 +140,7 @@ def spline(points, y2, i, v):
     khi = i + 1
     h = points[khi][0] - points[klo][0]
     if h == 0:
-        print "Zero interval in spline data."
+        print("Zero interval in spline data.")
         return 0;
     a = (points[khi][0] - v) / h
     b = (v - points[klo][0]) / h

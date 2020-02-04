@@ -14,7 +14,7 @@ import Polygon.IO
 import Polygon.Utils
 import svgwrite
 
-import airfoil
+from . import airfoil
 
 
 class Sheet:
@@ -41,7 +41,7 @@ class Sheet:
 
     def draw_part_side(self, part, stroke_width="1px", color="red",
                        lines=True, points=False, outline=False, speed="fast"):
-        print "Placing:", part.labels
+        print("Placing:", part.labels)
         if part.poly == None:
             part.make_poly()
         p = copy.deepcopy(part.poly)
@@ -69,8 +69,8 @@ class Sheet:
             # more details polygon yields better fit, but nesting takes longer
             hull = Polygon.Utils.fillHoles(p)
         else:
-            print "ERROR: Unknown nesting speed/quality:", speed
-            print "Defaulting to 'fast'"
+            print("ERROR: Unknown nesting speed/quality:", speed)
+            print("Defaulting to 'fast'")
             hull = Polygon.Polygon( [ [bounds[0], bounds[2]],
                                       [bounds[1], bounds[2]],
                                       [bounds[1], bounds[3]],
@@ -142,7 +142,7 @@ class Sheet:
                 # print "shape:", shape
                 shape[:,2] *= -1.0  # invert vertical axis
                 shape *= self.dpi   # scale for drawing
-                for i in range(len(part.cut_lines) / 2):
+                for i in range(int(len(part.cut_lines) / 2)):
                     p1 = shape[2*i]
                     p2 = shape[2*i + 1]
                     # print "line:", p1, p2
@@ -274,12 +274,12 @@ class Layout:
         if (dx > self.width - 2*self.step) or \
                 (dy > self.height - 2*self.step):
             if len(part.labels):
-                print "Failed to fit: " + part.labels[0][4]
+                print("Failed to fit: " + part.labels[0][4])
             else:
-                print "Failed to fit: " + part.name
-            print "  Part (" + str(dx) + "x" + str(dy) + self.units \
+                print("Failed to fit: " + part.name)
+            print("  Part (" + str(dx) + "x" + str(dy) + self.units \
                 + ") exceed size of sheet (" + str(self.width) + "x" \
-                + str(self.height) + self.units +")"
+                + str(self.height) + self.units +")")
             return False
         num_sheets = len(self.sheets)
         i = 0
@@ -296,11 +296,11 @@ class Layout:
                                         points, outline, speed)
             self.sheets.append(sheet)
         if not done:
-            print "this should never happen!"
+            print("this should never happen!")
             if len(part.labels):
-                print "Failed to fit: " + part.labels[0][4]
+                print("Failed to fit: " + part.labels[0][4])
             else:
-                print "Failed to fit: " + part.name
+                print("Failed to fit: " + part.name)
         return done
 
     def draw_part_cut_line(self, airfoil, speed):

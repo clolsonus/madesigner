@@ -12,16 +12,16 @@ from PyQt5.QtWidgets import (QWidget,
                              QLineEdit, QTextEdit, QLabel, QScrollArea,
                              QInputDialog, QMenu, QFileDialog)
 
-from combobox_nowheel import QComboBoxNoWheel
+from .combobox_nowheel import QComboBoxNoWheel
 
-from leading_edge_ui import LeadingEdgeUI
-from trailing_edge_ui import TrailingEdgeUI
-from spar_ui import SparUI
-from sheet_ui import SheetUI
-from simple_hole_ui import SimpleHoleUI
-from shaped_hole_ui import ShapedHoleUI
-from build_tab_ui import BuildTabUI
-from flap_ui import FlapUI
+from .leading_edge_ui import LeadingEdgeUI
+from .trailing_edge_ui import TrailingEdgeUI
+from .spar_ui import SparUI
+from .sheet_ui import SheetUI
+from .simple_hole_ui import SimpleHoleUI
+from .shaped_hole_ui import ShapedHoleUI
+from .build_tab_ui import BuildTabUI
+from .flap_ui import FlapUI
 
 
 class WingUI():
@@ -77,10 +77,10 @@ class WingUI():
     def rebuild_wing_list(self, wing_list=[]):
         myname = self.get_name()
         wing_link_text = self.edit_wing_link.currentText()
-        print "wing_link_text = " + str(wing_link_text)
+        print("wing_link_text = " + str(wing_link_text))
         if wing_link_text == None or wing_link_text == "none":
             if self.wing_link != "":
-                print "Connecting up with saved name: " + self.wing_link
+                print("Connecting up with saved name: " + self.wing_link)
                 wing_link_text = self.wing_link
         self.edit_wing_link.clear()
         self.edit_wing_link.addItem("none")

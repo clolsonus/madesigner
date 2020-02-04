@@ -13,10 +13,10 @@ import numpy
 from props import PropertyNode
 import props_json
 
-import ac3d
-import freecad
-import contour
-from wing import Wing
+from . import ac3d
+from . import freecad
+from . import contour
+from .wing import Wing
 
 
 def myfloat(node, name):
@@ -115,7 +115,7 @@ class Builder():
     def parse_leading_edge(self, wing, node):
         size = myfloat(node, 'size')
         tokens = node.getString('start_station').split()
-        print 'le:', len(tokens), tokens
+        print('le:', len(tokens), tokens)
         if len(tokens) == 2 and tokens[1] != 'Inner':
             start = float(tokens[1])
         else:
@@ -358,7 +358,7 @@ class Builder():
             xpos = position_val
         start_text = node.getString('start_station')
         if start_text == "":
-            print "Invalid start station for flap"
+            print("Invalid start station for flap")
             return
         junk, start_str = start_text.split()
         if start_str == "Inner" or start_str == "":
@@ -367,7 +367,7 @@ class Builder():
             start = float(start_str)
         end_text = node.getString('end_station')
         if end_text == "":
-            print "Invalid end station for flap"
+            print("Invalid end station for flap")
             return
         junk, end_str = end_text.split()
         if end_str == "Outer" or end_str == "":
@@ -408,7 +408,8 @@ class Builder():
             airfoil_tip = None
         wing.load_airfoils( airfoil_root, airfoil_tip )
         wing.span = myfloat(node, 'span')
-        station_list = map( float, str(node.getString('stations')).split())
+        station_list = list(map( float, str(node.getString('stations')).split()))
+        print(station_list)
         wing.set_stations( station_list )
         wing.twist = myfloat(node, 'twist')
         sweep_curve = self.make_curve( node.getString('sweep_curve') )
@@ -465,7 +466,7 @@ class Builder():
         return -1
 
     def do_build(self):
-        print "do build"
+        print("do build")
         # if not os.path.exists(filename):
         #     print "Error, design not found: " + filename
         #     return
@@ -519,12 +520,12 @@ class Builder():
                         twist_accum += self.wings[i].twist
                 wing.build_freecad( doc, xoffset=tip[1], yoffset=tip[2],
                                     twist=twist_accum)
-        print "finished build, before save"
+        print("finished build, before save")
         doc.view_stl(self.dirname)
         doc.save_model(os.path.join(self.dirname, "name"));
 
 def usage():
-    print "Usage: " + sys.argv[0] + " design.mad"
+    print("Usage: " + sys.argv[0] + " design.mad")
 
 def main():
     initfile = ""

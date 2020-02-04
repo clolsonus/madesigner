@@ -13,11 +13,11 @@ import Polygon
 import Polygon.Utils
 import svgwrite
 
-import ac3d
-import airfoil
-import contour
-import freecad
-import layout
+from . import ac3d
+from . import airfoil
+from . import contour
+from . import freecad
+from . import layout
 
 # path to your FreeCAD.so or FreeCAD.dll file
 FREECADPATH = '/usr/lib64/freecad/lib'
@@ -37,7 +37,7 @@ def rotate_point( pt, xdist, angle ):
 def rotate( points, xdist, angle ):
     newpoints = []
     for pt in points:
-        print pt
+        print(pt)
         newpoints.append( rotate_point(pt, xdist, angle) )
     return newpoints
 
@@ -171,7 +171,7 @@ class Rib:
     # middle and ends
     def segment_line(self, p1, p2):
         solid_len = 0.1
-        print "segment line"
+        print("segment line")
         p1 = np.array(p1)
         p2 = np.array(p2)
         vector = p2 - p1
@@ -209,10 +209,10 @@ class Rib:
             lines.append( [p[0], 0.0, p[1]] )
         for p in rear:
             lines.append( [p[0], 0.0, p[1]] )
-        print "lines:", lines
-        print "rotating about:", 0.0
+        print("lines:", lines)
+        print("rotating about:", 0.0)
         self.contour.cut_lines = rotate(lines, 0.0, self.twist)
-        print "rotated lines:", self.contour.cut_lines
+        print("rotated lines:", self.contour.cut_lines)
         
     def get_label(self):
         if len(self.contour.labels):
@@ -266,7 +266,7 @@ class Structure:
         self.stringers = []
         self.spars = []
         self.holes = []
-	self.build_tabs = []
+        self.build_tabs = []
 
         # generated parts
         self.right_ribs = []
@@ -284,14 +284,14 @@ class Structure:
     # define the rib 'stations' as evenly spaced
     def set_num_stations(self, count):
         if count <= 0:
-            print "Must specify a number of stations > 0"
+            print("Must specify a number of stations > 0")
             return
         if self.span < 0.01:
-            print "Must set wing.span value before computing stations"
+            print("Must set wing.span value before computing stations")
             return
         dp = 1.0 / count
         for p in range(0, count+1):
-            print p
+            print(p)
             percent = p * dp
             lat_dist = self.span * percent
             self.stations.append( lat_dist )
@@ -299,14 +299,14 @@ class Structure:
     # define the rib 'stations' explicitely as an array of locations
     def set_stations(self, stations):
         if len(stations) < 2:
-            print "Must specify a list of at least 2 station positions"
+            print("Must specify a list of at least 2 station positions")
             return
         self.stations = stations
 
     # define a fixed sweep angle
     def set_sweep_angle(self, angle):
         if self.span < 0.01:
-            print "Must set wing.span value before sweep angle"
+            print("Must set wing.span value before sweep angle")
             return
         tip_offset = self.span * math.tan(math.radians(angle))
         self.sweep = contour.Contour()
@@ -326,10 +326,10 @@ class Structure:
     # linear taper)
     def set_chord(self, root_chord, tip_chord = 0.0):
         if self.span < 0.01:
-            print "Must set wing.span before calling set_chord()"
+            print("Must set wing.span before calling set_chord()")
             return
         if len(self.stations) < 2:
-            print "Must create stations() before calling set_chord()"
+            print("Must create stations() before calling set_chord()")
             return
         start_station = self.stations[0]
         end_station = self.stations[len(self.stations)-1]
@@ -563,7 +563,7 @@ class Structure:
                         rot_shape = rotate(shape, rib.pos[1], rib.twist)
                         le.points.append(rot_shape)
                 else:
-                    print "no match: " + " or " + rib.side + " != " + le.side + " (has_le= " + str(rib.has_le) + ")"
+                    print("no match: " + " or " + rib.side + " != " + le.side + " (has_le= " + str(rib.has_le) + ")")
 
         # sheeting next
         for sheet in self.sheeting:
@@ -592,13 +592,13 @@ class Structure:
         for hole in self.holes:
             if self.match_station(hole.start_station, hole.end_station, lat_dist):
                 if hole.type == "simple":
-                    print 'hole:', lat_dist
+                    print('hole:', lat_dist)
                     xpos = rib.contour.get_xpos(hole.pos1,
                                                 station=rib.pos[0],
                                                 sweep=rib.pos[1])
                     ty = rib.contour.simple_interp(rib.contour.top, xpos)
                     by = rib.contour.simple_interp(rib.contour.bottom, xpos)
-                    print 'xpos:', xpos, ty, by
+                    print('xpos:', xpos, ty, by)
                     if ty == None or by == None:
                         continue
                     ypos = (ty + by) * 0.5
@@ -608,7 +608,7 @@ class Structure:
                         radius = (ty - by) * hole.size * 0.5
                     if radius < 0.0:
                         radius = 0.0
-                    print 'ok'
+                    print('ok')
                     rib.contour.cut_hole( xpos, ypos, radius,
                                           points=self.circle_points )
                 elif hole.type == "shaped":
@@ -647,7 +647,7 @@ class Structure:
             sorted_list.append( (rib.hull_area(), rib) )
         for rib in self.left_ribs:
             sorted_list.append( (rib.hull_area(), rib) )
-        print "placement_list:", sorted_list
+        print("placement_list:", sorted_list)
         sorted_list = sorted(sorted_list, key=lambda fields: fields[0])
         # place the ribs
         for (area, rib) in reversed(sorted_list):
@@ -708,10 +708,10 @@ class Structure:
         shape = side1 + side2
 
         if len(shape) == 0:
-            print "wing: made an empty stringer shape"
+            print("wing: made an empty stringer shape")
         elif len(shape) < 4:
-            print "wing: made a (bad) stringer shape with only " \
-                + str(len(shape)) + " points!"
+            print("wing: made a (bad) stringer shape with only " \
+                + str(len(shape)) + " points!")
 
         return shape
 
@@ -895,7 +895,7 @@ class Structure:
                         ac.make_extrusion("trailing edge", te.points,
                                           te.side=="left")
                     else:
-                        print "Error: no trailing edge points"
+                        print("Error: no trailing edge points")
         if len(self.leading_edges):
             for le in self.leading_edges:
                 if le.side == "left":
@@ -913,7 +913,7 @@ class Structure:
                         ac.make_extrusion("stringer", stringer.points,
                                           stringer.side=="left")
                     else:
-                        print "Error: no trailing edge points"
+                        print("Error: no trailing edge points")
         if len(self.spars):
             for spar in self.spars:
                 if spar.side == "left":

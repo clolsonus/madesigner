@@ -32,13 +32,13 @@ class GenFreeCAD():
         self.doc.saveAs("test.FCStd")
 
     def make_extrusion(self, name, points, invert_order):
-        print 'make_extrusion', name, invert_order
+        print('make_extrusion', name, invert_order)
         wires = []
         for section in points:
             pts = []
             if len(section) < 3:
-                print "warning: cross section in make_extrusion() < 3 points"
-                print "length:", len(section)
+                print("warning: cross section in make_extrusion() < 3 points")
+                print("length:", len(section))
                 continue
             if not invert_order:
                 for pt in section:
@@ -106,7 +106,7 @@ class GenFreeCAD():
             self.extra_group.addObject(p)
 
     def view_stl(self, dirname):
-        print "make and view stl file"
+        print("make and view stl file")
         
         # merge all the faces from all the parts into a compound
         face_list = []
@@ -116,19 +116,19 @@ class GenFreeCAD():
             faces = shape.Faces
             face_list.extend(faces)
 
-        print 'making part compound'
+        print('making part compound')
         compound = Part.Compound(face_list)
 
         stl_file = os.path.join(dirname, 'design.stl')
 
         # testing explicite tessellation
         MESH_DEVIATION=0.1
-        print "generating mesh"
+        print("generating mesh")
         mesh = Mesh.Mesh( compound.tessellate(MESH_DEVIATION) )
-        print "mesh name:", stl_file
+        print("mesh name:", stl_file)
         mesh.write(stl_file)
         
         # view stl
         command = ['osgviewer', stl_file]
         pid = subprocess.Popen(command).pid
-        print "spawned osgviewer with pid = " + str(pid)
+        print("spawned osgviewer with pid = " + str(pid))

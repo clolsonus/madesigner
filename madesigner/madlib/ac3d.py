@@ -43,7 +43,7 @@ class AC3D:
         try:
             self.f = open( self.name, "w" )
         except IOError:
-            print "Cannot open " + self.name
+            print("Cannot open " + self.name)
 
     def gen_headers(self, name, kids):
         self.f.write("AC3Db\n")
@@ -98,7 +98,7 @@ class AC3D:
                 p3 = (p2[0], +halfw-nudge, p2[1])
                 v = vertices.add_point(p3)
 
-        print "vertex db = " + str(len(vertices.v))
+        print("vertex db = " + str(len(vertices.v)))
         self.f.write("OBJECT poly\n")
         self.f.write("name \"" + name + "\"\n")
         self.f.write("loc " + str(pos[1]) + " " + str(pos[0]) + " " + str(pos[2]) + "\n")
@@ -264,7 +264,7 @@ class AC3D:
     def make_sheet_help2(self, vertices, top_points, bot_points, invert_order):
         # make edge (lengthwise) polys
         if len(top_points) != len(bot_points):
-            print "top/bottom surface size mismatch in making sheets!"
+            print("top/bottom surface size mismatch in making sheets!")
             return 0
 
         tmp = 0
@@ -372,9 +372,9 @@ class AC3D:
         surfs = 0
         vertices = VertexDB()
 
-        print "make sheet"
-        print "top points = " + str(len(top_points))
-        print "bottom points = " + str(len(bot_points))
+        print("make sheet")
+        print("top points = " + str(len(top_points)))
+        print("bottom points = " + str(len(bot_points)))
 
         # pass 1 assemble unique vertex list and count surfs
         i = 0
@@ -410,7 +410,7 @@ class AC3D:
         surfs += len(top_points[0]) - 1
         surfs += len(top_points[len(top_points)-1]) - 1
 
-        print "vertex db = " + str(len(vertices.v))
+        print("vertex db = " + str(len(vertices.v)))
         self.f.write("OBJECT poly\n")
         self.f.write("name \"" + name + "\"\n")
         self.f.write("loc 0 0 0\n")
@@ -419,7 +419,7 @@ class AC3D:
             self.f.write(str(v[0]) + " " + str(v[1]) + " " + str(v[2]) + "\n")
 
         self.f.write("numsurf " + str(surfs) + "\n")
-        print "predict numsurf(sheet) = " + str(surfs)
+        print("predict numsurf(sheet) = " + str(surfs))
 
         # pass 2, make top surface triangles
         total = 0
@@ -428,7 +428,7 @@ class AC3D:
         total += self.make_sheet_help2(vertices, top_points, bot_points, invert_order)
         total += self.make_sheet_help3(vertices, top_points, bot_points, invert_order)
 
-        print "actual surf = " + str(total)
+        print("actual surf = " + str(total))
         self.f.write("kids 0\n")
 
     def make_extrusion(self, name, points, invert_order):
@@ -522,7 +522,7 @@ class AC3D:
             self.f.write(str(v) + " 0 0\n")
             i += 1
 
-        print "actual surf = " + str(tmp)
+        print("actual surf = " + str(tmp))
         self.f.write("kids 0\n")
 
     def close(self):
@@ -553,7 +553,7 @@ class AC3D:
         m = [ [0.0, 0.0, 0.0],
               [0.0, 0.0, 0.0],
               [0.0, 0.0, 0.0] ]
-        print str(m[1][1])
+        print(str(m[1][1]))
         for i in range(3):
             for j in range(3):
                 for k in range(3):

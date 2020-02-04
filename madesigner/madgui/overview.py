@@ -10,8 +10,8 @@ from PyQt5.QtWidgets import (QWidget,
                              QLineEdit, QTextEdit, QLabel,
                              QInputDialog, QMenu, QMessageBox)
 
-from combobox_nowheel import QComboBoxNoWheel
-from version import MADversion
+from .combobox_nowheel import QComboBoxNoWheel
+from .version import MADversion
 
 class Overview():
     def __init__(self, changefunc):

@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QWidget,
                              QLineEdit, QTextEdit, QLabel, QScrollArea,
                              QInputDialog, QMenu)
 
-from combobox_nowheel import QComboBoxNoWheel
+from .combobox_nowheel import QComboBoxNoWheel
 
 
 class FlapUI():

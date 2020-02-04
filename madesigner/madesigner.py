@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """
 MAdesigner - Model Airplane Rapid Design Toolkit
@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import QApplication
 from madgui.creator_ui import CreatorUI
 
 def usage():
-    print "Usage: " + sys.argv[0] + " [design.mad]"
+    print("Usage: " + sys.argv[0] + " [design.mad]")
 
 def main():
     app = QApplication(sys.argv)

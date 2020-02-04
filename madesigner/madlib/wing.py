@@ -6,10 +6,10 @@
 import copy
 import math
 
-import airfoil
-import contour
-from structure import Structure, Stringer
-import spline
+from . import airfoil
+from . import contour
+from .structure import Structure, Stringer
+from . import spline
 
 
 class Flap:
@@ -115,19 +115,19 @@ class Wing(Structure):
                 elif result == "outer":
                     result = "shared"
                 else:
-                    print "Whoops, something strange in flap ranges"
+                    print("Whoops, something strange in flap ranges")
             elif self.match_station(flap.end_station, flap.end_station, station):
                 if result == "none":
                     result = "outer"
                 elif result == "inner":
                     result = "shared"
                 else:
-                    print "Whoops, something strange in flap ranges"
+                    print("Whoops, something strange in flap ranges")
             elif self.match_station(flap.start_station, flap.end_station, station):
                 if result == "none":
                     result = "mid"
                 else:
-                    print "Whoops, something strange in flap ranges"
+                    print("Whoops, something strange in flap ranges")
         return result
 
     def make_new_ribs_for_flaps(self, base_ribs, side):
@@ -176,7 +176,7 @@ class Wing(Structure):
     
     def build(self):
         if len(self.stations) < 2:
-            print "Must define at least 2 stations to build a wing"
+            print("Must define at least 2 stations to build a wing")
             return
 
         sweep_y2 = spline.derivative2( self.sweep.top )
@@ -201,11 +201,11 @@ class Wing(Structure):
                 sp_index = spline.binsearch(self.taper.top, lat_dist)
                 chord = spline.spline(self.taper.top, taper_y2, sp_index, lat_dist)
             else:
-                print "Cannot build a wing with no chord defined!"
+                print("Cannot build a wing with no chord defined!")
                 return
 
-            print "building station @ " + str(lat_dist) \
-                + " chord = " + str(chord)
+            print("building station @ " + str(lat_dist) \
+                + " chord = " + str(chord))
 
             # compute sweep offset pos if a sweep function provided
             if self.sweep:
@@ -250,25 +250,25 @@ class Wing(Structure):
                         if rib.type == "inner":
                             pos = rib.trim_front_wedge(flap.pos, flap.angle)
                             flap.start_bot_str_pos = pos
-                            print "flap start bot = " + str(pos)
+                            print("flap start bot = " + str(pos))
                         elif rib.type == "outer":
                             pos = rib.trim_front_wedge(flap.pos, flap.angle)
                             flap.end_bot_str_pos = pos
-                            print "flap end bot = " + str(pos)
+                            print("flap end bot = " + str(pos))
                         elif rib.type == "inner-shared":
                             #pos = rib.find_flap_bottom_front(flap.pos, flap.angle)
                             pos = rib.trim_front_wedge(flap.pos, flap.angle)
                             flap.start_bot_str_pos = pos
-                            print "flap start bot = " + str(pos)
+                            print("flap start bot = " + str(pos))
                         elif rib.type == "outer-shared":
                             pos = rib.find_flap_bottom_front(flap.pos, flap.angle)
                             flap.end_bot_str_pos = pos
-                            print "flap end bot = " + str(pos)
+                            print("flap end bot = " + str(pos))
                         else:
                             # add cut lines
                             rib.add_wedge_cut_lines(flap.pos, flap.angle)
                     else:
-                        print "skipping rear trim"
+                        print("skipping rear trim")
                         # rib.trim_rear(flap.pos)
 
         for rib in self.left_ribs:
@@ -279,25 +279,25 @@ class Wing(Structure):
                         if rib.type == "inner":
                             pos = rib.trim_front_wedge(flap.pos, flap.angle)
                             flap.start_bot_str_pos = pos
-                            print "flap start bot = " + str(pos)
+                            print("flap start bot = " + str(pos))
                         elif rib.type == "outer":
                             pos = rib.trim_front_wedge(flap.pos, flap.angle)
                             flap.end_bot_str_pos = pos
-                            print "flap end bot = " + str(pos)
+                            print("flap end bot = " + str(pos))
                         elif rib.type == "inner-shared":
                             pos = rib.find_flap_bottom_front(flap.pos, flap.angle)
                             pos = rib.trim_front_wedge(flap.pos, flap.angle)
                             flap.start_bot_str_pos = pos
-                            print "flap start bot = " + str(pos)
+                            print("flap start bot = " + str(pos))
                         elif rib.type == "outer-shared":
                             pos = rib.find_flap_bottom_front(flap.pos, flap.angle)
                             flap.end_bot_str_pos = pos
-                            print "flap end bot = " + str(pos)
+                            print("flap end bot = " + str(pos))
                         else:
                             # add cut lines
                             rib.add_wedge_cut_lines(flap.pos, flap.angle)
                     else:
-                        print "skipping rear trim"
+                        print("skipping rear trim")
                         # rib.trim_rear(flap.pos)
 
         # now place the leading edge bottom stringer for each flap.
@@ -324,15 +324,15 @@ class Wing(Structure):
                                                 cutpos=cutpos, \
                                                 xsize=flap.edge_stringer_size[0], \
                                                 ysize=flap.edge_stringer_size[1] )
-                    print "making bottom stringer: " + str(flap.start_station) + " - " + str(flap.end_station)
+                    print("making bottom stringer: " + str(flap.start_station) + " - " + str(flap.end_station))
                     stringer = Stringer( cutout, flap.start_station, flap.end_station, "flap" )
                     stringer.side = flap.side
                     self.stringers.append( stringer )
             else:
-                print "skipped building a flap bottom stringer"
-                print str(flap.start_bot_str_pos)
-                print str(flap.end_bot_str_pos)
-                print str(flap.edge_stringer_size)
+                print("skipped building a flap bottom stringer")
+                print(str(flap.start_bot_str_pos))
+                print(str(flap.end_bot_str_pos))
+                print(str(flap.edge_stringer_size))
 
         # do all the cutouts now at the end after we've made and
         # positioned all the ribs for the wing and the control

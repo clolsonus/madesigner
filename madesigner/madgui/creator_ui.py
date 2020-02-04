@@ -9,7 +9,7 @@ import time
 import subprocess
 import distutils.spawn
 from pkg_resources import resource_listdir, resource_stream
-import urllib2
+import urllib
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import (QApplication, QWidget,
@@ -24,9 +24,9 @@ from props import PropertyNode
 import props_xml
 import props_json
 
-from overview import Overview
-from wing_ui import WingUI
-from version import MADversion
+from .overview import Overview
+from .wing_ui import WingUI
+from .version import MADversion
 
 from madlib.builder import Builder
 
@@ -259,7 +259,7 @@ class CreatorUI(QWidget):
             app_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
             viewer = os.path.abspath(app_path + "/OpenSceneGraph/bin/osgviewer")
             viewerexe = os.path.abspath(app_path + "/OpenSceneGraph/bin/osgviewer.exe")
-            print "testing for " + viewer + " or " + viewerexe
+            print("testing for " + viewer + " or " + viewerexe)
             result = os.path.isfile(viewer) or os.path.isfile(viewerexe)
 
         if not result:
@@ -302,7 +302,7 @@ class CreatorUI(QWidget):
         command.append("600")
         command.append(self.fileroot + ".ac")
         pid = subprocess.Popen(command).pid
-        print "spawned osgviewer with pid = " + str(pid)
+        print("spawned osgviewer with pid = " + str(pid))
  
     def wipe_slate(self):
         self.overview.wipe_clean()
@@ -324,11 +324,11 @@ class CreatorUI(QWidget):
                                      
         basename = os.path.basename(str(filename))
         fileroot, ext = os.path.splitext(basename)
-        print filename
+        print(filename)
         
         if not os.path.exists(filename):
             # invalid/nonexistent filename
-            print "invalid file name"
+            print("invalid file name")
             return
 
         self.filename = str(filename)
@@ -346,7 +346,7 @@ class CreatorUI(QWidget):
 
         design = PropertyNode()
         if props_json.loads(stream, design, ""):
-            print "json parse successful"
+            print("json parse successful")
         else:
             error = QErrorMessage(self)
             error.showMessage( "json parse failed" )
@@ -455,7 +455,7 @@ class CreatorUI(QWidget):
         try:
             props_json.save(self.filename, design)
         except:
-            print "error saving file"
+            print("error saving file")
             return
 
         self.setWindowTitle( self.default_title + " - " + os.path.basename(str(self.filename)) )
