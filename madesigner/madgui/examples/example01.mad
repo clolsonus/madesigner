@@ -1,80 +1,80 @@
 {
     "overview": {
-        "MADversion": "0.5", 
-        "author": "Curt Olson", 
-        "description": "A very simple example", 
-        "email": "", 
-        "name": "Example 1", 
-        "plans_height": "36", 
-        "plans_width": "24", 
-        "sheet_height": "12", 
-        "sheet_width": "24", 
+        "MADversion": "2.0",
+        "author": "Curt Olson",
+        "description": "A very simple example",
+        "email": "",
+        "name": "Example 1",
+        "plans_height": "36",
+        "plans_width": "24",
+        "sheet_height": "12",
+        "sheet_width": "24",
         "units": "in"
-    }, 
+    },
     "wing": [
         {
-            "airfoil_root": "clarky", 
-            "airfoil_tip": "", 
-            "chord_curve": "", 
-            "chord_root": "10", 
-            "chord_tip": "8", 
-            "dihedral": "5", 
+            "airfoil_root": "clarky",
+            "airfoil_tip": "",
+            "chord_curve": "",
+            "chord_root": "10",
+            "chord_tip": "8",
+            "dihedral": "5",
             "flap": [
                 {
-                    "angle": "45", 
-                    "at_station": "", 
-                    "end_station": "End: 21", 
-                    "height": "0.125", 
-                    "position": "0.6", 
-                    "position_ref": "Chord %", 
-                    "slope": "", 
-                    "start_station": "Start: 12", 
+                    "angle": "45",
+                    "at_station": "",
+                    "end_station": "End: 27",
+                    "height": "0.125",
+                    "position": "0.6",
+                    "position_ref": "Chord %",
+                    "slope": "",
+                    "start_station": "Start: 12",
                     "width": "0.125"
                 }
-            ], 
+            ],
             "leading_edge": [
                 {
-                    "end_station": "End: Outer", 
-                    "size": "0.25", 
+                    "end_station": "End: Outer",
+                    "size": "0.25",
                     "start_station": "Start: Inner"
                 }
-            ], 
-            "name": "Main", 
+            ],
+            "name": "Main",
             "simple_hole": [
                 {
-                    "end_station": "End: 18", 
-                    "position": "0.15", 
-                    "position_ref": "Chord %", 
-                    "size": "0.5", 
-                    "start_station": "Start: 0", 
+                    "end_station": "End: 18",
+                    "position": "0.15",
+                    "position_ref": "Chord %",
+                    "size": "0.5",
+                    "start_station": "Start: 0",
                     "style": "% Height"
                 }
-            ], 
-            "span": "30", 
+            ],
+            "span": "30",
             "spar": [
                 {
-                    "end_station": "End: Outer", 
-                    "height": "0.5", 
-                    "position": "0.33", 
-                    "position_ref": "Chord %", 
-                    "start_station": "Start: Inner", 
-                    "surface": "Bottom", 
+                    "end_station": "End: Outer",
+                    "height": "0.5",
+                    "position": "0.33",
+                    "position_ref": "Chord %",
+                    "start_station": "Start: Inner",
+                    "surface": "Bottom",
                     "width": "0.25"
                 }
-            ], 
-            "stations": "0 3 6 9 12 15 18 21 24 27 30", 
-            "sweep": "", 
-            "sweep_curve": "", 
+            ],
+            "stations": "0 3 6 9 12 15 18 21 24 27 30",
+            "sweep": "",
+            "sweep_curve": "",
             "trailing_edge": [
                 {
-                    "end_station": "End: Outer", 
-                    "height": "0.25", 
-                    "shape": "Flat Triangle", 
-                    "start_station": "Start: Inner", 
+                    "end_station": "End: Outer",
+                    "height": "0.25",
+                    "shape": "Flat Triangle",
+                    "start_station": "Start: Inner",
                     "width": "1.0"
                 }
-            ], 
-            "twist": "5", 
+            ],
+            "twist": "5",
             "wing_link": "none"
         }
     ]

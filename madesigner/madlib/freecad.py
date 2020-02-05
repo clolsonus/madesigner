@@ -28,8 +28,8 @@ class GenFreeCAD():
         #self.stock_group = self.doc.addObject("App::DocumentObjectGroup", "Stock")
         #self.all_group = self.doc.addObject("App::DocumentObjectGroup", "All")
 
-    def save_model(self, name):
-        self.doc.saveAs("test.FCStd")
+    def save_model(self, fileroot):
+        self.doc.saveAs(fileroot + ".FCStd")
 
     def make_extrusion(self, name, points, invert_order):
         print('make_extrusion', name, invert_order)
@@ -106,6 +106,32 @@ class GenFreeCAD():
         if self.extra_group:
             self.extra_group.addObject(p)
 
+    def make_stl(self, fileroot):
+        print("make the stl file")
+        
+        # merge all the faces from all the parts into a compound
+        face_list = []
+
+        for obj in self.doc.Objects:
+            #print(str(obj))
+            #print(obj.Name, obj.Label)
+            if str(obj) == "<Part::PartFeature>":
+                shape = obj.Shape
+                faces = shape.Faces
+                face_list.extend(faces)
+                
+        print('making part compound:', len(face_list))
+        compound = Part.Compound(face_list)
+
+        stl_file = fileroot + ".stl"
+
+        # testing explicite tessellation
+        MESH_DEVIATION=0.1
+        print("generating mesh")
+        mesh = Mesh.Mesh( compound.tessellate(MESH_DEVIATION) )
+        print("mesh name:", stl_file)
+        mesh.write(stl_file)
+                
     def view_stl(self, dirname):
         print("make and view stl file")
         
@@ -113,8 +139,8 @@ class GenFreeCAD():
         face_list = []
 
         for obj in self.doc.Objects:
-            print(str(obj))
-            print(obj.Name, obj.Label)
+            #print(str(obj))
+            #print(obj.Name, obj.Label)
             if str(obj) == "<Part::PartFeature>":
                 shape = obj.Shape
                 faces = shape.Faces

@@ -232,7 +232,7 @@ class CreatorUI(QWidget):
 
         QApplication.setOverrideCursor(QCursor(QtCore.Qt.WaitCursor))
         design = self.gen_property_tree()
-        build = Builder(design, dirname="", airfoil_resample=25,
+        build = Builder(design, fileroot=self.fileroot, airfoil_resample=25,
                         circle_points=8, nest_speed="fast")
         QApplication.restoreOverrideCursor()
 
@@ -278,16 +278,16 @@ class CreatorUI(QWidget):
             error.showMessage( "The design has been modified.  You must <b>Build</b> it before viewing the 3d structure." )
             return 
 
-        acfile = self.fileroot + ".ac"
-        if not os.path.exists(acfile):
+        stlfile = self.fileroot + ".stl"
+        if not os.path.exists(stlfile):
             error = QErrorMessage(self)
             error.showMessage( "Design needs to be 'built'; click ok to continue." )
             #self.build_fast()
             return
 
         madtime = os.path.getmtime(madfile)
-        actime = os.path.getmtime(acfile)
-        if madtime > actime:
+        stltime = os.path.getmtime(stlfile)
+        if madtime > stltime:
             error = QErrorMessage(self)
             error.showMessage( "Design needs to be 'built'; click ok to continue." )
             #self.build_fast()
@@ -300,7 +300,7 @@ class CreatorUI(QWidget):
         command.append("50")
         command.append("800")
         command.append("600")
-        command.append(self.fileroot + ".ac")
+        command.append(stlfile)
         pid = subprocess.Popen(command).pid
         print("spawned osgviewer with pid = " + str(pid))
  

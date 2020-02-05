@@ -28,7 +28,7 @@ def myfloat(node, name):
 
 class Builder():
 
-    def __init__(self, design, dirname=None,
+    def __init__(self, design, fileroot=None,
                  airfoil_resample=25, circle_points=8,
                  nest_speed="fast"):
         # airfoil_resample: 25 = fast, 100 = mid, 1000 = quality
@@ -37,7 +37,7 @@ class Builder():
         self.circle_points = circle_points
         self.nest_speed = nest_speed
         self.design = design
-        self.dirname = dirname
+        self.fileroot = fileroot
         self.do_build()
 
     # return a list of start/end/part triplets for a structure that
@@ -397,7 +397,7 @@ class Builder():
         return curve                         
         
     def parse_wing(self, node):
-        wing = Wing(self.dirname)
+        wing = Wing(self.fileroot)
         wing.units = self.units
         wing.airfoil_resample = self.airfoil_resample
         wing.circle_points=self.circle_points
@@ -521,8 +521,9 @@ class Builder():
                 wing.build_freecad( doc, xoffset=tip[1], yoffset=tip[2],
                                     twist=twist_accum)
         print("finished build, before save")
-        doc.save_model(os.path.join(self.dirname, "name"));
-        doc.view_stl(self.dirname)
+        print(self.fileroot)
+        doc.save_model(self.fileroot)
+        doc.make_stl(self.fileroot)
 
 def usage():
     print("Usage: " + sys.argv[0] + " design.mad")
