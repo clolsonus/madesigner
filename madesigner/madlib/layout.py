@@ -304,7 +304,7 @@ class Layout:
         return done
 
     def draw_part_cut_line(self, airfoil, speed):
-        self.draw_part(airfoil, stroke_width="0.001in", color="red", lines=True,
+        self.draw_part(airfoil, stroke_width="1px", color="red", lines=True,
                        speed=speed)
 
     def draw_part_plan_side(self, airfoil, speed):

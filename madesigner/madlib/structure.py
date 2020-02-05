@@ -11,7 +11,6 @@ import sys, os
 
 import Polygon
 import Polygon.Utils
-import svgwrite
 
 from . import ac3d
 from . import airfoil
