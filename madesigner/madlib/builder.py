@@ -521,8 +521,8 @@ class Builder():
                 wing.build_freecad( doc, xoffset=tip[1], yoffset=tip[2],
                                     twist=twist_accum)
         print("finished build, before save")
-        doc.view_stl(self.dirname)
         doc.save_model(os.path.join(self.dirname, "name"));
+        doc.view_stl(self.dirname)
 
 def usage():
     print("Usage: " + sys.argv[0] + " design.mad")

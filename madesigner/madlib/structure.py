@@ -921,7 +921,7 @@ class Structure:
 
     def build_freecad(self, doc, xoffset=0.0, yoffset=0.0, twist=0.0):
         doc.make_extra_group('Wing_' + self.name)
-        
+
         # right_ref = Base.Vector(0, xoffset, yoffset)
         # left_ref = Base.Vector(0, -xoffset, yoffset)
         # right_rot = Base.Rotation(Base.Vector(1, 0, 0), self.dihedral)

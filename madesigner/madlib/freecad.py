@@ -17,16 +17,16 @@ from FreeCAD import Base
 class GenFreeCAD():
     def __init__(self):
         self.doc = None
-        self.all_group = None
-        self.kit_group = None
-        self.stock_group = None
+        #self.all_group = None
+        #self.kit_group = None
+        #self.stock_group = None
         self.extra_group = None
 
     def start_model(self, name):
         self.doc = FreeCAD.newDocument(name)
-        self.kit_group = self.doc.addObject("App::DocumentObjectGroup", "Kit")
-        self.stock_group = self.doc.addObject("App::DocumentObjectGroup", "Stock")
-        self.all_group = self.doc.addObject("App::DocumentObjectGroup", "All")
+        #self.kit_group = self.doc.addObject("App::DocumentObjectGroup", "Kit")
+        #self.stock_group = self.doc.addObject("App::DocumentObjectGroup", "Stock")
+        #self.all_group = self.doc.addObject("App::DocumentObjectGroup", "All")
 
     def save_model(self, name):
         self.doc.saveAs("test.FCStd")
@@ -97,11 +97,12 @@ class GenFreeCAD():
     def add_object(self, group, name, part):
         p = self.doc.addObject("Part::Feature", name)
         p.Shape = part
-        if group == 'kit':
-            self.kit_group.addObject(p)
-        elif group == 'stock':
-            self.stock_group.addObject(p)
-        self.all_group.addObject(p)
+        # p.Label = group
+        #if group == 'kit':
+        #    self.kit_group.addObject(p)
+        #elif group == 'stock':
+        #    self.stock_group.addObject(p)
+        #self.all_group.addObject(p)
         if self.extra_group:
             self.extra_group.addObject(p)
 
@@ -111,12 +112,20 @@ class GenFreeCAD():
         # merge all the faces from all the parts into a compound
         face_list = []
 
-        for part in self.all_group.Group:
-            shape = part.Shape
-            faces = shape.Faces
-            face_list.extend(faces)
+        for obj in self.doc.Objects:
+            print(str(obj))
+            print(obj.Name, obj.Label)
+            if str(obj) == "<Part::PartFeature>":
+                shape = obj.Shape
+                faces = shape.Faces
+                face_list.extend(faces)
+                
+        # for part in self.all_group.Group:
+        #     shape = part.Shape
+        #     faces = shape.Faces
+        #     face_list.extend(faces)
 
-        print('making part compound')
+        print('making part compound:', len(face_list))
         compound = Part.Compound(face_list)
 
         stl_file = os.path.join(dirname, 'design.stl')
