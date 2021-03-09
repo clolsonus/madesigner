@@ -4,14 +4,20 @@
 # folded foam board wing ... losely based on the clarky airfoil sorta
 # kinda
 
+import argparse
 import math
 import matplotlib.pyplot as plt
 import numpy as np
 
+ap = argparse.ArgumentParser(description="Compute the dimensions of FT-style folded wing.  All dimensions are mm unless otherwise noted.")
+ap.add_argument('chord_mm', type=int, help='desired chord')
+ap.add_argument('--material_mm', type=int, default=5, help='material thickness')
+args = ap.parse_args()
+
 # units: let's do mm
 r2d = 180 / math.pi
 
-material_mm = 5                 # mm
+material_mm = args.material_mm  # defaults to 5 hopefully
 
 # clarky numbers
 max_thickness_perc = 0.117      # vertically proportional to chord
@@ -23,7 +29,7 @@ spar_perc = 0.20                # longitudinally proportional to chord
 aileron_perc = 0.23             # desired overhang for ailerons
 
 # edit this to size wing
-chord_mm = 225
+chord_mm = args.chord_mm
 print("wing chord mm: %.0f" % chord_mm)
 
 # compute things
