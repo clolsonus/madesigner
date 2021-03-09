@@ -207,7 +207,7 @@ ax.plot( x, y, color="b" )
 
 my_annotate(ax, "A %.0f" % A, outer[0], outer[1])
 my_annotate(ax, "B %.0f" % B, outer[1], outer[2])
-my_annotate(ax, "C %.0f" % C, outer[2], outer[3])
+my_annotate(ax, "C %.0f" % C, outer[4], outer[5])
 my_annotate(ax, "D %.0f" % D, outer[5], outer[6])
 my_annotate(ax, "E %.0f" % E, outer[6], outer[7])
 my_annotate(ax, "F %.0f" % F, outer[7], outer[8])
