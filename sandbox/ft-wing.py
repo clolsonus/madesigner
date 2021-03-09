@@ -163,17 +163,17 @@ segments = [A, B, C, D, E, F]
 
 print("Wing segments unfolded:")
 accum = A
-print("A: %.0f Cummulative: %.0f mm" % (A, accum))
+print("A: %.0f Cumulative: %.0f mm" % (A, accum))
 accum += B
-print("B: %.0f Cummulative: %.0f mm" % (B, accum))
+print("B: %.0f Cumulative: %.0f mm" % (B, accum))
 accum += C
-print("C: %.0f Cummulative: %.0f mm" % (C, accum))
+print("C: %.0f Cumulative: %.0f mm" % (C, accum))
 accum += D
-print("D: %.0f Cummulative: %.0f mm" % (D, accum))
+print("D: %.0f Cumulative: %.0f mm" % (D, accum))
 accum += E
-print("E: %.0f Cummulative: %.0f mm" % (E, accum))
+print("E: %.0f Cumulative: %.0f mm" % (E, accum))
 accum += F
-print("F: %.0f Cummulative: %.0f mm" % (F, accum))
+print("F: %.0f Cumulative: %.0f mm" % (F, accum))
 print("Total (mm): %.0f" % np.sum(segments) )
 
 print("Spar:")
