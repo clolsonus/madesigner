@@ -11,7 +11,7 @@ import numpy as np
 
 ap = argparse.ArgumentParser(description="Compute the dimensions of FT-style folded wing.  All dimensions are mm unless otherwise noted.")
 ap.add_argument('chord_mm', type=int, help='desired chord')
-ap.add_argument('--material_mm', type=int, default=5, help='material thickness')
+ap.add_argument('--material_mm', type=float, default=4.9, help='material thickness')
 args = ap.parse_args()
 
 # units: let's do mm
@@ -42,6 +42,7 @@ spar_width_mm = chord_mm * spar_perc
 spar_height_mm = max_mm - 2*material_mm
 print("spar width mm: %.0f" % spar_width_mm)
 print("spar height mm: %.0f" % spar_height_mm)
+print("spar cuts: %.0f %.0f %.0f %.0f %.0f" % (spar_height_mm, spar_height_mm+material_mm, spar_height_mm+spar_width_mm-material_mm, spar_height_mm+spar_width_mm, 2*spar_height_mm + spar_width_mm))
 
 max_point_mm = chord_mm * max_point_perc
 half_spar = spar_width_mm * 0.5
@@ -184,7 +185,7 @@ print("height: %.0f mm" % h)
 print("Total(mm): %.0f" % (w + 2*h))
 
 print("Trailing edge spacer:")
-print("width: %.0f mm" % 2.5*material_mm)
+print("width: %.0f mm" % (2.5*material_mm))
       
 # plot
 fig = plt.figure()
