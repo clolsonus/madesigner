@@ -27,7 +27,7 @@ title: MAdesigner
 description: >- # this means to ignore newlines until "baseurl:"
   Model aircraft design tools
 baseurl: "" # the subpath of your site, e.g. /blog
-url: " http://madesigner.flightgear.org"
+url: http://madesigner.flightgear.org
 twitter_username: clolsonus
 github_username:  clolsonus
 

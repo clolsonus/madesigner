@@ -5,6 +5,8 @@
 layout: home
 ---
 
+<script data-ad-client="ca-pub-2485404446552133" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
 You don't have to be crazy to design your next model airplane yourself!
 
   * Input basic dimentions, MAdesigner creates the intricate structurs for you.  You get to make all the design and engineering choices, MAdesigner does all the CAD work for you under the hood.
