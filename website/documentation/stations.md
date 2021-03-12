@@ -1,11 +1,12 @@
 ---
 id: 92
-title: Stations
 date: 2013-12-22T15:41:14-06:00
 author: Curtis Olson
 layout: page
 guid: http://madesigner.flightgear.org/?page_id=92
 ---
+
+# Stations
 
 MAD incorporates a concept called stations.  This is simply the
 location of the ribs along the span of the wing.
@@ -17,7 +18,6 @@ rib spacing your stations would be:
 
 Notice this gives you 11 ribs including the root and tip ribs.  It's
 as easy as that!
-
 
 # Automatic Station Generation
 

@@ -1,6 +1,5 @@
 ---
 id: 95
-title: Spline Curves
 date: 2013-12-22T15:53:15-06:00
 author: Curtis Olson
 layout: page
