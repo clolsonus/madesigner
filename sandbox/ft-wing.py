@@ -118,16 +118,33 @@ outer = np.array([bot_te,
                   ])
 
 # spar points
-spar_tf = [spar_start_mm, max_mm-material_mm]
-spar_bf = [spar_start_mm, material_mm]
-spar_br = [spar_end_mm, material_mm]
-spar_tr = [spar_end_mm, max_mm-material_mm]
-spar_itf = [spar_start_mm+material_mm, max_mm-material_mm]
-spar_ibf = [spar_start_mm+material_mm, 2*material_mm]
-spar_ibr = [spar_end_mm-material_mm, 2*material_mm]
-spar_itr = [spar_end_mm-material_mm, max_mm-material_mm]
-spar = np.array([spar_tf, spar_bf, spar_br, spar_tr,
-                 spar_itr, spar_ibr, spar_ibf, spar_itf, spar_tf])
+spar_front1 = [spar_start_mm, material_mm]
+spar_front2 = [spar_start_mm, max_mm-material_mm]
+spar_front3 = [spar_start_mm+material_mm, max_mm-material_mm]
+spar_front4 = [spar_start_mm+material_mm, material_mm]
+spar_mid1 = [spar_start_mm+material_mm, max_mm-material_mm]
+spar_mid2 = [spar_end_mm-material_mm, max_mm-material_mm]
+spar_mid3 = [spar_end_mm-material_mm, max_mm-2*material_mm]
+spar_mid4 = [spar_start_mm+material_mm, max_mm-2*material_mm]
+spar_rear1 = [spar_end_mm, material_mm]
+spar_rear2 = [spar_end_mm, max_mm-material_mm]
+spar_rear3 = [spar_end_mm-material_mm, max_mm-material_mm]
+spar_rear4 = [spar_end_mm-material_mm, material_mm]
+spar1_tf = [spar_start_mm, max_mm-material_mm]
+spar1_tr = [spar_end_mm, max_mm-material_mm]
+spar1_br = [spar_end_mm, material_mm]
+spar_ibf = [spar_start_mm+material_mm, material_mm]
+spar_itf = [spar_start_mm+material_mm, max_mm-2*material_mm]
+spar_itr = [spar_end_mm-material_mm, max_mm-2*material_mm]
+spar_ibr = [spar_end_mm-material_mm, material_mm]
+spar_front = np.array([spar_front1, spar_front2, spar_front3, spar_front4,
+                       spar_front1])
+spar_mid = np.array([spar_mid1, spar_mid2, spar_mid3, spar_mid4,
+                       spar_mid1])
+spar_rear = np.array([spar_rear1, spar_rear2, spar_rear3, spar_rear4,
+                       spar_rear1])
+#spar = np.array([spar_bf, spar_tf, spar_tr, spar_br,
+#                 spar_itr, spar_ibr, spar_ibf, spar_itf, spar_tf])
 
 # trailing spacer
 lte = chord_mm-act_overhang_mm
@@ -178,8 +195,8 @@ print("F: %.0f Cumulative: %.0f mm" % (F, accum))
 print("Total (mm): %.0f" % np.sum(segments) )
 
 print("Spar:")
-w = my_dist(spar_bf, spar_br)
-h =  my_dist(spar_tf, spar_bf)
+w = spar_end_mm - spar_start_mm
+h =  max_mm - 2*material_mm
 print("width: %.0f mm" % w)
 print("height: %.0f mm" % h)
 print("Total(mm): %.0f" % (w + 2*h))
@@ -197,8 +214,14 @@ ax.plot( x, y, color="r" )
 #x, y = inner.T
 #ax.scatter( x, y, marker=".", color="g" )
 #ax.plot( x, y, color="b")
-# spar
-x, y = spar.T
+# spar segments
+x, y = spar_front.T
+ax.scatter( x, y, marker=".", color="g" )
+ax.plot( x, y, color="b" )
+x, y = spar_mid.T
+ax.scatter( x, y, marker=".", color="g" )
+ax.plot( x, y, color="b" )
+x, y = spar_rear.T
 ax.scatter( x, y, marker=".", color="g" )
 ax.plot( x, y, color="b" )
 # trailing spacer
