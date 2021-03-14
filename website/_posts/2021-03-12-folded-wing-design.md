@@ -19,3 +19,15 @@ glue, and you have yourself a basic wing!
 You can grab the python script there:
 
 <https://github.com/clolsonus/madesigner/blob/master/sandbox/ft-wing.py>
+
+## Cutting a spar from the calculated dimensions
+
+![cutting a spar](/images/2021/03/IMG_20210312_201917069.jpg)
+
+## Lifting body glider
+
+And for no particular reason other than I thought it might look cool
+and might work, I added v-tail fins to my small test section to create
+a decent flying glider.
+
+![lifting body glider](/images/2021/03/IMG_20210314_100423282_HDR.jpg)
