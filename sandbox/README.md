@@ -17,10 +17,11 @@ suit, and mirror this process for the other wing half.
 
 `$ python3 ft_wing2.py <root_chord_mm> <tip_chord_mm> <half_span_mm> <sweep_mm>`
 
-This shows a plot of the two end profiles and a simplified plot of the
-top down 2d cut lines.  It also creates a file called 'unfolded.svg'
-which is a true scale svg file of your wing plan.  The svg can be
-inported into inkscape or lightburn for further processing.
+This command will show plots of the two end profiles, then a
+simplified plot of the top down 2d cut lines.  At the end it creates a
+file called 'unfolded.svg' which is a true scale svg file of your wing
+plan.  The svg can be inported into inkscape or lightburn for further
+processing.
 
 ## Printing your plan on letter/a4 pages
 
