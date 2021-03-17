@@ -119,13 +119,13 @@ for i in range(len(root.outer)-1):
 plt.show()
 
 # attempt to generate an svg "true scale" drawing
-import svgwrite
+from svgwrite import Drawing, mm
 width = 762                     # 762mm = 30"
 height = 508                    # 508mm = 20"
 units = "mm"
 dpi = 90 / 25.4                 # for mm
-dwg = svgwrite.Drawing( "unfolded.svg", size = ("%d%s" % (width, units),
-                                                "%d%s" % (height, units)) )
+dwg = Drawing( "unfolded.svg", size = ("%d%s" % (width, units),
+                                       "%d%s" % (height, units)) )
 dwg.viewbox(0, 0, width*dpi, height*dpi)
 g = dwg.g()                     # grouping
 dwg.add(g)
@@ -139,7 +139,7 @@ t_last = np.hstack([tip.outer[0], args.span_mm])
 dist = my_dist(r_last, t_last)
 p1_last = [0, 0]
 p2_last = [dist, 0]
-line = dwg.line([p1_last[0], p1_last[1]], [p2_last[0], p2_last[1]],
+line = dwg.line([p1_last[0]*mm, p1_last[1]*mm], [p2_last[0]*mm, p2_last[1]*mm],
                 stroke='red', fill='none', stroke_width="1px")
 g.add( line )
 print(r_last, t_last, p1_last, p2_last)
@@ -171,13 +171,13 @@ for i in range(sections):
         color = "red"           # end of last segment
     else:
         color = "blue"
-    line = dwg.line([p1[0], p1[1]], [p2[0], p2[1]],
+    line = dwg.line([p1[0]*mm, p1[1]*mm], [p2[0]*mm, p2[1]*mm],
                     stroke=color, fill='none', stroke_width="1px")
     g.add( line )
-    line = dwg.line([p1_last[0], p1_last[1]], [p1[0], p1[1]],
+    line = dwg.line([p1_last[0]*mm, p1_last[1]*mm], [p1[0]*mm, p1[1]*mm],
                     stroke='red', fill='none', stroke_width="1px")
     g.add( line )
-    line = dwg.line([p2_last[0], p2_last[1]], [p2[0], p2[1]],
+    line = dwg.line([p2_last[0]*mm, p2_last[1]*mm], [p2[0]*mm, p2[1]*mm],
                     stroke='red', fill='none', stroke_width="1px")
     g.add( line )
     
