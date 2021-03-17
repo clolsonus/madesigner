@@ -70,6 +70,8 @@ def get_intersections(p0, r0, p1, r1):
         
         return (x3, y3, x4, y4)
 
+margin = 5                      # mm
+
 # draw a plot of the unfolded layout
 fig = plt.figure()
 ax = fig.add_subplot()
@@ -82,8 +84,8 @@ ax.set_aspect("equal")
 r_last = np.hstack([root.outer[0], 0])
 t_last = np.hstack([tip.outer[0], args.span_mm])
 dist = my_dist(r_last, t_last)
-p1_last = [0, 0]
-p2_last = [dist, 0]
+p1_last = [margin, margin]
+p2_last = [margin+dist, margin]
 x, y = np.array([p1_last, p2_last]).T
 ax.plot( x, y, color="b")
 print(r_last, t_last, p1_last, p2_last)
@@ -137,8 +139,8 @@ dwg.add(g)
 r_last = np.hstack([root.outer[0], 0])
 t_last = np.hstack([tip.outer[0], args.span_mm])
 dist = my_dist(r_last, t_last)
-p1_last = [0, 0]
-p2_last = [dist, 0]
+p1_last = [margin, margin]
+p2_last = [margin+dist, margin]
 line = dwg.line([p1_last[0]*mm, p1_last[1]*mm], [p2_last[0]*mm, p2_last[1]*mm],
                 stroke='red', fill='none', stroke_width="1px")
 g.add( line )
