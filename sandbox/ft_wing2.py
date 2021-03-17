@@ -12,27 +12,73 @@ import numpy as np
 from ft_profile import FtProfile, my_dist
 
 ap = argparse.ArgumentParser(description="Compute the dimensions of FT-style folded wing.  All dimensions are mm unless otherwise noted.")
-ap.add_argument('root_chord_mm', type=float, help='root chord')
+ap.add_argument('root_chord_mm', type=float, nargs='?', help='root chord')
 ap.add_argument('tip_chord_mm', type=float, nargs='?', help='tip chord')
 ap.add_argument('span_mm', type=float, nargs='?', help='1/2 span')
 ap.add_argument('sweep_mm', type=float, nargs='?', help='sweep offset from straight at tip')
+ap.add_argument('inner_dihedral_deg', type=float, nargs='?', help='inner dihedral angle')
+ap.add_argument('outer_dihedral_deg', type=float, nargs='?', help='outer dihedral angle')
 ap.add_argument('--material_mm', type=float, default=4.9,
                 help='material thickness')
 #ap.add_argument('--span_mm', type=float, help=
 args = ap.parse_args()
-print(args)
+#print(args)
+
+def parse_val(val):
+    if not len(val):
+        print("No response, assuming 0.0")
+        return 0
+    else:
+        try:
+            return float(val)
+        except:
+            print("Entry is not a valid number, aborting, sorry...")
+            quit()
+    
+# do prompts if values aren't passed on the command line
+if not args.root_chord_mm:
+    val = input("Enter root chord (mm): ")
+    args.root_chord_mm = parse_val(val)
+if not args.root_chord_mm:
+    print("Cannot continue without a root chord size, sorry...")
+    quit()
+if not args.tip_chord_mm:
+    val = input("Enter tip chord (mm): ")
+    args.tip_chord_mm = parse_val(val)
+if args.tip_chord_mm:
+    if not args.span_mm:
+        val = input("Enter wing 1/2 span (mm): ")
+        args.span_mm = parse_val(val)
+    if not args.sweep_mm:
+        val = input("Enter leading edge sweep at tip (mm): ")
+        args.sweep_mm = parse_val(val)
+    if not args.inner_dihedral_deg:
+        val = input("Enter dihedral angle at root (deg): ")
+        args.inner_dihedral_deg = parse_val(val)
+    if not args.outer_dihedral_deg:
+        val = input("Enter dihedral angle at tip (deg): ")
+        args.outer_dihedral_deg = parse_val(val)
 
 # units: let's do mm
 r2d = 180 / math.pi
+d2r = math.pi / 180
 
 root = FtProfile(args.root_chord_mm, args.material_mm)
 root.compute()
 root.plot()
 
-if args.tip_chord_mm:
-    tip = FtProfile(args.tip_chord_mm, args.material_mm)
-    tip.compute()
-    tip.plot()
+if not args.tip_chord_mm:
+    print("simple root profile finished, thank you!")
+    quit()
+
+# proceeding with a full wing
+if not args.span_mm:
+    print("Cannot generate a whole wing plan without a valid span, sorry...")
+    quit()
+    
+tip = FtProfile(args.tip_chord_mm, args.material_mm)
+tip.compute()
+tip.plot()
 
 if args.sweep_mm:
     tip.outer += np.array([args.sweep_mm, 0])
@@ -71,7 +117,20 @@ def get_intersections(p0, r0, p1, r1):
         return (x3, y3, x4, y4)
 
 margin = 5                      # mm
+dih_in = args.inner_dihedral_deg
+dih_out = args.outer_dihedral_deg
 
+def do_dihedral(orig, angle, side):
+    pt = orig.copy()
+    a = 0.5 * angle * d2r
+    d = pt[1]
+    pt[1] = math.cos(a)*d
+    if side == "inner":
+        pt[2] = math.sin(a)*d
+    else:
+        pt[2] -= math.sin(a)*d
+    return pt
+        
 # draw a plot of the unfolded layout
 fig = plt.figure()
 ax = fig.add_subplot()
@@ -136,8 +195,8 @@ dwg.add(g)
 # to span) into a new 2d top down space.  This is intended to create
 # cut files that will fold back together into the correct desired
 # shape without weird nonsense over/under lap due to taper.
-r_last = np.hstack([root.outer[0], 0])
-t_last = np.hstack([tip.outer[0], args.span_mm])
+r_last = do_dihedral(np.hstack([root.outer[0], 0]), dih_in, "inner")
+t_last = do_dihedral(np.hstack([tip.outer[0], args.span_mm]), dih_out, "outer")
 dist = my_dist(r_last, t_last)
 p1_last = [margin, margin]
 p2_last = [margin+dist, margin]
@@ -147,8 +206,8 @@ g.add( line )
 print(r_last, t_last, p1_last, p2_last)
 sections = len(root.outer)-1
 for i in range(sections):
-    r = np.hstack([root.outer[i+1], 0])
-    t = np.hstack([tip.outer[i+1], args.span_mm])
+    r = do_dihedral(np.hstack([root.outer[i+1], 0]), dih_in, "inner")
+    t = do_dihedral(np.hstack([tip.outer[i+1], args.span_mm]), dih_out, "outer")
     print(r, t)
 
     a = my_dist(r_last, t_last)
