@@ -70,6 +70,7 @@ def get_intersections(p0, r0, p1, r1):
         
         return (x3, y3, x4, y4)
 
+# draw a plot of the unfolded layout
 fig = plt.figure()
 ax = fig.add_subplot()
 ax.grid()
@@ -116,3 +117,72 @@ for i in range(len(root.outer)-1):
     x, y = np.array([p1_last, p2_last]).T
     ax.plot( x, y, color="b")
 plt.show()
+
+# attempt to generate an svg "true scale" drawing
+import svgwrite
+width = 762                     # 762mm = 30"
+height = 508                    # 508mm = 20"
+units = "mm"
+dpi = 90 / 25.4                 # for mm
+dwg = svgwrite.Drawing( "unfolded.svg", size = ("%d%s" % (width, units),
+                                                "%d%s" % (height, units)) )
+dwg.viewbox(0, 0, width*dpi, height*dpi)
+g = dwg.g()                     # grouping
+dwg.add(g)
+
+# unfold the vertical 2d coordinates (with implied 3rd dimension due
+# to span) into a new 2d top down space.  This is intended to create
+# cut files that will fold back together into the correct desired
+# shape without weird nonsense over/under lap due to taper.
+r_last = np.hstack([root.outer[0], 0])
+t_last = np.hstack([tip.outer[0], args.span_mm])
+dist = my_dist(r_last, t_last)
+p1_last = [0, 0]
+p2_last = [dist, 0]
+line = dwg.line([p1_last[0], p1_last[1]], [p2_last[0], p2_last[1]],
+                stroke='red', fill='none', stroke_width="1px")
+g.add( line )
+print(r_last, t_last, p1_last, p2_last)
+sections = len(root.outer)-1
+for i in range(sections):
+    r = np.hstack([root.outer[i+1], 0])
+    t = np.hstack([tip.outer[i+1], args.span_mm])
+    print(r, t)
+
+    a = my_dist(r_last, t_last)
+    b = my_dist(r_last, r)
+    c = my_dist(t_last, r)
+    d = my_dist(t_last, t)
+    e = my_dist(r_last, t)
+    print(a, b, c, d, e)
+
+    x3, y3, x4, y4 = get_intersections(p1_last, b, p2_last, c)
+    if y3 > y4:
+        p1 = [ x3, y3 ]
+    else:
+        p1 = [ x4, y4 ]
+    x3, y3, x4, y4 = get_intersections(p1_last, e, p2_last, d)
+    if y3 > y4:
+        p2 = [ x3, y3 ]
+    else:
+        p2 = [ x4, y4 ]
+
+    if i == sections - 1:
+        color = "red"           # end of last segment
+    else:
+        color = "blue"
+    line = dwg.line([p1[0], p1[1]], [p2[0], p2[1]],
+                    stroke=color, fill='none', stroke_width="1px")
+    g.add( line )
+    line = dwg.line([p1_last[0], p1_last[1]], [p1[0], p1[1]],
+                    stroke='red', fill='none', stroke_width="1px")
+    g.add( line )
+    line = dwg.line([p2_last[0], p2_last[1]], [p2[0], p2[1]],
+                    stroke='red', fill='none', stroke_width="1px")
+    g.add( line )
+    
+    r_last = r
+    t_last = t
+    p1_last = p1
+    p2_last = p2
+dwg.save()
