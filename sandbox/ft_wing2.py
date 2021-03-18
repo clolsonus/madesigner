@@ -49,13 +49,13 @@ if args.tip_chord_mm:
     if not args.span_mm:
         val = input("Enter wing 1/2 span (mm): ")
         args.span_mm = parse_val(val)
-    if not args.sweep_mm:
+    if args.sweep_mm is None:
         val = input("Enter leading edge sweep at tip (mm): ")
         args.sweep_mm = parse_val(val)
-    if not args.inner_dihedral_deg:
+    if args.inner_dihedral_deg is None:
         val = input("Enter dihedral angle at root (deg): ")
         args.inner_dihedral_deg = parse_val(val)
-    if not args.outer_dihedral_deg:
+    if args.outer_dihedral_deg is None:
         val = input("Enter dihedral angle at tip (deg): ")
         args.outer_dihedral_deg = parse_val(val)
 
@@ -130,120 +130,102 @@ def do_dihedral(orig, angle, side):
     else:
         pt[2] -= math.sin(a)*d
     return pt
-        
-# draw a plot of the unfolded layout
-fig = plt.figure()
-ax = fig.add_subplot()
-ax.grid()
-ax.set_aspect("equal")
+
 # unfold the vertical 2d coordinates (with implied 3rd dimension due
 # to span) into a new 2d top down space.  This is intended to create
 # cut files that will fold back together into the correct desired
 # shape without weird nonsense over/under lap due to taper.
-r_last = np.hstack([root.outer[0], 0])
-t_last = np.hstack([tip.outer[0], args.span_mm])
-dist = my_dist(r_last, t_last)
-p1_last = [margin, margin]
-p2_last = [margin+dist, margin]
-x, y = np.array([p1_last, p2_last]).T
-ax.plot( x, y, color="b")
-print(r_last, t_last, p1_last, p2_last)
-for i in range(len(root.outer)-1):
-    r = np.hstack([root.outer[i+1], 0])
-    t = np.hstack([tip.outer[i+1], args.span_mm])
-    print(r, t)
-
-    a = my_dist(r_last, t_last)
-    b = my_dist(r_last, r)
-    c = my_dist(t_last, r)
-    d = my_dist(t_last, t)
-    e = my_dist(r_last, t)
-    print(a, b, c, d, e)
-
-    x3, y3, x4, y4 = get_intersections(p1_last, b, p2_last, c)
-    if y3 > y4:
-        p1 = [ x3, y3 ]
-    else:
-        p1 = [ x4, y4 ]
-    x3, y3, x4, y4 = get_intersections(p1_last, e, p2_last, d)
-    if y3 > y4:
-        p2 = [ x3, y3 ]
-    else:
-        p2 = [ x4, y4 ]
+def unfold(root, tip):
+    cuts = []
+    scores = []
     
-    r_last = r
-    t_last = t
-    p1_last = p1
-    p2_last = p2
-    x, y = np.array([p1_last, p2_last]).T
-    ax.plot( x, y, color="b")
-plt.show()
+    r_last = do_dihedral(np.hstack([root[0], 0]), dih_in, "inner")
+    t_last = do_dihedral(np.hstack([tip[0], args.span_mm]), dih_out, "outer")
+    dist = my_dist(r_last, t_last)
+    p1_last = [margin, margin]
+    p2_last = [margin+dist, margin]
+    cuts.append( [p1_last, p2_last] )
+    print(r_last, t_last, p1_last, p2_last)
+    sections = len(root)-1
+    for i in range(sections):
+        r = do_dihedral(np.hstack([root[i+1], 0]), dih_in, "inner")
+        t = do_dihedral(np.hstack([tip[i+1], args.span_mm]), dih_out, "outer")
+        print(r, t)
 
-# attempt to generate an svg "true scale" drawing
+        a = my_dist(r_last, t_last)
+        b = my_dist(r_last, r)
+        c = my_dist(t_last, r)
+        d = my_dist(t_last, t)
+        e = my_dist(r_last, t)
+        print(a, b, c, d, e)
+
+        x3, y3, x4, y4 = get_intersections(p1_last, b, p2_last, c)
+        if y3 > y4:
+            p1 = [ x3, y3 ]
+        else:
+            p1 = [ x4, y4 ]
+        x3, y3, x4, y4 = get_intersections(p1_last, e, p2_last, d)
+        if y3 > y4:
+            p2 = [ x3, y3 ]
+        else:
+            p2 = [ x4, y4 ]
+
+        if i == sections - 1:
+            cuts.append( [p1, p2] )
+        else:
+            scores.append( [p1, p2] )
+        cuts.append( [p1_last, p1] )
+        cuts.append( [p2_last, p2] )
+
+        r_last = r
+        t_last = t
+        p1_last = p1
+        p2_last = p2
+    return cuts, scores
+
+def do_plot(cuts, scores):
+    # draw a plot of the unfolded layout
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    ax.grid()
+    ax.set_aspect("equal")
+    for seg in cuts:
+        x, y = np.array([seg[0], seg[1]]).T
+        ax.plot( x, y, color="r")
+    for seg in scores:
+        x, y = np.array([seg[0], seg[1]]).T
+        ax.plot( x, y, color="b")
+    plt.show()
+
 from svgwrite import Drawing, mm
-width = 762                     # 762mm = 30"
-height = 508                    # 508mm = 20"
-units = "mm"
-dpi = 90 / 25.4                 # for mm
-dwg = Drawing( "unfolded.svg", size = ("%d%s" % (width, units),
-                                       "%d%s" % (height, units)) )
-dwg.viewbox(0, 0, width*dpi, height*dpi)
-g = dwg.g()                     # grouping
-dwg.add(g)
-
-# unfold the vertical 2d coordinates (with implied 3rd dimension due
-# to span) into a new 2d top down space.  This is intended to create
-# cut files that will fold back together into the correct desired
-# shape without weird nonsense over/under lap due to taper.
-r_last = do_dihedral(np.hstack([root.outer[0], 0]), dih_in, "inner")
-t_last = do_dihedral(np.hstack([tip.outer[0], args.span_mm]), dih_out, "outer")
-dist = my_dist(r_last, t_last)
-p1_last = [margin, margin]
-p2_last = [margin+dist, margin]
-line = dwg.line([p1_last[0]*mm, p1_last[1]*mm], [p2_last[0]*mm, p2_last[1]*mm],
-                stroke='red', fill='none', stroke_width="1px")
-g.add( line )
-print(r_last, t_last, p1_last, p2_last)
-sections = len(root.outer)-1
-for i in range(sections):
-    r = do_dihedral(np.hstack([root.outer[i+1], 0]), dih_in, "inner")
-    t = do_dihedral(np.hstack([tip.outer[i+1], args.span_mm]), dih_out, "outer")
-    print(r, t)
-
-    a = my_dist(r_last, t_last)
-    b = my_dist(r_last, r)
-    c = my_dist(t_last, r)
-    d = my_dist(t_last, t)
-    e = my_dist(r_last, t)
-    print(a, b, c, d, e)
-
-    x3, y3, x4, y4 = get_intersections(p1_last, b, p2_last, c)
-    if y3 > y4:
-        p1 = [ x3, y3 ]
-    else:
-        p1 = [ x4, y4 ]
-    x3, y3, x4, y4 = get_intersections(p1_last, e, p2_last, d)
-    if y3 > y4:
-        p2 = [ x3, y3 ]
-    else:
-        p2 = [ x4, y4 ]
-
-    if i == sections - 1:
-        color = "red"           # end of last segment
-    else:
-        color = "blue"
-    line = dwg.line([p1[0]*mm, p1[1]*mm], [p2[0]*mm, p2[1]*mm],
-                    stroke=color, fill='none', stroke_width="1px")
-    g.add( line )
-    line = dwg.line([p1_last[0]*mm, p1_last[1]*mm], [p1[0]*mm, p1[1]*mm],
-                    stroke='red', fill='none', stroke_width="1px")
-    g.add( line )
-    line = dwg.line([p2_last[0]*mm, p2_last[1]*mm], [p2[0]*mm, p2[1]*mm],
-                    stroke='red', fill='none', stroke_width="1px")
-    g.add( line )
+def do_svg(file, cuts, scores):
+    # attempt to generate an svg "true scale" drawing
+    width = 762                     # 762mm = 30"
+    height = 508                    # 508mm = 20"
+    units = "mm"
+    dpi = 90 / 25.4                 # for mm
+    dwg = Drawing( file, size = ("%d%s" % (width, units),
+                                 "%d%s" % (height, units)) )
+    dwg.viewbox(0, 0, width*dpi, height*dpi)
+    g = dwg.g()                 # group
+    dwg.add(g)
+    for seg in cuts:
+        line = dwg.line([seg[0][0]*mm, seg[0][1]*mm],
+                        [seg[1][0]*mm, seg[1][1]*mm],
+                        stroke='red', fill='none', stroke_width="1px")
+        g.add( line )
+    for seg in scores:
+        line = dwg.line([seg[0][0]*mm, seg[0][1]*mm],
+                        [seg[1][0]*mm, seg[1][1]*mm],
+                        stroke='blue', fill='none', stroke_width="1px")
+        g.add( line )
+    dwg.save()
     
-    r_last = r
-    t_last = t
-    p1_last = p1
-    p2_last = p2
-dwg.save()
+cuts, scores = unfold(root.outer, tip.outer)
+do_plot(cuts, scores)
+do_svg("unfolded-wing.svg", cuts, scores)
+
+cuts, scores = unfold(root.spar, tip.spar)
+do_plot(cuts, scores)
+do_svg("unfolded-spar.svg", cuts, scores)
+

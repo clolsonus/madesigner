@@ -26,7 +26,7 @@ processing.
 ## Printing your plan on letter/a4 pages
 
 1. Open the 'unfolded.svg' file in inkscape.
-2. Print as a pdf (note where your file is saved, maybe in Documents?)
+2. Print to file (pdf) and note where your file is saved, maybe in Documents?
 3. Install pdfposter (it is available as a package for fedora.)
 4. Run `pdfposter -m letter -s 0.9375 input.pdf output.pdf` (substitude a4 for letter if that is your preferred paper size.)
 5. Print output.pdf (you may not need to print every page.)

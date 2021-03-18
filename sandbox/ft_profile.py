@@ -133,10 +133,15 @@ class FtProfile():
         # spar points
         spar_front_bot = [spar_start_mm, self.material_mm]
         spar_front_top = [spar_start_mm, max_mm-self.material_mm]
+        spar_front_top_gap = [spar_start_mm+self.material_mm,
+                              max_mm-self.material_mm]
+        spar_rear_top_gap = [spar_end_mm-self.material_mm,
+                             max_mm-self.material_mm]
         spar_rear_top = [spar_end_mm, max_mm-self.material_mm]
         spar_rear_bot = [spar_end_mm, self.material_mm]
-        self.spar = np.array([spar_front_bot, spar_front_top, spar_rear_top,
-                              spar_rear_bot])
+        self.spar = np.array([spar_front_bot, spar_front_top,
+                              spar_front_top_gap, spar_rear_top_gap,
+                              spar_rear_top, spar_rear_bot])
         
         spar_front1 = [spar_start_mm, self.material_mm]
         spar_front2 = [spar_start_mm, max_mm-self.material_mm]
