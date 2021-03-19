@@ -82,6 +82,7 @@ tip.plot()
 
 if args.sweep_mm:
     tip.outer += np.array([args.sweep_mm, 0])
+    tip.spar += np.array([args.sweep_mm, 0])
     
 # https://stackoverflow.com/questions/55816902/finding-the-intersection-of-two-circles
 def get_intersections(p0, r0, p1, r1):
@@ -203,7 +204,7 @@ def do_svg(file, cuts, scores):
     width = 762                     # 762mm = 30"
     height = 508                    # 508mm = 20"
     units = "mm"
-    dpi = 90 / 25.4                 # for mm
+    dpi = 96 / 25.4                 # for mm
     dwg = Drawing( file, size = ("%d%s" % (width, units),
                                  "%d%s" % (height, units)) )
     dwg.viewbox(0, 0, width*dpi, height*dpi)
