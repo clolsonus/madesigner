@@ -28,11 +28,12 @@ processing.
 1. Open the 'unfolded.svg' file in inkscape.
 2. Print to file (pdf) and note where your file is saved, maybe in Documents?
 3. Install pdfposter (it is available as a package for fedora.)
-4. Run `pdfposter -m letter -s 0.9375 input.pdf output.pdf` (substitude a4 for letter if that is your preferred paper size.)
+% 4. Run `pdfposter -m letter -s 0.9375 input.pdf output.pdf` (substitude a4 for letter if that is your preferred paper size.)
+4. Run `pdfposter -m letter -s 1 input.pdf output.pdf` (substitude a4 for letter if that is your preferred paper size.)
 5. Print output.pdf (you may not need to print every page.)
 6. Carefully align your pages and tape them together.  Tada!
 
-Question, why use a scale factor of 0.9375 to pdfposter?  Well because
-a scale factor of 1 scales up way too big, and this is 90/96.  My
-theory (?) is somehow pdfposter is confusing svg dpi of 90 with pdf
-dpi of 96, but that's guessing.
+% Question, why use a scale factor of 0.9375 to pdfposter?  Well because
+% a scale factor of 1 scales up way too big, and this is 90/96.  My
+% theory (?) is somehow pdfposter is confusing svg dpi of 90 with pdf
+% dpi of 96, but that's guessing.
