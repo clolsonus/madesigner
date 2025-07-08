@@ -1,8 +1,8 @@
-from nicegui import ui
-
 import math
 import matplotlib.pyplot as plt
+from nicegui import ui
 import numpy as np
+from svgwrite import Drawing, mm
 
 from ft_profile import FtProfile, my_dist
 
@@ -123,13 +123,13 @@ class FTWingPlan():
         self.wing_plot.clear()
         with self.wing_plot:
             self.do_plot_ui(cuts, scores)
-        do_svg("unfolded-wing.svg", cuts, scores)
+        self.do_svg("unfolded-wing.svg", cuts, scores)
 
         cuts, scores = self.unfold(root.spar, tip.spar, root_dih, tip_dih, span_mm, margin)
         self.spar_plot.clear()
         with self.spar_plot:
             self.do_plot_ui(cuts, scores)
-        do_svg("unfolded-spar.svg", cuts, scores)
+        self.do_svg("unfolded-spar.svg", cuts, scores)
 
     def do_dihedral(self, orig, angle, side):
         pt = orig.copy()
@@ -221,7 +221,6 @@ class FTWingPlan():
                 x, y = np.array([seg[0], seg[1]]).T
                 ax.plot( x, y, color="b")
 
-    from svgwrite import Drawing, mm
     def do_svg(self, file, cuts, scores):
         # attempt to generate an svg "true scale" drawing
         width = 762                     # 762mm = 30"
