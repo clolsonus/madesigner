@@ -6,6 +6,7 @@
 
 import math
 import matplotlib.pyplot as plt
+from nicegui import ui
 import numpy as np
 
 # units: let's do mm
@@ -43,7 +44,7 @@ class FtProfile():
         self.seglens = []
         self.spar = []
         self.trailing = []
-        
+
     def compute(self):
         print("wing chord mm: %.0f" % self.chord_mm)
 
@@ -142,7 +143,7 @@ class FtProfile():
         self.spar = np.array([spar_front_bot, spar_front_top,
                               spar_front_top_gap, spar_rear_top_gap,
                               spar_rear_top, spar_rear_bot])
-        
+
         spar_front1 = [spar_start_mm, self.material_mm]
         spar_front2 = [spar_start_mm, max_mm-self.material_mm]
         spar_front3 = [spar_start_mm+self.material_mm, max_mm-self.material_mm]
@@ -250,3 +251,45 @@ class FtProfile():
         ax.set_title("Chord: %.0f (mm)  Perimeter total: %.0f (mm)" % (self.chord_mm, np.sum(self.seglens)))
         ax.set_xlabel("Units = mm")
         plt.show()
+
+    def plot_ui(self):
+        with ui.matplotlib().figure as fig:
+            ax = fig.gca()
+            #outer
+            x, y = self.outer.T
+            ax.scatter( x, y, marker=".", color="g" )
+            ax.plot( x, y, color="r" )
+            #x, y = self.inner.T
+            #ax.scatter( x, y, marker=".", color="g" )
+            #ax.plot( x, y, color="b")
+            # spar segments
+            x, y = self.spar_front.T
+            ax.scatter( x, y, marker=".", color="g" )
+            ax.plot( x, y, color="b" )
+            x, y = self.spar_mid.T
+            ax.scatter( x, y, marker=".", color="g" )
+            ax.plot( x, y, color="b" )
+            x, y = self.spar_rear.T
+            ax.scatter( x, y, marker=".", color="g" )
+            ax.plot( x, y, color="b" )
+            # trailing spacer
+            x, y = self.trailing.T
+            ax.scatter( x, y, marker=".", color="g" )
+            ax.plot( x, y, color="b" )
+
+            my_annotate(ax, "A %.0f" % self.seglens[0],
+                        self.outer[0], self.outer[1])
+            my_annotate(ax, "B %.0f" % self.seglens[1],
+                        self.outer[1], self.outer[2])
+            my_annotate(ax, "C %.0f" % self.seglens[2],
+                        self.outer[4], self.outer[5])
+            my_annotate(ax, "D %.0f" % self.seglens[3],
+                        self.outer[5], self.outer[6])
+            my_annotate(ax, "E %.0f" % self.seglens[4],
+                        self.outer[6], self.outer[7])
+            my_annotate(ax, "F %.0f" % self.seglens[5],
+                        self.outer[7], self.outer[8])
+            ax.set_aspect('equal')
+            ax.grid()
+            ax.set_title("Chord: %.0f (mm)  Perimeter total: %.0f (mm)" % (self.chord_mm, np.sum(self.seglens)))
+            ax.set_xlabel("Units = mm")
