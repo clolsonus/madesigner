@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from nicegui import ui
 import numpy as np
 from svgwrite import Drawing, mm
+from uuid import uuid4
 
 from ft_profile import FtProfile, my_dist
 
@@ -18,41 +19,11 @@ material_mm = 4.9
 halfspan_mm = 400
 sweep_mm = 0
 
-# https://stackoverflow.com/questions/55816902/finding-the-intersection-of-two-circles
-def get_intersections(p0, r0, p1, r1):
-    # circle 1: (p0[0], p0[1]), radius r0
-    # circle 2: (p1[0], p1[1]), radius r1
-
-    print(p0, r0, p1, r1)
-    d=math.sqrt((p1[0]-p0[0])**2 + (p1[1]-p0[1])**2)
-
-    # non intersecting
-    if d > r0 + r1 :
-        print("non interesecting circles")
-        return None
-    # One circle within other
-    if d < abs(r0-r1):
-        print("one circle inside the other")
-        return None
-    # coincident circles
-    if d == 0 and r0 == r1:
-        print("coincident circles")
-        return None
-    else:
-        a=(r0**2-r1**2+d**2)/(2*d)
-        h=math.sqrt(r0**2-a**2)
-        x2=p0[0]+a*(p1[0]-p0[0])/d
-        y2=p0[1]+a*(p1[1]-p0[1])/d
-        x3=x2+h*(p1[1]-p0[1])/d
-        y3=y2-h*(p1[0]-p0[0])/d
-
-        x4=x2-h*(p1[1]-p0[1])/d
-        y4=y2+h*(p1[0]-p0[0])/d
-
-        return (x3, y3, x4, y4)
-
 class FTWingPlan():
     def __init__(self):
+        self.build_page()
+
+    def build_page(self):
         ui.button("Generate Plans", on_click=self.generate_plans)
         with ui.grid(columns=2).classes('items-center'):
             self.enter_root_chord = ui.input(label='Root Chord (mm)', value=200)
@@ -142,6 +113,39 @@ class FTWingPlan():
             pt[2] -= math.sin(a)*d
         return pt
 
+    # https://stackoverflow.com/questions/55816902/finding-the-intersection-of-two-circles
+    def get_intersections(self, p0, r0, p1, r1):
+        # circle 1: (p0[0], p0[1]), radius r0
+        # circle 2: (p1[0], p1[1]), radius r1
+
+        print(p0, r0, p1, r1)
+        d=math.sqrt((p1[0]-p0[0])**2 + (p1[1]-p0[1])**2)
+
+        # non intersecting
+        if d > r0 + r1 :
+            print("non interesecting circles")
+            return None
+        # One circle within other
+        if d < abs(r0-r1):
+            print("one circle inside the other")
+            return None
+        # coincident circles
+        if d == 0 and r0 == r1:
+            print("coincident circles")
+            return None
+        else:
+            a=(r0**2-r1**2+d**2)/(2*d)
+            h=math.sqrt(r0**2-a**2)
+            x2=p0[0]+a*(p1[0]-p0[0])/d
+            y2=p0[1]+a*(p1[1]-p0[1])/d
+            x3=x2+h*(p1[1]-p0[1])/d
+            y3=y2-h*(p1[0]-p0[0])/d
+
+            x4=x2-h*(p1[1]-p0[1])/d
+            y4=y2+h*(p1[0]-p0[0])/d
+
+            return (x3, y3, x4, y4)
+
     # unfold the vertical 2d coordinates (with implied 3rd dimension due
     # to span) into a new 2d top down space.  This is intended to create
     # cut files that will fold back together into the correct desired
@@ -170,12 +174,12 @@ class FTWingPlan():
             e = my_dist(r_last, t)
             print(a, b, c, d, e)
 
-            x3, y3, x4, y4 = get_intersections(p1_last, b, p2_last, c)
+            x3, y3, x4, y4 = self.get_intersections(p1_last, b, p2_last, c)
             if y3 > y4:
                 p1 = [ x3, y3 ]
             else:
                 p1 = [ x4, y4 ]
-            x3, y3, x4, y4 = get_intersections(p1_last, e, p2_last, d)
+            x3, y3, x4, y4 = self.get_intersections(p1_last, e, p2_last, d)
             if y3 > y4:
                 p2 = [ x3, y3 ]
             else:
