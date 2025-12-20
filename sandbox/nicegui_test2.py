@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from nicegui import ui
 import numpy as np
 from pathlib import Path
-from svgwrite import Drawing, mm
+from svgwrite import Drawing, mm  # dnf install python3-svgwrite
 from uuid import uuid4
 
 from ft_profile import FtProfile, my_dist
